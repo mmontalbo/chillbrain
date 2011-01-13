@@ -1,0 +1,29 @@
+application: efpscrape
+version: 4
+runtime: python
+api_version: 1
+
+handlers:
+- url: /static
+  static_dir: static
+
+- url: /css
+  static_dir: css
+
+- url: /js
+  static_dir: js
+
+- url: /scrape
+  script: scraper.py
+  login: admin
+
+- url: /worker
+  script: scraper.py
+  login: admin
+
+- url: /.*
+  script: main.py
+
+builtins:
+- appstats: off
+- datastore_admin: on
