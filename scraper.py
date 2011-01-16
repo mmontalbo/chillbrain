@@ -15,14 +15,108 @@ import hashlib
 import time
 import efpmodel
 
+class Scraper():
+    MAX_IMGS_TO_FETCH = 50
+    MAX_FIELD_LENGTH = 500
+    MAX_RETRY_COUNT = 5
+    skipWords = ["nsfw","nsfl","reddit"]
+
+    def __init__(self, url):
+        self.scrapeURL = url
+        self.pattern = re.compile("(.*).jpg|gif|png")
+
+    def startScraping(self):
+        count = 0
+        links = deque()
+        links.append(self.scrapeURL)
+        retry = 0
+
+        while(len(links) > 0 and count < MAX_IMGS_TO_FETCH):
+            time.sleep(0.2)
+            link = links.pop()
+            logging.debug("Requesting url: "+link+"...");
+            response = urlfetch.Fetch(link).content
+            nextLinks = self.parse(response)
+            if len(nextLinks) == 0 and retry < MAX_RETRY_COUNT:
+                links.append(link)
+                retry = retry + 1
+                time.sleep(1)
+            else:
+                retry = 0
+                links.extend(nextLinks)
+
+    def download(self, params):
+        for k,v in params:
+            params[k] = self.truncateField(v)
+            
+        if(self.pattern.search(params['url'])):
+            if (self.isUnsavedURL(params['url']) and self.isValidTitle(params['title'])):
+                logging.debug("Queueing download of "+params['url']+"...")
+                taskqueue.add(url='/worker', params})
+            else:
+                logging.debug("Skipping invalid link: "+params['title']);
+
+    def truncateField(self, field):
+        if(len(field) > MAX_FIELD_LENGTH):
+            return field[:MAX_FIELD_LENGTH-1]
+        else:
+            return field
+
+    def filterTitle(self, title):
+        filterWords = ["[pic]","(pic)","{pic}"]
+        for word in filterWords:
+            title = title.replace(word.lower(),"")
+            title = title.replace(word.upper(),"")
+        return title
+
+    def isValidTitle(self, title):
+        for word in self.skipWords:
+            if(title.lower().find(word) != -1):
+                logging.debug(">>Filtering out "+title+"<<<")
+                return False
+        return True
+
+    def isUnsavedURL(self, url):
+        return len(Image.gql("WHERE url=:1",params['url']).fetch(1)) == 0
+
+class RedditScraper(Scraper):
+    MAX_LEN = 25
+    REDDIT_URL = "http://reddit.com"
+    SUBREDDIT_URL = REDDIT_URL + "/r/"
+    REDDIT_JSON = "/.json?&after="
+
+    def __init__(self, subreddit):
+        super(SUBREDDIT_URL+subreddit+REDDIT_JSON)
+
+    def parse(self, response):
+        responseDict = json.loads(response)
+        nextLinks = []
+        for child in responseDict["data"]["children"]:
+            try:
+                params {'url':child['data']['url'],
+                'source':SUBREDDIT_URL + child['data']['subreddit'],
+                'title':self.filterTitle(child['data']['title']),
+                'permalink':REDDIT_URL + child['data']['permalink']
+                }
+                self.download(params)
+                nextLinks.append(child['data']['name'])
+            except ValueError, e:
+                logging.error("Failed to decode JSON: "+response)
+            except URLError, e:
+                logging.error("Failed to reach a server.")
+            except Exception, e:
+                logging.error("Failed to request url: "+str(type(e)))
+        return nextLinks
+    
 class ScrapeWorker(webapp.RequestHandler):
+    validContentTypes = ['jpeg','jpg','png','gif']
+
     def post(self):
         def txn():
             try:
                 url = self.request.get('url')
                 response = urlfetch.Fetch(url)
-                if(response.headers['Content-Type'] == 'image/jpeg' or
-                   response.headers['Content-Type'] == 'image/jpg'):
+                if response.headers['Content-Type'] is in validContentTypes:
                     data = response.content
                     hashKey = hashlib.sha1(data).hexdigest()
                     k = db.Key.from_path('Image', hashKey)
@@ -49,7 +143,8 @@ class ScrapeWorker(webapp.RequestHandler):
 class ScrapeService(webapp.RequestHandler):
     def post(self):
         logging.info("Starting scraper...")
-        self.fetchURLs(self.request.get('subreddit'))
+        redditScraper = RedditScraper(self.request.get('subreddit'))
+        redditScraper.startScraping()
 
     def get(self):
         subReddits = ["pics","funny","wtf","adviceanimals"]
@@ -59,78 +154,6 @@ class ScrapeService(webapp.RequestHandler):
             count = count + 1
         self.response.out.write("<html><body>Started scraping...")
         self.response.out.write("</body></html>")
-
-    def filterOut(self, title):
-        filterWords = ["nsfw","reddit"]
-        for word in filterWords:
-            if(title.lower().find(word) != -1):
-                logging.debug(">>Filtering out "+title+"<<<")
-                return True
-        return False
-
-    def truncateField(self, field):
-        if(len(field) > 500):
-            return field[:499]
-        else:
-            return field
-
-    def filterTitle(self, title):
-        filterWords = ["[pic]","(pic)","{pic}"]
-        for word in filterWords:
-            title = title.replace(word.lower(),"")
-            title = title.replace(word.upper(),"")
-        return title
-
-    def fetchURLs(self,subReddit):
-        MAX_IMGS_TO_FETCH = 75
-        MAX_LEN = 25
-        count = 0
-        redditURL = "http://www.reddit.com/r/"+subReddit+"/.json?&after="
-        links = deque()
-        links.append(redditURL)
-        retry = 0
-
-        while(len(links) > 0 and count < MAX_IMGS_TO_FETCH):
-            try:
-                link = links.pop()
-                logging.info("Requesting url: "+link+"...");
-                response = urlfetch.Fetch(link).content
-                time.sleep(0.2)
-                redditDict = json.loads(response)
-                retry = 0
-
-                for child in redditDict["data"]["children"]:
-                    links.append(redditURL+child["data"]["name"])
-                    if(len(links) > MAX_LEN):
-                        links.popleft()
-                    imgURL = self.truncateField(child["data"]["url"])
-                    title = self.truncateField(self.filterTitle(child["data"]["title"]))
-                    permaLink = self.truncateField("http://reddit.com" + child["data"]["permalink"])
-                    m = re.search("(.*).jpg", imgURL)
-                    if(m):
-                        count = count + 1
-                        ti = m.group(0).rsplit("/")
-                        img = ti[len(ti)-1]
-                        result = efpmodel.db.GqlQuery("SELECT * FROM Image WHERE url = :1 LIMIT 1",imgURL).fetch(1)
-                        if (len(result) == 0 and not(self.filterOut(title))):
-                            logging.debug("Queueing download of "+imgURL+"...")
-                            taskqueue.add(url='/worker', params={'url': imgURL,'source': permaLink,'title': title})
-                        else:
-                            logging.debug("Skipping redundant link: "+imgURL);
-
-            except ValueError, e:
-                logging.error('Failed to decode JSON: '+response)
-                if(len(links) == 0 and retry < 5):
-                    links.append(link)
-                    retry = retry + 1
-                    logging.debug("Retrying "+str(retry)+"...")
-                    time.sleep(1)
-            except URLError, e:
-                logging.error("Failed to reach a server.")
-            except Exception, e:
-                logging.error("Failed to request url: "+str(type(e)))
-
-        logging.debug("Downloading "+str(count)+" images.")
                 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)

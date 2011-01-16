@@ -4,10 +4,12 @@ from google.appengine.ext import blobstore
 class Image(db.Model):
     imageData = db.BlobProperty(default=None)
     source = db.StringProperty(multiline=False)
-    url = db.StringProperty(multiline=False)
+    permalink = db.LinkProperty()
+    url = db.LinkProperty()
     title = db.StringProperty(multiline =True)
     date = db.DateTimeProperty(auto_now_add=True)
-    rating = db.FloatProperty(default=1500.0)
+    skips = db.IntegerProperty(default=0)
+    votes = db.IntegerProperty(default=0)
     
 class Session(db.Model):
     history = db.StringListProperty()
