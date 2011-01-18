@@ -13,17 +13,17 @@ import re
 import logging
 import hashlib
 import time
-import efpmodel
+import cbmodel
 
-class Scraper():
-    MAX_IMGS_TO_FETCH = 50
-    MAX_FIELD_LENGTH = 500
-    MAX_RETRY_COUNT = 5
-    skipWords = ["nsfw","nsfl","reddit"]
-
+class Scraper(object):
     def __init__(self, url):
+        Scraper.MAX_IMGS_TO_FETCH = 50
+        Scraper.MAX_FIELD_LENGTH = 500
+        Scraper.MAX_RETRY_COUNT = 5
+        Scraper.skipWords = ["nsfw","nsfl","reddit"]
+
         self.scrapeURL = url
-        self.pattern = re.compile("(.*).jpg|gif|png")
+        self.pattern = re.compile("([^\s]+(\.(?i)(jpg|png|gif|bmp))$)")
 
     def startScraping(self):
         count = 0
@@ -31,13 +31,13 @@ class Scraper():
         links.append(self.scrapeURL)
         retry = 0
 
-        while(len(links) > 0 and count < MAX_IMGS_TO_FETCH):
+        while(len(links) > 0 and count < Scraper.MAX_IMGS_TO_FETCH):
             time.sleep(0.2)
             link = links.pop()
             logging.debug("Requesting url: "+link+"...");
             response = urlfetch.Fetch(link).content
             nextLinks = self.parse(response)
-            if len(nextLinks) == 0 and retry < MAX_RETRY_COUNT:
+            if (not nextLinks or len(nextLinks) == 0) and retry < Scraper.MAX_RETRY_COUNT:
                 links.append(link)
                 retry = retry + 1
                 time.sleep(1)
@@ -46,99 +46,100 @@ class Scraper():
                 links.extend(nextLinks)
 
     def download(self, params):
-        for k,v in params:
+        for k,v in params.iteritems():
             params[k] = self.truncateField(v)
-            
-        if(self.pattern.search(params['url'])):
-            if (self.isUnsavedURL(params['url']) and self.isValidTitle(params['title'])):
+
+        if self.pattern.search(params['url']):
+            if self.isUnsavedURL(params['url']) and self.isValidTitle(params['title']):
                 logging.debug("Queueing download of "+params['url']+"...")
-                taskqueue.add(url='/worker', params})
+                taskqueue.add(url='/worker', params=params)
             else:
-                logging.debug("Skipping invalid link: "+params['title']);
+                logging.debug("Skipping invalid link: "+params['url']);
 
     def truncateField(self, field):
-        if(len(field) > MAX_FIELD_LENGTH):
-            return field[:MAX_FIELD_LENGTH-1]
+        if len(field) > Scraper.MAX_FIELD_LENGTH:
+            return field[:Scraper.MAX_FIELD_LENGTH-1]
         else:
             return field
 
     def filterTitle(self, title):
-        filterWords = ["[pic]","(pic)","{pic}"]
+        filterWords = ["[pic]","(pic)","{pic}",]
         for word in filterWords:
             title = title.replace(word.lower(),"")
             title = title.replace(word.upper(),"")
         return title
 
     def isValidTitle(self, title):
-        for word in self.skipWords:
-            if(title.lower().find(word) != -1):
+        for word in Scraper.skipWords:
+            if title.lower().find(word) != -1:
                 logging.debug(">>Filtering out "+title+"<<<")
                 return False
         return True
 
     def isUnsavedURL(self, url):
-        return len(Image.gql("WHERE url=:1",params['url']).fetch(1)) == 0
+        return (len(cbmodel.Image.gql("WHERE url=:1",url).fetch(1)) == 0)
 
 class RedditScraper(Scraper):
-    MAX_LEN = 25
-    REDDIT_URL = "http://reddit.com"
-    SUBREDDIT_URL = REDDIT_URL + "/r/"
-    REDDIT_JSON = "/.json?&after="
-
     def __init__(self, subreddit):
-        super(SUBREDDIT_URL+subreddit+REDDIT_JSON)
+        RedditScraper.REDDIT_URL = "http://reddit.com"
+        RedditScraper.SUBREDDIT_URL = RedditScraper.REDDIT_URL + "/r/"
+        RedditScraper.REDDIT_JSON = "/.json?&after="
+
+        self.subredditURL = RedditScraper.SUBREDDIT_URL+subreddit+RedditScraper.REDDIT_JSON
+        super(RedditScraper, self).__init__(self.subredditURL)
 
     def parse(self, response):
-        responseDict = json.loads(response)
-        nextLinks = []
-        for child in responseDict["data"]["children"]:
-            try:
-                params {'url':child['data']['url'],
-                'source':SUBREDDIT_URL + child['data']['subreddit'],
+        try:
+            responseDict = json.loads(response)
+            nextLinks = []
+            for child in responseDict["data"]["children"]:
+                params = {'url':child['data']['url'],
+                'source':RedditScraper.SUBREDDIT_URL + child['data']['subreddit'],
                 'title':self.filterTitle(child['data']['title']),
-                'permalink':REDDIT_URL + child['data']['permalink']
-                }
+                'permalink':RedditScraper.REDDIT_URL + child['data']['permalink']}
                 self.download(params)
-                nextLinks.append(child['data']['name'])
-            except ValueError, e:
-                logging.error("Failed to decode JSON: "+response)
-            except URLError, e:
-                logging.error("Failed to reach a server.")
-            except Exception, e:
-                logging.error("Failed to request url: "+str(type(e)))
-        return nextLinks
+                nextLinks.append(self.subredditURL+child['data']['name'])
+            return nextLinks
+        except ValueError, e:
+            logging.error("Failed to decode JSON: " +response)
+        except URLError, e:
+            logging.error("Failed to reach a server.")
+        except NameError, e:
+            logging.error("Failed to request url: " +str(e))
+        except Exception, e:
+            logging.error("Failed to request url: "+str(type(e)))
     
 class ScrapeWorker(webapp.RequestHandler):
-    validContentTypes = ['jpeg','jpg','png','gif']
+    def __init__(self):
+        ScrapeWorker.validContentTypes = ['image/jpeg',
+                                          'image/jpg',
+                                          'image/png',
+                                          'image/gif']
 
     def post(self):
         def txn():
             try:
                 url = self.request.get('url')
                 response = urlfetch.Fetch(url)
-                if response.headers['Content-Type'] is in validContentTypes:
+                if ScrapeWorker.validContentTypes.count(response.headers['Content-Type']) > 0:
                     data = response.content
-                    hashKey = hashlib.sha1(data).hexdigest()
-                    k = db.Key.from_path('Image', hashKey)
-
-                    if(efpmodel.Image.get(k) is None):
-                        img = efpmodel.Image(key=k)
-                        img.imageData = efpmodel.db.Blob(data)
-                        img.url = url
-                        img.title = self.request.get('title')
-                        img.source = self.request.get('source')
-                        img.put()
-                        logging.info("Successfully saved: "+url)
-                    else:
-                        logging.info("Skipping already stored image: "+url)
+                    img = cbmodel.Image()
+                    img.imageData = cbmodel.db.Blob(data)
+                    img.url = url
+                    img.title = self.request.get('title')
+                    img.source = self.request.get('source')
+                    img.permalink = self.request.get('permalink')
+                    img.put()
+                    logging.info("Successfully saved: "+url)
                 else:
-                    logging.debug("Skipping non-jpeg file: "+url)
+                    logging.debug("Skipping non-jpeg file: "+response.headers['Content-Type'])
             except urlfetch.Error, e:
                 logging.error("Failed to request image url:"+str(type(e)))
             except db.Error, e:
-                logging.error("Failed to put image url:"+str(type(e)))
-                   
-        efpmodel.db.run_in_transaction(txn)
+                logging.error("Failed to put image url:"+str(type(e))) 
+            except Exception, e:
+                logging.error("Failed to put image url:"+str(type(e))) 
+        cbmodel.db.run_in_transaction(txn)
 
 class ScrapeService(webapp.RequestHandler):
     def post(self):
@@ -150,7 +151,8 @@ class ScrapeService(webapp.RequestHandler):
         subReddits = ["pics","funny","wtf","adviceanimals"]
         count = 0
         for subReddit in subReddits:
-            taskqueue.add(url='/scrape',params={'subreddit':subReddit},countdown=(count*30)+3)
+            taskqueue.add(url='/scrape',
+            params={'subreddit':subReddit},countdown=(count*30)+3)
             count = count + 1
         self.response.out.write("<html><body>Started scraping...")
         self.response.out.write("</body></html>")
