@@ -1,5 +1,5 @@
-from appengine_config import add_middleware
-from imgserve import *
+from config.appengine_config import add_middleware
+from brains.imgserve import *
 from surface import *
 
 from google.appengine.ext import webapp
