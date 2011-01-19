@@ -13,7 +13,8 @@ import re
 import logging
 import hashlib
 import time
-import cbmodel
+from brains.feed import *
+from model import cbmodel
 
 class Scraper(object):
     def __init__(self, url):

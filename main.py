@@ -18,10 +18,10 @@ def main():
     logging.getLogger().setLevel(logging.DEBUG)
     application = webapp.WSGIApplication([('/',MainPage),
                                           ('/img',ImageServe),
-                                          ('/next',ImageNext),
                                           ('/vote',ImageVote),
                                           ('/usr/',Scaffolding),
                                           ('/data',DataHandler),
+                                          ('/test',ImageServeScaffolding),
                                           ('/logout', Logout)],
                                          DEBUG)
     application = add_middleware(application)

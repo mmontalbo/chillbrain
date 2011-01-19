@@ -1,5 +1,7 @@
 import math
-#import cbmodel
+from config.sources import *
+from model import cbmodel
+import logging
 
 class ImageFeed():
     """
@@ -15,6 +17,10 @@ class ImageFeed():
             self.feedSize = size
         else:
             self.feedSize = 0
+            
+    def initialImages(self, sourcesList):
+        return self.nextImages([(source, None) for source in sourcesList]) 
+            
     """
     nextImages returns a list of images, with length feedSize, drawn
     from each available image source and interleaved evenly. Note that
@@ -28,30 +34,40 @@ class ImageFeed():
     def nextImages(self, sourceCursors):
         images = []
         cursors = []
-        if self.feedSize == 0 or len(sourceCursors) == 0:
+        numCursors = len(sourceCursors)
+        if self.feedSize == 0 or numCursors == 0:
             return images
 
-        numToFetch = math.ceil(self.feedSize / len(sourceCursors))
+        fetchSize = []
+        baseQuerySize = self.feedSize/numCursors
+        remainder = self.feedSize % numCursors
+        for i in range(0, numCursors):
+            fetchSize.append(baseQuerySize)
+            if i < remainder:
+                fetchSize[i] += 1
 
+        position = 0
         for sourceCursor in sourceCursors:            
             (source, cursor) = sourceCursor
             query = self.imageQuery(source)
             if cursor is not None and cursor is not "":
                 query.with_cursor(cursor)
+                
+            numToFetch = fetchSize[position]
             srcImgs = query.fetch(numToFetch)
 
             if len(srcImgs) < numToFetch:
-                logging.info("Only ("+len(srcImgs)+") images to return for ("+cursor+","+source+").");
+                logging.info("Only ("+str(len(srcImgs))+") images to return for ("+str(cursor)+","+str(source)+").");
                 logging.info("Resetting cursor.")
                 query = self.imageQuery(source)
                 srcImgs = query.fetch(numToFetch)
-
-            cusors.append(query.cursor())
+                
+            cursors.append(query.cursor())
             images.append(srcImgs)
+            position += 1
 
+        logging.info(str(images))
         shuffledImages = self.shuffleImages(images)
-        while(len(shuffledImages > self.feedSize)):
-            shuffledImages.pop()
 
         return (shuffledImages,cursors)
 
@@ -62,7 +78,7 @@ class ImageFeed():
     @return GQL query for Images with given source
     """
     def imageQuery(self, source):
-        return Image.gql("WHERE source=:1", source)
+        return cbmodel.Image.all().filter("source =", source)
 
     """
     shuffleImages interleaves the elements of each indiviual list
@@ -74,8 +90,9 @@ class ImageFeed():
     def shuffleImages(self, images):
         shuffledImages = []
 
-        for i in range(0,len(images[0])):
-            for row in images:
-                shuffledImages.append(row[i])
-        
+        for i in range(0, self.feedSize):
+            index = i % len(images)
+            if len(images[index]) == 0:
+                return shuffledImages
+            shuffledImages.append(images[i % len(images)].pop())
         return shuffledImages

@@ -7,6 +7,8 @@ from django.utils import simplejson
 from gaesessions import *
 from model.users import *
 from net.handlers import *
+from brains.feed import *
+from config import sources
 import logging
 import os
 
@@ -22,6 +24,8 @@ REQUEST_ACTION = 'action'
 REQUEST_ACTION_VOTE = 'vote'
 REQUEST_ACTION_SKIP = 'skip'
 REQUEST_ACTION_SHARE = 'share'
+
+FEED_SIZE = 20
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -39,6 +43,20 @@ class Scaffolding(BaseRequest):
         
         path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
         self.response.out.write(template.render(path, context))
+        
+class ImageServeScaffolding(BaseRequest):
+    def get(self):
+        outie = None
+        feed = ImageFeed(FEED_SIZE)
+
+        initialImages, cursors = feed.initialImages([sources.all[0]])
+        
+        self.response.out.write("Freshy batcha images")
+        self.response.out.write([image.permalink for image in initialImages])
+        
+        self.response.out.write("oh thurs more")
+        initialImages, cursors = feed.nextImages([(sources.all[0], cursors[0])])
+        self.response.out.write([image.permalink for image in initialImages])
         
 class DataHandler(BaseRequest):        
     def post(self):
