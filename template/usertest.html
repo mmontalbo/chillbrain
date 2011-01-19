@@ -1,0 +1,28 @@
+{% extends "base_web_facebook.html" %}
+{% block head %}
+	{{ block.super }}
+	<script type="text/javascript">
+		function data(action, img, fetch) {
+			fetch = (!fetch || fetch === "undefined") ? true : false;
+			$.ajax({
+				   type: "POST",
+				   url: "/data",
+				   data : ["action="+action,"img="+img.img1,"img2="+img.img2, fetch].join("&"),
+				   success: function(msg){
+
+				   }
+			});
+		}
+	</script>
+{% endblock %}
+
+{% block content %}
+	<div style="width:600px; margin:auto; padding:auto;">
+		<input type="button" value="Vote" style="width: 80px; height: 150px;" onclick="data('vote', { img1: '0' });"></input>
+		<input type="button" value="Skip" style="width: 80px; height: 150px; margin-left: 30px;" onclick="data('skip', { img1: '1', img2: '0'} );"></input>
+		{% if permissions.share %}
+			<input type="button" value="Share" style="width: 80px; height: 150px; margin-left: 30px;" onclick="prompt_share('3ce5442c1f9f2dee21e62eca99befbe1701e1915','Test Caption');"></input>
+		{% endif %}
+	</div>
+	
+{% endblock %} 
