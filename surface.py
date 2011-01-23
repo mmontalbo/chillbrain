@@ -60,7 +60,7 @@ class ImageServeScaffolding(BaseRequest):
         
         self.response.out.write([image.permalink for image in initialImages])
         
-        initialImages, cursors = feed.nextImages(feedSources)
+        initialImages, feedSources = feed.nextImages(feedSources)
         self.response.out.write([image.permalink for image in initialImages])
         
 class DataHandler(BaseRequest):        

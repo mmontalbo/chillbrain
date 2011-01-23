@@ -14,11 +14,11 @@ handlers:
   static_dir: js
 
 - url: /scrape
-  script: scraper.py
+  script: brains/scraper.py
   login: admin
 
 - url: /worker
-  script: scraper.py
+  script: brains/scraper.py
   login: admin
 
 - url: /.*
