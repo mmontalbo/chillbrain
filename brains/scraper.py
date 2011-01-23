@@ -15,6 +15,7 @@ import hashlib
 import time
 from brains.feed import *
 from model import cbmodel
+from config import sources
 
 class Scraper(object):
     def __init__(self, url):
@@ -44,7 +45,8 @@ class Scraper(object):
                 time.sleep(1)
             else:
                 retry = 0
-                links.extend(nextLinks)
+                if nextLinks:
+                    links.extend(nextLinks)
 
     def download(self, params):
         for k,v in params.iteritems():
@@ -86,7 +88,7 @@ class RedditScraper(Scraper):
         RedditScraper.SUBREDDIT_URL = RedditScraper.REDDIT_URL + "/r/"
         RedditScraper.REDDIT_JSON = "/.json?&after="
 
-        self.subredditURL = RedditScraper.SUBREDDIT_URL+subreddit+RedditScraper.REDDIT_JSON
+        self.subredditURL = subreddit+RedditScraper.REDDIT_JSON
         super(RedditScraper, self).__init__(self.subredditURL)
 
     def parse(self, response):
@@ -145,15 +147,16 @@ class ScrapeWorker(webapp.RequestHandler):
 class ScrapeService(webapp.RequestHandler):
     def post(self):
         logging.info("Starting scraper...")
-        redditScraper = RedditScraper(self.request.get('subreddit'))
+        redditScraper = RedditScraper(self.request.get('scrapeURL'))
         redditScraper.startScraping()
 
     def get(self):
+        # TODO change to use config file for scraping urls
         subReddits = ["pics","funny","wtf","adviceanimals"]
         count = 0
-        for subReddit in subReddits:
+        for source in sources.all:
             taskqueue.add(url='/scrape',
-            params={'subreddit':subReddit},countdown=(count*30)+3)
+            params={'scrapeURL':source},countdown=(count*30)+3)
             count = count + 1
         self.response.out.write("<html><body>Started scraping...")
         self.response.out.write("</body></html>")
