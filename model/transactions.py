@@ -6,18 +6,24 @@ class Transaction(polymodel.PolyModel):
     user = db.ReferenceProperty(required=True)
 
 class Vote(Transaction):
-    image = db.StringProperty(required=True)
+    img = db.ReferenceProperty(required=True, collection_name="vote_img")
     
 class Skip(Transaction):
-    image1 = db.StringProperty(required=True)
-    image2 = db.StringProperty(required=True)
+    img1 = db.ReferenceProperty(required=True, collection_name="skip_img1")
+    img2 = db.ReferenceProperty(required=True, collection_name="skip_img2")
     
 class Share(Transaction):
-    image = db.StringProperty(required=True)
+    img = db.ReferenceProperty(required=True, collection_name="share_img")
+    generated_users = db.ListProperty(db.Key)
     generated_hits = db.IntegerProperty()
     
+    def add_generated_user(self, user):
+        self.generated_hits += 1
+        self.generated_users.append(user)
+        self.put()
+    
 class AlbumShare(Transaction):
-    image = db.StringProperty(required=True)
+    img = db.ReferenceProperty(required=True, collection_name="album_img")
     
 '''
     Temporary transaction tables for holding information
@@ -29,8 +35,8 @@ class TemporaryTransaction(polymodel.PolyModel):
     user = db.ReferenceProperty(required=True)
 
 class TemporaryVote(TemporaryTransaction):
-    image = db.StringProperty(required=True)
+    img = db.ReferenceProperty(required=True, collection_name="tmp_vote_img")
     
 class TemporarySkip(TemporaryTransaction):
-    image1 = db.StringProperty(required=True)
-    image2 = db.StringProperty(required=True)
+    img1 = db.ReferenceProperty(required=True, collection_name="tmp_skip_img1")
+    img2 = db.ReferenceProperty(required=True, collection_name="tmp_skip_img2")

@@ -40,11 +40,13 @@ class Scaffolding(BaseRequest):
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
         context["permissions"] = get_permissions(user)
+        context["uid"] = user.id
         
         feed = ImageFeed(FEED_SIZE)
 
-        initialImages, cursors = feed.initialImages([sources.all[0]])
-        context["images"] = initialImages
+        initialImages, feedSources = feed.initialImages([sources.all[0]])
+        context["img1"] = initialImages[0]
+        context["img2"] = initialImages[1]
         
         path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
         self.response.out.write(template.render(path, context))
@@ -78,13 +80,17 @@ class DataHandler(BaseRequest):
             if session.get(SESS_TEMP_USER) and not user.isTemporary():
                 migrate_session(user, session)
         
-        img = self.request.get(REQUEST_IMG_ID)
-        img2 = self.request.get(REQUEST_IMG_ID2)
-        
         logging.debug("Temp User: " + str(user.isTemporary()))
         logging.debug("Action: " + self.request.get(REQUEST_ACTION))
         logging.debug("IMG 1: " + self.request.get(REQUEST_IMG_ID))
         logging.debug("IMG 2: " + self.request.get(REQUEST_IMG_ID2))
+        
+        img = None
+        img2 = None
+        if self.request.get(REQUEST_IMG_ID):
+            img = db.Key(self.request.get(REQUEST_IMG_ID))
+        if self.request.get(REQUEST_IMG_ID2):
+            img2 = db.Key(self.request.get(REQUEST_IMG_ID2))        
         
         process_request(self.request.get(REQUEST_ACTION), user, img, img2)
 

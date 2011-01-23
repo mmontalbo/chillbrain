@@ -63,11 +63,11 @@
 		    		picture: "http://www.chillbrain.com/img?h=" + img_id,
 		    		name: 'Another funny picture from Chillbrain',
 		    		caption: caption,
-		    		link: "http://www.chillbrain.com/#" + img_id,
+		    		link: "http://www.chillbrain.com/#" + img_id + "&u={{uid}}",
 		    	},
 		    	function(response) {
 		    		if (response && response.post_id) {
-		    			data('share', { img1: '2' }, false);
+		    			data('share', { img1: img_id }, false);
 		    		} 
 		    	}
 	    	);

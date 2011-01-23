@@ -12,6 +12,7 @@ from google.appengine.api import memcache
 from google.appengine.api import images
 from google.appengine.ext import db
 from google.appengine.api import images
+from model.cbmodel import *
 
 import logging
 
@@ -89,7 +90,6 @@ class ImageServe(webapp.RequestHandler):
             if (img and img.imageData):
                 if(info is not ""):
                     imageResponse = {"title" : img.title,
-                                     "rating" : img.rating,
                                      "source" : img.source}
                     self.response.out.write(json.dumps(imageResponse))
                 else:
@@ -118,7 +118,7 @@ class ImageServe(webapp.RequestHandler):
     def getImg(self,imgHash):
         img = memcache.get('Image_'+imgHash)
         if(img is None):
-            img = efpmodel.Image.get(cbmodel.db.Key.from_path('Image',imgHash))
+            img = Image.get(db.Key(imgHash))
             if(img):
                 memcache.set('Image_'+imgHash,img)
-            return img
+        return img

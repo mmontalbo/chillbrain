@@ -19,13 +19,13 @@ class BaseUser(polymodel.PolyModel):
         self.put()
     
     def vote(self, image):        
-        vote = TemporaryVote(user=self, image=image)
+        vote = TemporaryVote(user=self, img=image)
         vote.put()
         self.votes.append(vote.key())
         self.put()
         
     def skip(self, image1, image2):
-        skip = TemporarySkip(user=self, image1=image1, image2=image2)
+        skip = TemporarySkip(user=self, img1=image1, img2=image2)
         skip.put()
         self.skips.append(skip.key())
         self.put()
@@ -42,19 +42,19 @@ class ChillUser(BaseUser):
     album = db.StringProperty() # FB ID for this users Chillbrain album
     
     def vote(self, id):
-        vote = Vote(user=self, image=id)
+        vote = Vote(user=self, img=id)
         vote.put()
         self.votes.append(vote.key())
         self.put()
     
     def skip(self, image1, image2):
-        skip = Skip(user=self, image1=image1, image2=image2)
+        skip = Skip(user=self, img1=image1, img2=image2)
         skip.put()
         self.skips.append(skip.key())
         self.put()
         
     def share(self, image):
-        share = Share(user=self, image=image)
+        share = Share(user=self, img=image)
         share.put()
         self.shares.append(share.key())
         self.put()
@@ -64,11 +64,11 @@ class ChillUser(BaseUser):
     def migrate(self, baseUser):
         for vote in baseUser.votes:
             temporary_vote = TemporaryVote.get(vote)
-            self.vote(temporary_vote.image)
+            self.vote(temporary_vote.img)
             temporary_vote.delete()
         for skip in baseUser.skips:
             temporary_skip = TemporarySkip.get(skip)
-            self.skip(temporary_skip.image1, temporary_skip.image2)
+            self.skip(temporary_skip.img1, temporary_skip.img2)
             temporary_skip.delete()
         self.put()
         
