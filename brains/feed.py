@@ -3,6 +3,11 @@ from config.sources import *
 from model import cbmodel
 import logging
 
+class FeedSource():
+    def __init__(self, source, cursor):
+        self.source = source
+        self.cursor = cursor
+
 class ImageFeed():
     """
     Initializes the ImageFeed object with a desired feed size.
@@ -13,13 +18,15 @@ class ImageFeed():
     @param size desired feed size
     """
     def __init__(self, size):
-        if size > 0 and size <= 20:
+        ImageFeed.MAX_FEED_SIZE = 20
+
+        if size > 0 and size <= ImageFeed.MAX_FEED_SIZE:
             self.feedSize = size
         else:
             self.feedSize = 0
             
     def initialImages(self, sourcesList):
-        return self.nextImages([(source, None) for source in sourcesList]) 
+        return self.nextImages([FeedSource(source, None) for source in sourcesList]) 
             
     """
     nextImages returns a list of images, with length feedSize, drawn
@@ -31,10 +38,10 @@ class ImageFeed():
     @param sourceCursors array of (source, cursor) pairs
     @return list of new cursors and images with length feedSize
     """
-    def nextImages(self, sourceCursors):
+    def nextImages(self, feedSources):
         images = []
         cursors = []
-        numCursors = len(sourceCursors)
+        numCursors = len(feedSources)
         if self.feedSize == 0 or numCursors == 0:
             return images
 
@@ -47,8 +54,9 @@ class ImageFeed():
                 fetchSize[i] += 1
 
         position = 0
-        for sourceCursor in sourceCursors:            
-            (source, cursor) = sourceCursor
+        for feedSource in feedSources:
+            source = feedSource.source
+            cursor = feedSource.cursor
             query = self.imageQuery(source)
             if cursor is not None and cursor is not "":
                 query.with_cursor(cursor)
@@ -62,14 +70,14 @@ class ImageFeed():
                 query = self.imageQuery(source)
                 srcImgs = query.fetch(numToFetch)
                 
-            cursors.append(query.cursor())
+            feedSource.cursor = query.cursor()
             images.append(srcImgs)
             position += 1
 
         logging.info(str(images))
         shuffledImages = self.shuffleImages(images)
 
-        return (shuffledImages,cursors)
+        return (shuffledImages,feedSources)
 
     """
     imageQuery returns a GQL query for the Image with the given
