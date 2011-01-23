@@ -41,6 +41,11 @@ class Scaffolding(BaseRequest):
         context["app_id"] = FACEBOOK_APP_ID
         context["permissions"] = get_permissions(user)
         
+        feed = ImageFeed(FEED_SIZE)
+
+        initialImages, cursors = feed.initialImages([sources.all[0]])
+        context["images"] = initialImages
+        
         path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
         self.response.out.write(template.render(path, context))
         
@@ -49,13 +54,11 @@ class ImageServeScaffolding(BaseRequest):
         outie = None
         feed = ImageFeed(FEED_SIZE)
 
-        initialImages, cursors = feed.initialImages([sources.all[0]])
+        initialImages, feedSources = feed.initialImages([sources.all[0]])
         
-        self.response.out.write("Freshy batcha images")
         self.response.out.write([image.permalink for image in initialImages])
         
-        self.response.out.write("oh thurs more")
-        initialImages, cursors = feed.nextImages([(sources.all[0], cursors[0])])
+        initialImages, cursors = feed.nextImages(feedSources)
         self.response.out.write([image.permalink for image in initialImages])
         
 class DataHandler(BaseRequest):        
