@@ -35,8 +35,11 @@ class ImageFeed():
     a fresh query will be run for the source and a new cursor will be
     returned.
 
-    @param sourceCursors array of (source, cursor) pairs
-    @return list of new cursors and images with length feedSize
+    @param feedSources list of FeedSource objects that contain a feed source
+    cursor
+
+    @return list of shuffled images with size feedSize and a new list of FeedSources
+    with updated cursors
     """
     def nextImages(self, feedSources):
         images = []
