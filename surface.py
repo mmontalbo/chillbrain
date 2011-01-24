@@ -44,6 +44,7 @@ else:
 
 SHARE_URL = BASE_URL + "enter?"
 IMG_URL = BASE_URL + "img?"
+LOGIN_REDIRECT_URL = BASE_URL + "tests/login"
 
 FEED_SIZE = 20
 
@@ -55,7 +56,7 @@ class MainPage(BaseRequest):
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
         context["permissions"] = get_permissions(user)
-        context["url"] = { "share" : SHARE_URL, "img" : IMG_URL }
+        context["url"] = { "share" : SHARE_URL, "img" : IMG_URL, "login" : LOGIN_REDIRECT_URL }
         
         if not user.isTemporary():
             context["uid"] = user.id

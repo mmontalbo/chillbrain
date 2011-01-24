@@ -35,7 +35,7 @@
 	    function logout() {
 	    	$.ajax({ type: "POST", url: "/logout" });
 	    	FB.logout(function(){
-				window.location = "/usr/";
+				window.location = "{{url.login}}";
 	    	});
 	    }
 
@@ -47,7 +47,7 @@
 
 	    function callback(response) {
 	    	if(response.session){
-		    	window.location = "/";
+		    	window.location = "{{url.login}}";
 	    	} 
 	    }
 
