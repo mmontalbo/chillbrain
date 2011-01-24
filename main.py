@@ -20,8 +20,9 @@ def main():
                                           ('/img',ImageServe),
                                           ('/vote',ImageVote),
                                           ('/usr/',Scaffolding),
-                                          ('/data',DataHandler),
                                           ('/test',ImageServeScaffolding),
+                                          ('/enter', Entrance),
+                                          ('/data',DataHandler),
                                           ('/logout', Logout)],
                                          DEBUG)
     application = add_middleware(application)

@@ -15,11 +15,11 @@ class Skip(Transaction):
 class Share(Transaction):
     img = db.ReferenceProperty(required=True, collection_name="share_img")
     generated_users = db.ListProperty(db.Key)
-    generated_hits = db.IntegerProperty()
+    generated_hits = db.IntegerProperty(default=0)
     
     def add_generated_user(self, user):
         self.generated_hits += 1
-        self.generated_users.append(user)
+        self.generated_users.append(user.key())
         self.put()
     
 class AlbumShare(Transaction):

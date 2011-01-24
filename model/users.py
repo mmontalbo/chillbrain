@@ -44,20 +44,26 @@ class ChillUser(BaseUser):
     def vote(self, id):
         vote = Vote(user=self, img=id)
         vote.put()
-        self.votes.append(vote.key())
+        key = vote.key()
+        self.votes.append(key)
         self.put()
+        return key
     
     def skip(self, image1, image2):
         skip = Skip(user=self, img1=image1, img2=image2)
         skip.put()
-        self.skips.append(skip.key())
+        key = skip.key()
+        self.skips.append(key)
         self.put()
+        return key
         
     def share(self, image):
         share = Share(user=self, img=image)
         share.put()
-        self.shares.append(share.key())
+        key = share.key()
+        self.shares.append(key)
         self.put()
+        return str(key)
         
     # Cycle through the stored transactions of the temp user and migrate them
     # over to the newly created actual user

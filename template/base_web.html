@@ -11,7 +11,7 @@
 		
 		<script type="text/javascript">
 
-			function data(action, img, fetch) {
+			function data(action, img, fetch, callback) {
 				fetch = (!fetch || fetch === "undefined") ? true : false;
 				imgStr = (img.img1 ? "img=" + img.img1 : "") + (img.img2 ? "&img2=" + img.img2 : "");
 				$.ajax({
@@ -19,7 +19,8 @@
 					   url: "/data",
 					   data : ["action="+action,imgStr, fetch].join("&"),
 					   success: function(msg){
-	
+					   		if(callback) 
+						   		callback(msg);
 					   }
 				});
 			}
