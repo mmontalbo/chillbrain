@@ -42,7 +42,7 @@ IMG_URL = BASE_URL + "img?"
 
 FEED_SIZE = 20
 
-class RepManager(object):
+class RepManager():
     def __init__(self):
         RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
                                REQUEST_ACTION_VOTE:0.0,
@@ -57,41 +57,41 @@ class RepManager(object):
         RepManager.LINKBACK_FACTOR = 0.25
 
     def update_rep(self, action, reputation, linkbacks = 0):
-        if self.has_permission(action, reputation):
-            # get rep increase for linkbacks
-            inc_rep = RepManager.LINKBACK_FACTOR * linkbacks
+        # get rep increase for linkbacks
+        inc_rep = RepManager.LINKBACK_FACTOR * linkbacks
+        
+        # update reputation if voting
+        if action == REQUEST_ACTION_VOTE:
+            inc_rep += 1.0
             
-            # update reputation if voting
-            if action == REQUEST_ACTION_VOTE:
-                inc_rep += 1.0
-
-            # message if new achievment is unlocked
-            msg = self.get_achievment_msg(reputation, inc_rep)
-            reputation += inc_rep
-
-            return (reputation, msg)
-        else:
-            # message that more reputation is required
-            return (reputation, self.get_permission_denied_msg(action))
+        # message if new achievment is unlocked
+        msg = self.get_achievment_msg(reputation, inc_rep)
+        reputation += inc_rep
+        return (reputation, msg)
 
     # Check if the given action can be performed based on the given reputation
-    def has_permission(self, action, reputation):
+    def check_permission(self, action, reputation):
         if action in RepManager.REP_REQ:
-            return reputation >= RepManager.REP_REQ[action]
+            hasPermission = reputation >= RepManager.REP_REQ[action]
+            if not hasPermission:
+                return (hasPermission,self.get_permission_denied_msg(action))
+            else:
+                return(hasPermission,None)
         else:
             logging.error("No reputation requirement defined for: "+action)
-            return False
+            return (False,None)
 
     # Get any new achievment messages
     def get_achievment_msg(self,reputation,inc_rep):
-        msg = ""
-        for action,req in RepManager.REP_REQ:
+        msg = None
+        for action,req in RepManager.REP_REQ.iteritems():
             if reputation < req and (reputation + inc_rep) >= req:
                 return RepManager.ACHIEVMENT_MSGS[action]
+        return msg
 
     # Construct an appropriate permission denied error message
     def get_permission_denied_msg(self, action):
-        return "Need "+str(AchievmentsManager.REP_REQ[action])+" rep to "+action+"."
+        return "Need "+str(RepManager.REP_REQ[action])+" rep to "+action+"."
         
 class MainPage(BaseRequest):
     def get(self):
@@ -128,6 +128,9 @@ class ImageServeScaffolding(BaseRequest):
         self.response.out.write([image.permalink for image in initialImages])
         
 class DataHandler(BaseRequest):        
+    def __init__(self):
+        self.repManager = RepManager()
+
     def post(self):
         session = get_current_session()
         user = get_user(self.current_user, session)
@@ -155,7 +158,7 @@ class DataHandler(BaseRequest):
             img = db.Key(self.request.get(REQUEST_IMG_ID))
         if self.request.get(REQUEST_IMG_ID2):
             img2 = db.Key(self.request.get(REQUEST_IMG_ID2))        
-        
+
         response = process_request(self.request.get(REQUEST_ACTION), user, img, img2)
         logging.debug(response)
         self.response.out.write(json.dumps(response))
