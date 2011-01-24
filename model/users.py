@@ -44,7 +44,7 @@ class ChillUser(BaseUser):
     
     def increment_linkback(self):
         self.linkbacks += 1
-        self.put
+        self.put()
     
     def vote(self, id):
         vote = Vote(user=self, img=id)
