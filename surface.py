@@ -39,12 +39,7 @@ IMG_URL = BASE_URL + "img?"
 
 FEED_SIZE = 20
 
-class MainPage(webapp.RequestHandler):
-    def get(self):
-        path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
-        self.response.out.write(template.render(path,None))
-        
-class Scaffolding(BaseRequest):
+class MainPage(BaseRequest):
     def get(self):
         session = get_current_session()
         user = get_user(self.current_user, session)
@@ -63,7 +58,7 @@ class Scaffolding(BaseRequest):
         context["img1"] = initialImages[0]
         context["img2"] = initialImages[1]
         
-        path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
+        path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
         self.response.out.write(template.render(path, context))
         
 class ImageServeScaffolding(BaseRequest):

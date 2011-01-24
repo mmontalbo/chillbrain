@@ -19,7 +19,6 @@ def main():
     application = webapp.WSGIApplication([('/',MainPage),
                                           ('/img',ImageServe),
                                           ('/vote',ImageVote),
-                                          ('/usr/',Scaffolding),
                                           ('/test',ImageServeScaffolding),
                                           ('/enter', Entrance),
                                           ('/data',DataHandler),
