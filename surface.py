@@ -32,10 +32,6 @@ REQUEST_ACTION_REPORT = 'report'
 REQUEST_ACTION_UPLOAD = 'upload'
 # ... More achievments to come (history, image stats)
 
-ACTION_PERMISSIONS = { REQUEST_ACTION_SHARE : 20.0,
-                       REQUEST_ACTION_REPORT: 100.0,
-                       REQUEST_ACTION_UPLOAD: 500.0}
-
 # URL configuration
 if appengine_config.isDebug():
     BASE_URL = 'http://localhost:8080/'
@@ -48,6 +44,57 @@ LOGIN_REDIRECT_URL = BASE_URL + "tests/login"
 
 FEED_SIZE = 20
 
+class RepManager():
+    def __init__(self):
+        RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
+                               REQUEST_ACTION_VOTE:0.0,
+                               REQUEST_ACTION_SHARE : 20.0,
+                               REQUEST_ACTION_REPORT: 100.0,
+                               REQUEST_ACTION_UPLOAD: 500.0}
+        
+        RepManager.ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
+                                       REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
+                                       REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
+        
+        RepManager.LINKBACK_FACTOR = 0.25
+
+    def update_rep(self, action, reputation, linkbacks = 0):
+        # get rep increase for linkbacks
+        inc_rep = RepManager.LINKBACK_FACTOR * linkbacks
+        
+        # update reputation if voting
+        if action == REQUEST_ACTION_VOTE:
+            inc_rep += 1.0
+            
+        # message if new achievment is unlocked
+        msg = self.get_achievment_msg(reputation, inc_rep)
+        reputation += inc_rep
+        return (reputation, msg)
+
+    # Check if the given action can be performed based on the given reputation
+    def check_permission(self, action, reputation):
+        if action in RepManager.REP_REQ:
+            hasPermission = reputation >= RepManager.REP_REQ[action]
+            if not hasPermission:
+                return (hasPermission,self.get_permission_denied_msg(action))
+            else:
+                return(hasPermission,None)
+        else:
+            logging.error("No reputation requirement defined for: "+action)
+            return (False,None)
+
+    # Get any new achievment messages
+    def get_achievment_msg(self,reputation,inc_rep):
+        msg = None
+        for action,req in RepManager.REP_REQ.iteritems():
+            if reputation < req and (reputation + inc_rep) >= req:
+                return RepManager.ACHIEVMENT_MSGS[action]
+        return msg
+
+    # Construct an appropriate permission denied error message
+    def get_permission_denied_msg(self, action):
+        return "Need "+str(RepManager.REP_REQ[action])+" rep to "+action+"."
+        
 class MainPage(BaseRequest):
     def get(self):
         session = get_current_session()
@@ -56,7 +103,6 @@ class MainPage(BaseRequest):
         
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
-        context["permissions"] = get_permissions(user)
         context["url"] = { "share" : SHARE_URL, "img" : IMG_URL, "login" : LOGIN_REDIRECT_URL }
         
         if not user.isTemporary():
@@ -80,7 +126,6 @@ class LoginScaffolding(BaseRequest):
         
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
-        context["permissions"] = get_permissions(user)
         context["url"] = { "share" : SHARE_URL, "img" : IMG_URL }
         
         if not user.isTemporary():
@@ -109,6 +154,9 @@ class ImageServeScaffolding(BaseRequest):
         self.response.out.write([image.permalink for image in initialImages])
         
 class DataHandler(BaseRequest):        
+    def __init__(self):
+        self.repManager = RepManager()
+
     def post(self):
         session = get_current_session()
         user = get_user(self.current_user, session)
@@ -120,7 +168,7 @@ class DataHandler(BaseRequest):
             img = db.Key(self.request.get(REQUEST_IMG_ID))
         if self.request.get(REQUEST_IMG_ID2):
             img2 = db.Key(self.request.get(REQUEST_IMG_ID2))        
-        
+
         response = process_request(self.request.get(REQUEST_ACTION), user, img, img2)
         self.response.out.write(json.dumps(response))
    
@@ -153,19 +201,7 @@ class Logout(webapp.RequestHandler):
 '''
     Utility methods for user management
 '''        
-def get_permission_unlocked_msg(action):
-    return "Gained ability to "+action
 
-# Construct an appropriate permission denied error message
-def get_permission_denied_msg(action):
-    return "Need "+str(ACTION_PERMISSIONS[action])+" rep to "+action+"."
-
-# Check if the given action can be performed based on the given reputation
-def has_permission(action, userReputation):
-    if action in ACTION_PERMISSIONS:
-        return userReputation >= ACTION_PERMISSIONS[action]
-    else:
-        return False
     
 # Manage the session setup properties (such as migrating a session)
 # This should be moved over to the request handler/middleware 
@@ -181,7 +217,7 @@ def manage_session(user, session):
         # if this is a temporary user that has logged in migrate their cache over
         if session.get(SESS_TEMP_USER) and not user.isTemporary():
             migrate_session(user, session)
-    
+
 # Get a User object from the current user retrieved from the BaseRequest and session  
 def get_user(user, session):
     if user:
@@ -193,24 +229,18 @@ def get_user(user, session):
         user.create()
         return user
     
-# Get permissions for this specific user. These are to be placed into the context
-def get_permissions(user):
-    permissions = {}
-    permissions["share"] = user.isTemporary() == False
-    return permissions
-    
 # Process a data request
 def process_request(action, user, img, img2):
     response_data = {}
     try: 
         if action == REQUEST_ACTION_VOTE:
-            response_data['vote'] = user.vote(img)
+            response_data['vote'] = str(user.vote(img))
         if action == REQUEST_ACTION_SKIP: 
-            response_data['skip'] = user.skip(img, img2)
+            response_data['skip'] = str(user.skip(img, img2))
         if action == REQUEST_ACTION_SHARE:
-            response_data['share'] = user.share(img)
+            response_data['share'] = str(user.share(img))
     except Exception:
-        response_data["error"] = "Problem processing data request"
+        response_data['error'] = "Problem processing data request"
     return response_data
 
 # Migrate a temporary user to ChillUser object 

@@ -27,12 +27,14 @@ class BaseUser(polymodel.PolyModel):
         vote.put()
         self.votes.append(vote.key())
         self.put()
+        return vote
         
     def skip(self, image1, image2):
         skip = TemporarySkip(user=self, img1=image1, img2=image2)
         skip.put()
         self.skips.append(skip.key())
         self.put()
+        return skip
         
     # add a temporary share to a BaseUser (they can't be counted until migration to logged in state)    
     def add_temporary_clickback(self, share_ref):
@@ -63,26 +65,23 @@ class ChillUser(BaseUser):
     def vote(self, id):
         vote = Vote(user=self, img=id)
         vote.put()
-        key = vote.key()
-        self.votes.append(key)
+        self.votes.append(vote.key())
         self.put()
-        return key
+        return vote
     
     def skip(self, image1, image2):
         skip = Skip(user=self, img1=image1, img2=image2)
         skip.put()
-        key = skip.key()
-        self.skips.append(key)
+        self.skips.append(skip.key())
         self.put()
-        return key
+        return skip
         
     def share(self, image):
         share = Share(user=self, img=image)
         share.put()
-        key = share.key()
-        self.shares.append(key)
+        self.shares.append(share.key())
         self.put()
-        return str(key)
+        return share
         
     # Cycle through the stored transactions of the temp user and migrate them
     # over to the newly created actual user

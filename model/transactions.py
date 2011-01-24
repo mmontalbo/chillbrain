@@ -6,6 +6,11 @@ import logging
 class Transaction(polymodel.PolyModel):
     time = db.DateTimeProperty(auto_now_add=True)
     user = db.ReferenceProperty(required=True)
+    
+    def __str__(self):
+        return str(self.key())
+    def __unicode__(self):
+        return str(self.key())
 
 class Vote(Transaction):
     img = db.ReferenceProperty(required=True, collection_name="vote_img")
@@ -45,6 +50,11 @@ class AlbumShare(Transaction):
 class TemporaryTransaction(polymodel.PolyModel):
     time = db.DateTimeProperty(auto_now_add=True)
     user = db.ReferenceProperty(required=True)
+    
+    def __str__(self):
+        return str(self.key())
+    def __unicode__(self):
+        return str(self.key())
 
 class TemporaryVote(TemporaryTransaction):
     img = db.ReferenceProperty(required=True, collection_name="tmp_vote_img")
