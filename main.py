@@ -1,4 +1,4 @@
-from config.appengine_config import add_middleware
+from config import appengine_config
 from brains.imgserve import *
 from surface import *
 
@@ -10,21 +10,18 @@ from google.appengine.ext import db
 
 import os
 
-DEBUG = True
-
-import os
-
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
-    application = webapp.WSGIApplication([('/',MainPage),
-                                          ('/img',ImageServe),
-                                          ('/vote',ImageVote),
-                                          ('/test',ImageServeScaffolding),
+    application = webapp.WSGIApplication([('/', MainPage),
+                                          ('/img', ImageServe),
+                                          ('/vote', ImageVote),
+                                          ('/tests/login', LoginScaffolding),
+                                          ('/tests/image', ImageServeScaffolding),
                                           ('/enter', Entrance),
-                                          ('/data',DataHandler),
+                                          ('/data', DataHandler),
                                           ('/logout', Logout)],
-                                         DEBUG)
-    application = add_middleware(application)
+                                         appengine_config.isDebug())
+    application = appengine_config.add_middleware(application)
     run_wsgi_app(application)
 
 if __name__ == "__main__":
