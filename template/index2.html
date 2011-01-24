@@ -1,49 +1,39 @@
-<html>
-<head>
-<link rel="shortcut icon" href="css/favicon.ico" >
+{% extends "base_web_facebook.html" %}
 
-<LINK href="css/stylesheet2.css" rel="stylesheet" type="text/css">
+{% block head %}
+	{{ block.super }}
 
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/jquery.cookie.js"></script>
-<script type="text/javascript" src="js/infoBox.js"></script>
-<script type="text/javascript" src="js/chillbrain.js"></script>
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-1860596-4']);
-  _gaq.push(['_setDomainName', 'none']);
-  _gaq.push(['_setAllowLinker', true]);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
-
-</head>
-<body>
+	<LINK href="css/stylesheet2.css" rel="stylesheet" type="text/css">
 	
+	<script type="text/javascript" src="js/infoBox.js"></script>
+	<script type="text/javascript" src="js/chillbrain.js"></script>
+	<script type="text/javascript">
+	
+		var shareURL = "{{url.share}}h="; 
+	
+	</script>
+{% endblock %}
+
+
+{% block content %}
 	<div id="top">
-		<div class="title leftTitle"><span></span></div>
-		<div class="title rightTitle"><span></span></div>
+			<div class="title leftTitle"><span></span></div>
+			<div class="title rightTitle"><span></span></div>
+		</div>
+		
+		<div id="main">
+			<img class="preloaded" title="{{img1.title}}" elo="{{img1.elo}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" />
+			<img class="preloaded" title="{{img2.title}}" elo="{{img2.elo}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" />
+			
+			<!--<img class="preloaded" title="Is there a problem?" src="static/no_image.jpg"/>-->
+			<!--<img class="preloaded" title="Is there a problem?" src="static/no_image.jpg"/>-->
+
+		</div>
+		
+		<input type="button" class="faceVote leftControl"/>
+		<input type="button" class="faceVote rightControl"/>
+		
+		<div id="zoomInPicture">
+			<input class="zoomedImgURLInput" value="http://www.chillbrain.com/#"/>
 	</div>
-	
-	<div id="main">
-
-	</div>
-	
-	<input type="button" class="faceVote leftControl"/>
-	<input type="button" class="faceVote rightControl"/>
-	
-	<div id="zoomInPicture">
-		<input class="zoomedImgURLInput" value="http://www.chillbrain.com/#"/>
-	</div>
-
-</body>
-
-
-</html>
+{% endblock %}

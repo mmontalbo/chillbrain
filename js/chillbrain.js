@@ -1,57 +1,67 @@
 $(document).ready(function(){
 
-	var smeegle = new infoBox();
-
 	var docloc = document.location.href;
 	var hashLoc = docloc.search("#");
 	if(hashLoc > 0) {
-		var firstHash = "" + docloc.substring(docloc.search("#")+1);
-		
+		var firstHash = "" + docloc.substring(docloc.search("#")+1);		
 		changeInstructionsText("Your friend sent you the left image.<br/><br/><br/>Of the two images, select the one you like better.<br/><br/><br/> Press 'spacebar' to skip.");
-		
 	}else {
 		var firstHash = "";
 	}
-	
-	//http://chillbrain.com/img?h=489f2082483f64a2e105e9837a3dce620e7db205&info
-	
-	//alert(getUrlVars()["h"]);
 
 	var imgIndexOffset = 0;
 	var preloadedImages = 0;
 	var firstPageLoad = true;
 	var needNextCombatants = true;
 	var cursor = "";
-	var currentTab = "tab1";
 	var displayInstructions = true;
 
 	get2Images();
-	//setProgress(50);
-	//preloadHistory(9);
-
-	
-
-	$("div.tab").live("click",function(){
-		$("div.tab").removeClass("openTab");
-		$(this).addClass("openTab");
-		currentTab = $(this).attr("id");
-		if(currentTab == "tab2") {
-			$("div#historyTab").css("display","block");
-		}
-		else {
-			$("div#historyTab").css("display","none");
-		}
-	});
 
 	
 	$('img.combatant').live("click",function(e) { //----- ways to select winner
-		//winnerSelected();
-		zoomInImage();
-	
-		/*$("div#zoomInPicture").css({ //make wrapper div visible
-			display:"block"
-		});*/
-		$("div#zoomInPicture").fadeIn("fast");
+		//zoomInImage();
+		//$("div#zoomInPicture").fadeIn("fast");
+		
+		var scaleFactor = 2;
+		
+		var documentWidth = $(window).width();
+		var imgPosition = $(this).offset();
+		var imgWidth = $(this).width();
+		var imgWidthScaled = $(this).width() * scaleFactor;
+		var zoomedOffset = documentWidth - imgWidthScaled - (imgWidth) + (imgWidthScaled / 20);
+		//alert(documentWidth +" "+ imgPosition.left+" "+imgWidth);
+		
+		if($(this).hasClass("zoomed")) {
+			$("input.faceVote").css("display","block");
+			$("img.notSelected").css("display","block");
+			$("div.title").css("display","block");
+			
+			$(this).removeClass("zoomed");
+			$(this).css({
+				"-webkit-transform":"scale(1,1) translate(0, 0)",
+				"-moz-transform":"scale(1,1) translate(0, 0)"
+			});
+		} else {
+			$("input.faceVote").css("display","none");
+			$("img.notSelected").css("display","none");
+			$("div.title").css("display","none");
+			
+			$(this).addClass("zoomed");
+			if($(this).hasClass("leftCombatant")) {
+				$(this).css({
+					"-webkit-transform":"scale(2,2) translate("+zoomedOffset+"px, 20px)",
+					"-moz-transform":"scale(2,2) translate("+zoomedOffset+"px, 20px)"
+
+				});
+			} else {
+				$(this).css({
+					"-webkit-transform":"scale(2,2) translate(-"+zoomedOffset+"px, 20px)",
+					"-moz-transform":"scale(2,2) translate(-"+zoomedOffset+"px, 20px)"
+				});			
+			}
+		} 
+		
 	});
 	
 	$("input.leftControl").live("click",function(e) {
@@ -59,10 +69,6 @@ $(document).ready(function(){
 		$("img.rightCombatant").addClass("notSelected");
 		winnerSelected();
 		$(this).css("backgroundColor","#808080");
-		/*if(displayInstructions) {
-			$("div#instructions").fadeOut();
-			displayInstructions = false;
-		}*/
 	});
 	
 	$("input.rightControl").live("click",function(e) {
@@ -70,43 +76,26 @@ $(document).ready(function(){
 		$("img.leftCombatant").addClass("notSelected");
 		winnerSelected();
 		$(this).css("backgroundColor","#808080");
-		/*if(displayInstructions) {
-			$("div#instructions").fadeOut();
-			displayInstructions = false;
-		}*/
 	});
 	
 	
 	$(document).keyup(function(event){
 		if($("div#zoomInPicture").css("display") == "none") {
-			//$("div.controls").css({left:-1200}); //----- Hide the controls
 			if(event.keyCode  == 32) { // if 'spacebar' is pressed
 				drawGame();
 				$("div.control").css("backgroundColor","#808080");
-				/*if(displayInstructions) {
-					$("div#instructions").fadeOut();
-					displayInstructions = false;
-				}*/
-			}
-			if(event.keyCode == 27) { // if 'esc' is pressed
-				$("div#zoomInPicture").css({
-					display:"none"
-				});
 			}
 		} else { // zoomedIn
-		if(event.keyCode == 27 || event.keyCode  == 32) {
-		
-			$("div#zoomInPicture").css({
-					display:"none"
-			});
-		}
-		
+			if(event.keyCode == 27 || event.keyCode  == 32) {
+				$("div#zoomInPicture").css({
+						display:"none"
+				});
+			}
 		}
 	});
 	
 	
-	$("div#zoomInPicture").click(function(e){ //----- ways to hide zoom img
-		
+	$("div#zoomInPicture").click(function(e){ //----- closes image unless you click on something else
 		if(event.target != this){
 			return true;
 		} else {
@@ -114,7 +103,6 @@ $(document).ready(function(){
 				display:"none"
 			});
 		}
-		
 	});
 	
 	$("div#zoomInPicture img").live("click",function(){ //----- ways to hide img
@@ -122,42 +110,31 @@ $(document).ready(function(){
 			display:"none"
 		});
 		
-	});
-	
-	
+	});	
 	
 	$(window).resize(function() {
-  		//$('div.controls').css('left',-1200);
   		sizeTitles();
   		positionControls();
-
-
 	});
 
 	$('img.combatant').live("hover",function(e) {
 
 		$('img.combatant').removeClass("selected notSelected");
 		$(this).addClass("selected");
-		$(this).css("borderColor","#000000");
-		
+		//$(this).css("borderColor","#000000");
+				
 		var pos = $(this).offset();
 		
-		if($(this).hasClass("leftCombatant")) { //----- Place controls ontop of the img
-			/*$("div.leftControl").css({ 
-				left:pos.left+$(this).width()+11,
-				top:pos.top+1
-			});*/	
+		/*if($(this).hasClass("leftCombatant")) { //----- Place controls ontop of the img
+	
 			$("input.leftControl").css("backgroundColor","#000000");
 			
 		} else {
-			/*$("div.rightControl").css({
-				left:pos.left-70,
-				top:pos.top+1
-			});*/	
+			
 			$("input.rightControl").css("backgroundColor","#000000");
-		}
+		}*/
 		
-		positionControls();
+		//positionControls();
 
 		var isLeftCombatant = $(this).hasClass("leftCombatant"); //----- apply notSelected class to the other img
 		if(isLeftCombatant) {
@@ -219,8 +196,35 @@ $(document).ready(function(){
 function get2Images() {
 	// Fetch 2 images from server, add to DOM, position them (center horiz/vert), animate them in, preload more
 
-	preloadImages(12);
-		
+	/*		var firstEl = $("<img />");
+			firstEl.attr({
+				'src':'./static/no_image.jpg',
+				'title':'Is there a problem?',
+				'hash':'',
+				'elo':1600,
+				'id':"img_"+999
+			});
+			firstEl.addClass("preloaded");
+			firstEl.appendTo("div#main");
+			
+			var secondEl = $("<img />");
+			secondEl.attr({
+				'src':'./static/no_image.jpg',
+				'title':'Is there a problem?',
+				'hash':'',
+				'elo':1600,
+				'id':"img_"+999
+			});
+			secondEl.addClass("preloaded");
+			secondEl.appendTo("div#main");
+			
+			getNextCombatants();
+			positionControls();
+	*/
+	
+	getNextCombatants();
+	
+	
 }
 
 function winnerSelected() {
@@ -270,11 +274,12 @@ function getNextCombatants() {
 	
 		$("img.preloaded:first").addClass("leftCombatant combatant").removeClass("preloaded"); //grab first 2 from preloaded stack
 		$("img.preloaded:first").addClass("rightCombatant combatant").removeClass("preloaded");	
-		positionImages();
+		//positionImages();
 		sizeTitles();
+		
 	}
 	else {
-		//alert("no enough images preloaded");
+		//alert("not enough images preloaded");
 	}
 	needNextCombatants = false;
 	positionControls();
@@ -476,8 +481,8 @@ function positionImages() { //******* BUG with cached images giving 0 height so 
 	var windowHeight = $(window).height();
 	var windowWidth =  $(window).width();
 	
-	var combatantSpacing = 8; //this is a percentage
-	var fixedSpacing = 18;
+	var combatantSpacing = 6; //this is a percentage
+	var fixedSpacing = 20;
 	//var combatantWidth = (100-(3*combatantSpacing))/2;  //this is a percentage
 	var combatantWidth = 0.5*(100-(2*combatantSpacing) - fixedSpacing);
 	var rightCombatantPositionLeft = combatantSpacing + fixedSpacing + combatantWidth; //this is a percentage
@@ -515,24 +520,28 @@ function positionImages() { //******* BUG with cached images giving 0 height so 
 }
 
 function positionControls() {
-	var leftpos = $("img.leftCombatant").offset();
-	var rightpos = $("img.rightCombatant").offset();
+	var position = $("img.combatant").offset();
+	var controlWidth = $("input.faceVote").outerWidth();
+	var halfDocumentWidth = $(document).width() / 2;
+	var spacingBetween = 20 / 2; //px
+	
+	//alert(halfDocumentWidth +"- "+ spacingBetween+" -"+controlWidth)
 
 
 	$("input.leftControl").css({ //----- Place controls ontop of the img
-		left:leftpos.left+$("img.leftCombatant").width()+15,
-		top:leftpos.top
+		left:halfDocumentWidth - spacingBetween - controlWidth,
+		top:position.top
 	});	
 	
 	$("input.rightControl").css({ //----- Place controls ontop of the img
-		left:rightpos.left-68,
-		top:rightpos.top
+		left:halfDocumentWidth + spacingBetween,
+		top:position.top
 	});
 	
-	$("div#instructions").css({
+	/*$("div#instructions").css({
 		top:(rightpos.top+150),
 		display:"block"
-	});
+	});*/
 }
 
 function sizeTitles() {
@@ -544,28 +553,21 @@ function sizeTitles() {
 	}); 
 }
 
-});
 
-function preloadHistory(numToPreload) {
-	// preload images by fetching from server and putting them in DOM with css hidden
+var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-1860596-4']);
+	  _gaq.push(['_setDomainName', 'none']);
+	  _gaq.push(['_setAllowLinker', true]);
+	  _gaq.push(['_trackPageview']);
 	
-		var imgHashes;
-		
-		$.get("/next?p="+numToPreload, function(data) { //Hash for pictures
-  			imgHashes = $.parseJSON(data);
-  			cursor = imgHashes.cursor
-  			for(i=0;i<numToPreload;i++) {
-				
-				var htmlString = "<div class='historyImg'><img src='/img?h=undefined"+"'/><\/div> ";
-												
-				$("div#historyTab").append(htmlString);
-
-			}
-  			
-		});		
-}
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 
 
+});
 
 function getUrlVars()
 {

@@ -9,12 +9,12 @@ html {
 		font-weight:bold;
 	}
 
+
 	div#main{
 		position:relative;
 		max-width:1600px;
 		min-width:600px;
-		margin:0 auto 0 auto;
-		margin-top:50px;
+		top:50px;
 	}
 	
 	div#top {
@@ -24,6 +24,33 @@ html {
 		height:6em;
 		overflow:hidden;
 		top:3em;
+	}
+	
+	div#links {
+		height:30px;
+		width:100px;
+		position:absolute;
+		top:0;
+		right:0;
+	}
+	
+	div#links ul {
+		font-size:10px;
+		list-style-type:none;
+		padding:0;
+		margin:0;
+	}
+	div#links ul li{
+		display:inline;
+		margin-right:10px;
+		line-height:30px;
+	}
+	
+	div#links ul li a{
+		color:#ccc;
+	}
+	div#links ul li a:hover{
+		color:#000;
 	}
 	
 	div.title {
@@ -58,12 +85,38 @@ html {
 		border-bottom:15px solid black;
 		display:block;
 		border-color:#808080;
+		width:30%;
+		top:15%;
 
 		-webkit-border-radius: 10px 10px 10px 10px;
 		-moz-border-radius: 10px 10px 10px 10px;
 
-		-webkit-transition-property: -webkit-transform, opacity;
-		-webkit-transition-duration: 0.5s, 0.5s;
+		-webkit-transition-property: -webkit-transform, opacity, borderColor;
+		-webkit-transition-duration: 0.2s, 0.2s, 0.2s;
+		-webkit-transition-timing-function: linear, linear, linear;
+		-moz-transition-property: -moz-transform, opacity;
+		-moz-transition-duration: 0.2s, 0.2s;
+		-moz-transition-timing-function: linear, linear;
+	}
+	
+	img.combatant:hover {
+		-webkit-box-shadow:0px 2px 20px #999;
+		-moz-box-shadow:0px 2px 20px #999;
+
+	}
+	
+	img.zoomed {
+		border:none;
+		-webkit-border-radius:0;
+		-moz-border-radius:0;
+
+	}
+	
+	img.leftCombatant {
+		left:7%;
+	}
+	img.rightCombatant {
+		left: 60%;
 	}
 	
 	img.combatant:hover {
