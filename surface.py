@@ -32,10 +32,6 @@ REQUEST_ACTION_REPORT = 'report'
 REQUEST_ACTION_UPLOAD = 'upload'
 # ... More achievments to come (history, image stats)
 
-ACTION_PERMISSIONS = { REQUEST_ACTION_SHARE : 20.0,
-                       REQUEST_ACTION_REPORT: 100.0,
-                       REQUEST_ACTION_UPLOAD: 500.0}
-
 if appengine_config.isDebug():
     BASE_URL = 'http://localhost:8080/'
 else:
@@ -46,6 +42,56 @@ IMG_URL = BASE_URL + "img?"
 
 FEED_SIZE = 20
 
+class RepManager():
+    RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
+                           REQUEST_ACTION_VOTE:0.0,
+                           REQUEST_ACTION_SHARE : 20.0,
+                           REQUEST_ACTION_REPORT: 100.0,
+                           REQUEST_ACTION_UPLOAD: 500.0}
+
+    RepManager.ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
+                                   REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
+                                   REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
+
+    RepManager.LINKBACK_FACTOR = 0.25
+
+    def update_rep(self, action, reputation, linkbacks = 0):
+        if self.has_permission(action, reputation):
+            # get rep increase for linkbacks
+            inc_rep = RepManager.LINKBACK_FACTOR * linkbacks
+            
+            # update reputation if voting
+            if action == REQUEST_ACTION_VOTE:
+                inc_rep += 1.0
+
+            # message if new achievment is unlocked
+            msg = self.get_achievment_msg(reputation, inc_rep)
+            reputation += inc_rep
+
+            return (reputation, msg)
+        else:
+            # message that more reputation is required
+            return (reputation, self.get_permission_denied_msg(action))
+
+    # Check if the given action can be performed based on the given reputation
+    def has_permission(self, action, reputation):
+        if action in RepManager.REP_REQ:
+            return reputation >= RepManager.REP_REQ[action]
+        else:
+            logging.error("No reputation requirement defined for: "+action)
+            return False
+
+    # Get any new achievment messages
+    def get_achievment_msg(self,reputation,inc_rep):
+        msg = ""
+        for action,req in RepManager.REP_REQ:
+            if reputation < req and (reputation + inc_rep) >= req:
+                return RepManager.ACHIEVMENT_MSGS[action]
+
+    # Construct an appropriate permission denied error message
+    def get_permission_denied_msg(self, action):
+        return "Need "+str(AchievmentsManager.REP_REQ[action])+" rep to "+action+"."
+        
 class MainPage(BaseRequest):
     def get(self):
         session = get_current_session()
@@ -147,21 +193,7 @@ class Logout(webapp.RequestHandler):
      
 '''
     Utility methods for user management
-'''        
-def get_permission_unlocked_msg(action):
-    return "Gained ability to "+action
-
-# Construct an appropriate permission denied error message
-def get_permission_denied_msg(action):
-    return "Need "+str(ACTION_PERMISSIONS[action])+" rep to "+action+"."
-
-# Check if the given action can be performed based on the given reputation
-def has_permission(action, userReputation):
-    if action in ACTION_PERMISSIONS:
-        return userReputation >= ACTION_PERMISSIONS[action]
-    else:
-        return False
-    
+'''            
 # Get a User object from the current user retrieved from the BaseRequest and session  
 def get_user(user, session):
     if user:
