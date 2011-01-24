@@ -20,7 +20,7 @@
 					   data : ["action="+action,imgStr, fetch].join("&"),
 					   success: function(msg){
 					   		if(callback) 
-						   		callback(msg);
+						   		callback(eval("msg =" + msg));
 					   }
 				});
 			}

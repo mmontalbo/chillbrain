@@ -6,6 +6,11 @@
 {% block content %}
 	<div style="width:600px; margin:auto; padding:auto;">
 		<div>
+			<input type="button" onclick="data('vote', { img1: '{{img1.key}}' });" value="Vote" />
+			<input type="button" onclick="data('skip', { img1: '{{img1.key}}', img2 : '{{img2.key}}' });" value="Skip" />
+			<input type="button" onclick="prompt_share('{{img1.key}}', '{{img1.title|addslashes}}')" value="Share" />
+		</div>
+		<div>
 			<img src="{{url.img}}h={{img1.key}}" />
 		</div>
 		<div>
@@ -16,7 +21,7 @@
 	<script type="text/javascript">
 		var imagesArray = [];
 		{% for image in imgs %}
-			imagesArray.push({ title : "{{image.title}}", link : "{{image.permalink}}" });
+			imagesArray.push({ title : "{{image.title|addslashes}}", link : "{{image.permalink}}" });
 		{% endfor %}
 	</script>
 {% endblock %} 
