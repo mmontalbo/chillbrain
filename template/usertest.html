@@ -5,15 +5,18 @@
 
 {% block content %}
 	<div style="width:600px; margin:auto; padding:auto;">
-		<input type="button" value="Vote" style="width: 80px; height: 150px;" onclick="data('vote', { img1: '{{img1.key}}' });"></input>
-		<input type="button" value="Skip" style="width: 80px; height: 150px; margin-left: 30px;" onclick="data('skip', { img1: '{{img1.key}}', img2: '{{img2.key}}'} );"></input>
-		{% if permissions.share %}
-			<input type="button" value="Share" style="width: 80px; height: 150px; margin-left: 30px;" onclick="prompt_share('{{img1.key}}','{{img1.title}}');"></input>
-		{% endif %}
-
 		<div>
-			<img src="http://localhost:8080.com/img?h={{img1.key}}" />
+			<img src="{{url.img}}h={{img1.key}}" />
+		</div>
+		<div>
+			<img src="{{url.img}}h={{img2.key}}" />
 		</div>
 	</div>
 	
+	<script type="text/javascript">
+		var imagesArray = [];
+		{% for image in imgs %}
+			imagesArray.push({ title : "{{image.title}}", link : "{{image.permalink}}" });
+		{% endfor %}
+	</script>
 {% endblock %} 

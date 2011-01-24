@@ -5,11 +5,19 @@
 {% endblock %}
 
 {% block body %}
-	<span id="login_status"></span>
+	<span id="login_status">
+		{% if uid %}
+			<a href="#" onclick="logout();">Logout</a>
+		{% else %}	
+			<a href="#" onclick="login();">Login</a>
+		{% endif %}
+	</span>
+	<!-- Twitter Share button if we want it 
 	<a style="float:right;" href="http://twitter.com/share" class="twitter-share-button" data-url="http://chillbrain.com" data-count="none">
 		Tweet
 	</a>
 	<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+	-->
 	{% block content %}
 	{% endblock %}
 	<div id="fb-root"></div>
@@ -17,11 +25,8 @@
     <script type="text/javascript">
 	 	// initialize the library with the API key'
 	    FB.init(
-	     	{ apiKey: '{{app_id}}', cookie : true, status : true }
+	     	{ apiKey: '{{app_id}}', cookie : true }
 	    );
-
-		 // fetch the status on load
-	    FB.getLoginStatus(loaded);
 
 	    function login() {
 	    	FB.login(callback, { perms: "publish_stream" });
@@ -40,19 +45,9 @@
 	        });
 	    }
 
-	    function loaded(response) {
-	    	if(response.session){
-		    	FB.api("/me", function(response) {
-		    		$("#login_status").html("<span style='padding-right: 10px;'>Logged in as " + response.name + "</span><a href='#' onclick='logout();'>Log out</a>");
-		    	});
-	    	} else {
-	    		$("#login_status").html("<a href='#' onclick='login()'>Log In</a>");
-	    	}
-	    }
-
 	    function callback(response) {
 	    	if(response.session){
-		    	window.location = "/usr/";
+		    	window.location = "/";
 	    	} 
 	    }
 
@@ -68,8 +63,7 @@
 				    },
 				    function(response) {
 				    	if (!response) {
-				    		// Error handling
-				    		alert("ERRORRRRRR");
+							
 				    	} 
 				   	}
 			    );
