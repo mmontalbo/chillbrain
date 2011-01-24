@@ -40,7 +40,13 @@ class ChillUser(BaseUser):
     access_token = db.StringProperty(required=True)
     shares = db.ListProperty(db.Key) # List of transaction IDs that have been shared
     album = db.StringProperty() # FB ID for this users Chillbrain album
-    linkbacks = db.IntegerProperty(default=0)
+    linkbacks = db.IntegerProperty(default=0) # Tracks number of linkbacks for this user
+    
+    def get_linkbacks(self):
+        linkbacks = self.linkbacks
+        self.linkbacks = 0
+        self.put()
+        return linkbacks
     
     def increment_linkback(self):
         self.linkbacks += 1
