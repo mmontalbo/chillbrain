@@ -42,18 +42,19 @@ IMG_URL = BASE_URL + "img?"
 
 FEED_SIZE = 20
 
-class RepManager():
-    RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
-                           REQUEST_ACTION_VOTE:0.0,
-                           REQUEST_ACTION_SHARE : 20.0,
-                           REQUEST_ACTION_REPORT: 100.0,
-                           REQUEST_ACTION_UPLOAD: 500.0}
-
-    RepManager.ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
-                                   REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
-                                   REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
-
-    RepManager.LINKBACK_FACTOR = 0.25
+class RepManager(object):
+    def __init__(self):
+        RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
+                               REQUEST_ACTION_VOTE:0.0,
+                               REQUEST_ACTION_SHARE : 20.0,
+                               REQUEST_ACTION_REPORT: 100.0,
+                               REQUEST_ACTION_UPLOAD: 500.0}
+        
+        RepManager.ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
+                                       REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
+                                       REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
+        
+        RepManager.LINKBACK_FACTOR = 0.25
 
     def update_rep(self, action, reputation, linkbacks = 0):
         if self.has_permission(action, reputation):
