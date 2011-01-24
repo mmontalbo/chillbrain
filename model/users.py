@@ -4,6 +4,7 @@ from google.appengine.ext.db import polymodel
 from transactions import *
 
 import logging
+import hashlib
 
 class BaseUser(polymodel.PolyModel):
     seen = db.ListProperty(str) # List of images User has seen
@@ -62,8 +63,10 @@ class ChillUser(BaseUser):
         self.linkbacks += 1
         self.put()
     
+    # vote with a hash of the image key and user key to prevent double voting
     def vote(self, id):
-        vote = Vote(user=self, img=id)
+        hash = hashlib.sha1(str(self.key()) + str(id)).digest()
+        vote = Vote(user=self, img=id, validator=hash, key_name=hash)
         vote.put()
         self.votes.append(vote.key())
         self.put()
