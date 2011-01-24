@@ -19,9 +19,10 @@ from config import sources
 
 class Scraper(object):
     def __init__(self, url):
-        Scraper.MAX_IMGS_TO_FETCH = 50
+        Scraper.MAX_DEQUE_LENGTH = 20
+        Scraper.MAX_IMGS_TO_FETCH = 25
         Scraper.MAX_FIELD_LENGTH = 500
-        Scraper.MAX_RETRY_COUNT = 5
+        Scraper.MAX_RETRY_COUNT = 2
         Scraper.skipWords = ["nsfw","nsfl","reddit"]
 
         self.scrapeURL = url
@@ -34,11 +35,11 @@ class Scraper(object):
         retry = 0
 
         while(len(links) > 0 and count < Scraper.MAX_IMGS_TO_FETCH):
-            time.sleep(0.2)
             link = links.pop()
             logging.debug("Requesting url: "+link+"...");
             response = urlfetch.Fetch(link).content
-            nextLinks = self.parse(response)
+            (nextLinks, dlCount) = self.parse(response)
+            count += dlCount
             if (not nextLinks or len(nextLinks) == 0) and retry < Scraper.MAX_RETRY_COUNT:
                 links.append(link)
                 retry = retry + 1
@@ -95,14 +96,17 @@ class RedditScraper(Scraper):
         try:
             responseDict = json.loads(response)
             nextLinks = []
+            dlCount = 0
             for child in responseDict["data"]["children"]:
                 params = {'url':child['data']['url'],
                 'source':RedditScraper.SUBREDDIT_URL + child['data']['subreddit'],
                 'title':self.filterTitle(child['data']['title']),
                 'permalink':RedditScraper.REDDIT_URL + child['data']['permalink']}
                 self.download(params)
+                dlCount += 1
+                time.sleep(0.2)
                 nextLinks.append(self.subredditURL+child['data']['name'])
-            return nextLinks
+            return (nextLinks, dlCount)
         except ValueError, e:
             logging.error("Failed to decode JSON: " +response)
         except URLError, e:

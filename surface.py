@@ -28,6 +28,13 @@ REQUEST_SHARE_ID = 'r'
 REQUEST_ACTION_VOTE = 'vote'
 REQUEST_ACTION_SKIP = 'skip'
 REQUEST_ACTION_SHARE = 'share'
+REQUEST_ACTION_REPORT = 'report'
+REQUEST_ACTION_UPLOAD = 'upload'
+# ... More achievments to come (history, image stats)
+
+ACTION_PERMISSIONS = { REQUEST_ACTION_SHARE : 20.0,
+                       REQUEST_ACTION_REPORT: 100.0,
+                       REQUEST_ACTION_UPLOAD: 500.0}
 
 # URL configuration
 if appengine_config.isDebug():
@@ -151,7 +158,21 @@ class Logout(webapp.RequestHandler):
 '''
     Utility methods for user management
 '''        
-# Get a User object from the current user retrieved from the BaseRequest and session        
+def get_permission_unlocked_msg(action):
+    return "Gained ability to "+action
+
+# Construct an appropriate permission denied error message
+def get_permission_denied_msg(action):
+    return "Need "+str(ACTION_PERMISSIONS[action])+" rep to "+action+"."
+
+# Check if the given action can be performed based on the given reputation
+def has_permission(action, userReputation):
+    if action in ACTION_PERMISSIONS:
+        return userReputation >= ACTION_PERMISSIONS[action]
+    else:
+        return False
+    
+# Get a User object from the current user retrieved from the BaseRequest and session  
 def get_user(user, session):
     if user:
         return user
