@@ -32,6 +32,7 @@ REQUEST_ACTION_REPORT = 'report'
 REQUEST_ACTION_UPLOAD = 'upload'
 # ... More achievments to come (history, image stats)
 
+# URL configuration
 if appengine_config.isDebug():
     BASE_URL = 'http://localhost:8080/'
 else:
@@ -39,6 +40,7 @@ else:
 
 SHARE_URL = BASE_URL + "enter?"
 IMG_URL = BASE_URL + "img?"
+LOGIN_REDIRECT_URL = BASE_URL + "tests/login"
 
 FEED_SIZE = 20
 
@@ -101,6 +103,29 @@ class MainPage(BaseRequest):
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
         context["permissions"] = get_permissions(user)
+        context["url"] = { "share" : SHARE_URL, "img" : IMG_URL, "login" : LOGIN_REDIRECT_URL }
+        
+        if not user.isTemporary():
+            context["uid"] = user.id
+        
+        feed = ImageFeed(FEED_SIZE)
+
+        initialImages, feedSources = feed.initialImages([sources.all[0]])
+        context["img1"] = initialImages.pop()
+        context["img2"] = initialImages.pop()
+        context["imgs"] = initialImages
+        
+        path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
+        self.response.out.write(template.render(path, context))
+        
+class LoginScaffolding(BaseRequest):
+    def get(self):
+        session = get_current_session()
+        user = get_user(self.current_user, session)
+        
+        context = {}
+        context["app_id"] = FACEBOOK_APP_ID
+        context["permissions"] = get_permissions(user)
         context["url"] = { "share" : SHARE_URL, "img" : IMG_URL }
         
         if not user.isTemporary():
@@ -110,9 +135,9 @@ class MainPage(BaseRequest):
 
         initialImages, feedSources = feed.initialImages([sources.all[0]])
         context["img1"] = initialImages[0]
-        context["img2"] = initialImages[1]
+        context["img2"] = initialImages[1]        
         
-        path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
+        path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
         self.response.out.write(template.render(path, context))
         
 class ImageServeScaffolding(BaseRequest):
@@ -146,12 +171,7 @@ class DataHandler(BaseRequest):
             # if this is a temporary user that has logged in migrate their cache over
             if session.get(SESS_TEMP_USER) and not user.isTemporary():
                 migrate_session(user, session)
-        
-        logging.debug("Temp User: " + str(user.isTemporary()))
-        logging.debug("Action: " + self.request.get(REQUEST_ACTION))
-        logging.debug("IMG 1: " + self.request.get(REQUEST_IMG_ID))
-        logging.debug("IMG 2: " + self.request.get(REQUEST_IMG_ID2))
-        
+                
         img = None
         img2 = None
         if self.request.get(REQUEST_IMG_ID):
@@ -160,16 +180,7 @@ class DataHandler(BaseRequest):
             img2 = db.Key(self.request.get(REQUEST_IMG_ID2))        
 
         response = process_request(self.request.get(REQUEST_ACTION), user, img, img2)
-        logging.debug(response)
         self.response.out.write(json.dumps(response))
-
-        if not user.isTemporary:
-            shares = len(user.shares)
-        else:
-            shares = 0
-
-        logging.debug("User: %(user)s has %(visits)i session visits, %(votes)i votes, %(skips)i skips, and %(shares)i shares" %  \
-            { "user" : session[SESS_KEY_USER], "visits" : session[SESS_KEY_VISIT], "votes": len(user.votes), "skips" : len(user.skips), "shares" : shares })
    
 '''
     Handle shared link redirects and tracking

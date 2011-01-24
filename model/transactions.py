@@ -20,6 +20,7 @@ class Share(Transaction):
     def add_generated_user(self, user):
         self.generated_hits += 1
         self.generated_users.append(user.key())
+        self.user.increment_linkback()
         self.put()
     
 class AlbumShare(Transaction):
