@@ -3,10 +3,14 @@ from google.appengine.ext.db import polymodel
 
 from transactions import *
 
+import logging
+
 class BaseUser(polymodel.PolyModel):
     seen = db.ListProperty(str) # List of images User has seen
     votes = db.ListProperty(db.Key) # List of transaction IDs that have been votes on
     skips = db.ListProperty(db.Key) # List of transaction IDs that have been skipped
+    shares = db.ListProperty(db.Key) # List of transaction IDs that have been shared (this is just reference links in the case of a BaseUser)
+    reputation = db.FloatProperty(default=0.0) # Tracks this users reputation
     
     def create(self):
         self.votes = []
@@ -30,6 +34,11 @@ class BaseUser(polymodel.PolyModel):
         self.skips.append(skip.key())
         self.put()
         
+    # add a temporary share to a BaseUser (they can't be counted until migration to logged in state)    
+    def add_temporary_clickback(self, share_ref):
+        self.shares.append(share_ref.key())
+        self.put()
+        
     def isTemporary(self):
         return True
     
@@ -38,7 +47,6 @@ class ChillUser(BaseUser):
     created = db.DateTimeProperty(auto_now_add=True)
     name = db.StringProperty(required=True)
     access_token = db.StringProperty(required=True)
-    shares = db.ListProperty(db.Key) # List of transaction IDs that have been shared
     album = db.StringProperty() # FB ID for this users Chillbrain album
     linkbacks = db.IntegerProperty(default=0) # Tracks number of linkbacks for this user
     
@@ -87,6 +95,9 @@ class ChillUser(BaseUser):
             temporary_skip = TemporarySkip.get(skip)
             self.skip(temporary_skip.img1, temporary_skip.img2)
             temporary_skip.delete()
+        for clickback in baseUser.shares:
+            share_transaction = Share.get(clickback)
+            share_transaction.add_generated_user(self)
         self.put()
         
     def isTemporary(self):

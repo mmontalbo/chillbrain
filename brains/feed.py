@@ -77,7 +77,6 @@ class ImageFeed():
             images.append(srcImgs)
             position += 1
 
-        logging.info(str(images))
         shuffledImages = self.shuffleImages(images)
 
         return (shuffledImages,feedSources)

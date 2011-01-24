@@ -80,7 +80,6 @@ class ImageServe(webapp.RequestHandler):
         try:
             imgHash = self.request.get('h')
             info = self.request.get('info')
-            logging.info("info is:"+info)
             height = self.request.get('e')
             width = self.request.get('w') 
 

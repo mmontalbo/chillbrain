@@ -52,6 +52,7 @@ class MainPage(BaseRequest):
     def get(self):
         session = get_current_session()
         user = get_user(self.current_user, session)
+        manage_session(user, session)  
         
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
@@ -75,6 +76,7 @@ class LoginScaffolding(BaseRequest):
     def get(self):
         session = get_current_session()
         user = get_user(self.current_user, session)
+        manage_session(user, session)  
         
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
@@ -87,8 +89,9 @@ class LoginScaffolding(BaseRequest):
         feed = ImageFeed(FEED_SIZE)
 
         initialImages, feedSources = feed.initialImages([sources.all[0]])
-        context["img1"] = initialImages[0]
-        context["img2"] = initialImages[1]        
+        context["img1"] = initialImages.pop()
+        context["img2"] = initialImages.pop()     
+        context["imgs"] = initialImages
         
         path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
         self.response.out.write(template.render(path, context))
@@ -109,18 +112,7 @@ class DataHandler(BaseRequest):
     def post(self):
         session = get_current_session()
         user = get_user(self.current_user, session)
-        
-        # New Session: Initialize visit counter and temp user id
-        if not session.is_active():                    
-            session[SESS_KEY_VISIT] = 1
-            session[SESS_KEY_USER] = user.key()
-            session.set_quick(SESS_TEMP_USER, user.isTemporary())
-        # Existing Session: Increment Visit Counter
-        else:
-            session[SESS_KEY_VISIT] = session[SESS_KEY_VISIT] + 1
-            # if this is a temporary user that has logged in migrate their cache over
-            if session.get(SESS_TEMP_USER) and not user.isTemporary():
-                migrate_session(user, session)
+        manage_session(user, session)        
                 
         img = None
         img2 = None
@@ -141,12 +133,14 @@ class Entrance(BaseRequest):
          
          session = get_current_session()
          user = get_user(self.current_user, session)
+         manage_session(user, session)       
          
          # get the share transaction from the information and add a generated user (user clicks on their link)
          share_transaction = transactions.Share.get(db.Key(share_id))
-         share_transaction.add_generated_user(user)
+         if share_transaction:
+            share_transaction.add_generated_user(user)
          
-         self.redirect('/usr/')
+         self.redirect(LOGIN_REDIRECT_URL)
         
 '''
     Handle logging out by terminating the current session
@@ -173,6 +167,21 @@ def has_permission(action, userReputation):
     else:
         return False
     
+# Manage the session setup properties (such as migrating a session)
+# This should be moved over to the request handler/middleware 
+def manage_session(user, session):
+    # New Session: Initialize visit counter and temp user id
+    if not session.is_active():                    
+        session[SESS_KEY_VISIT] = 1
+        session[SESS_KEY_USER] = user.key()
+        session.set_quick(SESS_TEMP_USER, user.isTemporary())
+    # Existing Session: Increment Visit Counter
+    else:
+        session[SESS_KEY_VISIT] = session[SESS_KEY_VISIT] + 1
+        # if this is a temporary user that has logged in migrate their cache over
+        if session.get(SESS_TEMP_USER) and not user.isTemporary():
+            migrate_session(user, session)
+    
 # Get a User object from the current user retrieved from the BaseRequest and session  
 def get_user(user, session):
     if user:
@@ -193,12 +202,15 @@ def get_permissions(user):
 # Process a data request
 def process_request(action, user, img, img2):
     response_data = {}
-    if action == REQUEST_ACTION_VOTE:
-        response_data['vote'] = user.vote(img)
-    if action == REQUEST_ACTION_SKIP: 
-        response_data['skip'] = user.skip(img, img2)
-    if action == REQUEST_ACTION_SHARE:
-        response_data['share'] = user.share(img)
+    try: 
+        if action == REQUEST_ACTION_VOTE:
+            response_data['vote'] = user.vote(img)
+        if action == REQUEST_ACTION_SKIP: 
+            response_data['skip'] = user.skip(img, img2)
+        if action == REQUEST_ACTION_SHARE:
+            response_data['share'] = user.share(img)
+    except Exception:
+        response_data["error"] = "Problem processing data request"
     return response_data
 
 # Migrate a temporary user to ChillUser object 

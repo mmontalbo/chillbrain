@@ -53,13 +53,14 @@
 
 	    function prompt_share(img_id, caption) {
 			data('share', { img1: img_id }, false, function(msg) {
-				var cb_response = eval("msg =" + msg);
+				if(msg.error) return false;
+			
 		    	FB.ui({
 				    	method: 'feed',
 				    	picture: "{{url.img}}h=" + img_id,
 				    	name: 'Another funny picture from Chillbrain',
 				    	caption: caption,
-				    	link: "{{url.share}}r=" + cb_response.share,
+				    	link: "{{url.share}}r=" + msg.share,
 				    },
 				    function(response) {
 				    	if (!response) {
