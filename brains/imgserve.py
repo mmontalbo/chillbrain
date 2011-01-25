@@ -8,7 +8,6 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
 from django.utils import simplejson as json
-from google.appengine.api import memcache
 from google.appengine.api import images
 from google.appengine.ext import db
 from google.appengine.api import images
@@ -38,13 +37,8 @@ class ImageVote(webapp.RequestHandler):
                 logging.error('Reason: '+ e.reason)
 
     def calcElo(self,status,a,b):
-        imgA = memcache.get('Image_'+a)
-        imgB = memcache.get('Image_'+b)
-
-        if(imgA is None):
-            imgA = cbmodel.Image.get(db.Key.from_path('Image',a))
-        if(imgB is None):
-            imgB = cbmodel.Image.get(db.Key.from_path('Image',b))
+        imgA = cbmodel.Image.get(db.Key.from_path('Image',a))
+        imgB = cbmodel.Image.get(db.Key.from_path('Image',b))
 
         qa = pow(10.0,(imgA.rating/400.0))
         qb = pow(10.0,(imgB.rating/400.0))
@@ -69,11 +63,6 @@ class ImageVote(webapp.RequestHandler):
             logging.debug("Draw rating: "+str(imgB.rating))        
         imgA.put()
         imgB.put()
-        memcache.delete('Image'+a)
-        memcache.delete('Image_'+b)
-        memcache.set('Image_'+a,imgA)
-        memcache.set('Image_'+b,imgB)
-
 
 class ImageServe(webapp.RequestHandler):
     def get(self):
@@ -115,9 +104,5 @@ class ImageServe(webapp.RequestHandler):
         return img
 
     def getImg(self,imgHash):
-        img = memcache.get('Image_'+imgHash)
-        if(img is None):
-            img = Image.get(db.Key(imgHash))
-            if(img):
-                memcache.set('Image_'+imgHash,img)
+        img = Image.get(db.Key(imgHash))
         return img
