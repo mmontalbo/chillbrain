@@ -1,5 +1,5 @@
 import math
-from config.sources import *
+from config.chill_constants import *
 from model import cbmodel
 import logging
 

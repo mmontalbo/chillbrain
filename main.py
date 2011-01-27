@@ -1,9 +1,9 @@
 from config import appengine_config
 from brains.imgserve import *
 from surface import *
-from util import datastore_cache
+#from util import datastore_cache
 
-datastore_cache.DatastoreCachingShim.Install()
+#datastore_cache.DatastoreCachingShim.Install()
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
