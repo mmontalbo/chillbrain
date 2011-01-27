@@ -44,7 +44,7 @@ class MainPage(ChillRequestHandler):
         
         feed = ImageFeed(FEED_SIZE)
 
-        initialImages, feedSources = feed.initialImages([REDDIT_FUNNY])
+        initialImages  = feed.initial_images([REDDIT_FUNNY])
         context["img1"] = initialImages.pop()
         context["img2"] = initialImages.pop()
         context["imgs"] = initialImages
@@ -66,7 +66,7 @@ class LoginScaffolding(ChillRequestHandler):
         
         feed = ImageFeed(FEED_SIZE)
 
-        initialImages, feedSources = feed.initialImages([REDDIT_FUNNY])
+        initialImages = feed.initial_images([REDDIT_FUNNY])
         context["img1"] = initialImages.pop()
         context["img2"] = initialImages.pop()     
         context["imgs"] = initialImages
@@ -78,18 +78,18 @@ class ImageServeScaffolding(webapp.RequestHandler):
     def get(self):
         feed = ImageFeed(FEED_SIZE)
 
-        initialImages, feedSources = feed.initialImages([REDDIT_FUNNY])
+        initialImages = feed.initial_images([REDDIT_FUNNY])
         
         self.response.out.write([image.permalink for image in initialImages])
         
-        initialImages, feedSources = feed.nextImages(feedSources)
+        initialImages = feed.next_images()
         self.response.out.write([image.permalink for image in initialImages])
         
 class DataHandler(ChillRequestHandler):        
     def __init__(self):
         self.repManager = reputation_manager.RepManager()
 
-    def post(self):           
+    def post(self):         
         img = None
         img2 = None
         if self.request.get(REQUEST_IMG_ID):
