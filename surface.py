@@ -6,7 +6,7 @@ from django.utils import simplejson as json
 from model.users import *
 from model import transactions
 from net.handlers import ChillRequestHandler, FACEBOOK_APP_ID
-from brains.feed import *
+from brains import feed
 from brains import reputation_manager
 from config import appengine_config
 from config.chill_constants import *
@@ -42,9 +42,9 @@ class MainPage(ChillRequestHandler):
         if not user.isTemporary():
             context["uid"] = user.id
         
-        feed = ImageFeed(FEED_SIZE)
+        image_feed = feed.ImageFeed(FEED_SIZE)
 
-        initialImages, feedSources = feed.initialImages([REDDIT_FUNNY])
+        initialImages, feedSources = image_feed.initialImages([REDDIT_FUNNY])
         context["img1"] = initialImages.pop()
         context["img2"] = initialImages.pop()
         context["imgs"] = initialImages
@@ -64,9 +64,9 @@ class LoginScaffolding(ChillRequestHandler):
         if not user.isTemporary():
             context["uid"] = user.id
         
-        feed = ImageFeed(FEED_SIZE)
+        image_feed = feed.ImageFeed(FEED_SIZE)
 
-        initialImages, feedSources = feed.initialImages([REDDIT_FUNNY])
+        initialImages, feedSources = image_feed.initialImages([REDDIT_FUNNY])
         context["img1"] = initialImages.pop()
         context["img2"] = initialImages.pop()     
         context["imgs"] = initialImages
@@ -76,9 +76,9 @@ class LoginScaffolding(ChillRequestHandler):
         
 class ImageServeScaffolding(webapp.RequestHandler):
     def get(self):
-        feed = ImageFeed(FEED_SIZE)
+        image_feed = feed.ImageFeed(FEED_SIZE)
 
-        initialImages, feedSources = feed.initialImages([REDDIT_FUNNY])
+        initialImages, feedSources = image_feed.initialImages([REDDIT_FUNNY])
         
         self.response.out.write([image.permalink for image in initialImages])
         

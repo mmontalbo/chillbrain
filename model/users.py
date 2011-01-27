@@ -18,6 +18,7 @@ class BaseUser(polymodel.PolyModel):
         self.skips = []
         self.shares = []
         self.put()
+        return self
     
     def show(self, img1, img2):
         self.seen.extend([img1, img2])
@@ -65,7 +66,7 @@ class ChillUser(BaseUser):
     
     # vote with a hash of the image key and user key to prevent double voting
     def vote(self, id):
-        hash = hashlib.sha1(str(self.key()) + str(id)).digest()
+        hash = hashlib.sha1(str(self.key()) + str(id)).hexdigest()
         vote = Vote(user=self, img=id, validator=hash, key_name=hash)
         vote.put()
         self.votes.append(vote.key())
@@ -91,11 +92,11 @@ class ChillUser(BaseUser):
     def migrate(self, baseUser):
         for vote in baseUser.votes:
             temporary_vote = TemporaryVote.get(vote)
-            self.vote(temporary_vote.img)
+            self.vote(temporary_vote.img.key())
             temporary_vote.delete()
         for skip in baseUser.skips:
             temporary_skip = TemporarySkip.get(skip)
-            self.skip(temporary_skip.img1, temporary_skip.img2)
+            self.skip(temporary_skip.img1.key(), temporary_skip.img2.key())
             temporary_skip.delete()
         for clickback in baseUser.shares:
             share_transaction = Share.get(clickback)
