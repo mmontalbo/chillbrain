@@ -1,5 +1,5 @@
 from config.chill_constants import *
-from model import cbmodel
+from model.image import *
 
 import collections
 import logging
@@ -88,7 +88,7 @@ class ImageFeed():
     @return GQL query for Images with given source
     """
     def image_query(self, source):
-        return cbmodel.Image.all().filter("source =", source)
+        return Image.all().filter("source =", source)
 
     """
     shuffle_images interleaves the elements of each indiviual list

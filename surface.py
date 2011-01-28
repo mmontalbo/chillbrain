@@ -3,7 +3,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
 from django.utils import simplejson as json
 
-from model.users import *
+from model import users
 from model import transactions
 from net.handlers import ChillRequestHandler, FACEBOOK_APP_ID
 from brains import feed
@@ -47,7 +47,7 @@ class MainPage(ChillRequestHandler):
         
         image_feed = feed.ImageFeed(FEED_SIZE)
 
-        initialImages  = feed.initial_images([REDDIT_FUNNY])
+        initialImages  = image_feed.initial_images([REDDIT_FUNNY])
 
         context["img1"] = initialImages.pop()
         context["img2"] = initialImages.pop()
