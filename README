@@ -19,7 +19,7 @@ caption - The caption of the image being shared
 purpose: This method will first send a "share" data request to chillbrain
 to determine if this user has sufficient permissions to share an image. If so,
 this will trigger a facebook UI API event and offer the ability to share an 
-image on Facebook.
+image on Facebook. If not, a share prompt will not appear and an error message will be returned
 
 file: base_web.html
 
