@@ -1,0 +1,150 @@
+body {
+	margin:0 3% 3% 3%;
+	font-family:geneva;
+	font-weight:bold;
+}
+
+div#main {
+	min-width:600px;
+	max-width:1200px;
+	margin:0 auto;
+	//height:100%;
+	//background-color:red;
+}
+
+div#header {
+	width:100%;
+	height:2em;
+	//background-color:orange;
+	text-align:right;
+}
+
+div#header ul {
+		font-size:10px;
+		list-style-type:none;
+		padding:0;
+		margin:0;
+}
+div#header ul li{
+	display:inline;
+	margin-right:10px;
+	line-height:30px;
+}
+
+div#header ul li a{
+	color:#ccc;
+}
+
+div#header ul li a:hover{
+	color:#000;
+}
+
+div#titles {
+	width:100%;
+	height:75px;
+	//background-color:green;
+}
+
+div.imgTitle {
+	width:40%;
+	height:100%;
+	text-align:center;
+	//background-color:yellow;
+}
+
+div#leftTitle {
+	float:left;
+}
+div#rightTitle {
+	float:right;
+}
+
+div#content {
+	width:100%;
+	//background-color:magenta;
+	position:relative;
+	height:100px;
+}
+
+img.combatant {
+	position:absolute;
+	width:34%;
+	margin:0 1.5% 0 1.5%;
+	border:15px solid #808080;
+	
+	-webkit-border-radius: 10px 10px 10px 10px;
+	-moz-border-radius: 10px 10px 10px 10px;
+	
+	-webkit-transition-property: -webkit-transform, opacity, borderColor;
+	-webkit-transition-duration: 0.2s, 0.2s, 0.2s;
+	-webkit-transition-timing-function: linear, linear, linear;
+	-moz-transition-property: -moz-transform, opacity;
+	-moz-transition-duration: 0.2s, 0.2s;
+	-moz-transition-timing-function: linear, linear;
+}
+
+img.combatant:hover {
+	-webkit-box-shadow:0px 2px 20px #999;
+	-moz-box-shadow:0px 2px 20px #999;
+}
+
+img.leftCombatant {
+	top:0;
+	left:0;
+}
+
+img.rightcombatant {
+	top:0;
+	right:0;
+}
+
+img.preloaded {
+	display:none;
+}
+
+div#controls {
+	position:relative;
+	top:0;
+	left:50%;
+	width:18%;
+	margin-left:-9%;
+	height:200px;
+	//background-color:blue;
+}
+
+div.voteButton {
+	position:absolute;
+	top:0;
+	width:35%;
+	overflow:hidden;
+	background-color:#808080;
+	border:1px solid rgba(0,0,0,0);
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	
+}
+
+div.voteButton:hover {
+	background-color:#000000;
+	cursor:pointer;
+}
+
+div.voteButton img {
+	width:200%;
+	margin-left:-100%;
+}
+
+div.voteButton img:hover{
+	margin-left:0%;
+}
+
+div#leftVoteButton {
+	left:0;
+}
+div#rightVoteButton {
+	right:0;
+}
+
+a {
+	text-decoration:none;
+}
