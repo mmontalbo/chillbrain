@@ -9,15 +9,31 @@ $(document).ready(function(){
 		var firstHash = "";
 	}
 
-	var imgIndexOffset = 0;
+	var imgIndexOffset = 2;
 	var preloadedImages = 0;
 	var firstPageLoad = true;
 	var needNextCombatants = true;
 	var cursor = "";
 	var displayInstructions = true;
+	var firstTwoImagesLoaded = 0;
 
 	get2Images();
 
+	$("img.combatant").bind('load',function() {
+		firstTwoImagesLoaded++;
+		if(firstTwoImagesLoaded == 2) {
+			//alert("done");
+			//positionControls();
+			preloadImages(4);
+		}
+	});
+	
+	$("img.combatant").each(function(){
+		if(this.complete) {
+			$(this).load();
+		}
+	});
+	
 	
 	$('img.combatant').live("click",function(e) { //----- ways to select winner
 		//zoomInImage();
@@ -29,13 +45,27 @@ $(document).ready(function(){
 		var imgPosition = $(this).offset();
 		var imgWidth = $(this).width();
 		var imgWidthScaled = $(this).width() * scaleFactor;
+		var translateOffset = (documentWidth/2) - (imgPosition.left) - (imgWidth/2);
 		var zoomedOffset = documentWidth - imgWidthScaled - (imgWidth) + (imgWidthScaled / 20);
-		//alert(documentWidth +" "+ imgPosition.left+" "+imgWidth);
+		//alert(imgWidth);
 		
 		if($(this).hasClass("zoomed")) {
-			$("input.faceVote").css("display","block");
-			$("img.notSelected").css("display","block");
-			$("div.title").css("display","block");
+		
+			$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
+					if (jQuery.browser.mozilla) {
+						return '-moz-zoom-in';
+					}
+					else if (jQuery.browser.webkit) {
+						return '-webkit-zoom-in';
+					}
+					else {
+					   return 'pointer'; 
+					}
+			 });
+		
+			$("div#controls").css("visibility","visible");
+			$("img.notSelected").css("opacity","1");
+			$("div#titles").css("visibility","visible");
 			
 			$(this).removeClass("zoomed");
 			$(this).css({
@@ -43,15 +73,28 @@ $(document).ready(function(){
 				"-moz-transform":"scale(1,1) translate(0, 0)"
 			});
 		} else {
-			$("input.faceVote").css("display","none");
-			$("img.notSelected").css("display","none");
-			$("div.title").css("display","none");
+		
+			$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
+					 if (jQuery.browser.mozilla) {
+						return '-moz-zoom-out';
+					}
+					else if (jQuery.browser.webkit) {
+						return '-webkit-zoom-out';
+					}
+					else {
+					   return 'pointer'; 
+					}
+			 });
+		
+			$("div#controls").css("visibility","hidden");
+			$("img.notSelected").css("opacity","0");
+			$("div#titles").css("visibility","hidden");
 			
 			$(this).addClass("zoomed");
 			if($(this).hasClass("leftCombatant")) {
 				$(this).css({
-					"-webkit-transform":"scale(2,2) translate("+zoomedOffset+"px, 20px)",
-					"-moz-transform":"scale(2,2) translate("+zoomedOffset+"px, 20px)"
+					"-webkit-transform":"scale(1,1) translate("+translateOffset+"px, 20px)",
+					"-moz-transform":"scale(1,1) translate("+translateOffset+"px, 20px)"
 
 				});
 			} else {
@@ -64,14 +107,14 @@ $(document).ready(function(){
 		
 	});
 	
-	$("input.leftControl").live("click",function(e) {
+	$("div#leftVoteButton").live("click",function(e) {
 		$("img.leftCombatant").addClass("selected");
 		$("img.rightCombatant").addClass("notSelected");
 		winnerSelected();
 		$(this).css("backgroundColor","#808080");
 	});
 	
-	$("input.rightControl").live("click",function(e) {
+	$("div#rightVoteButton").live("click",function(e) {
 		$("img.rightCombatant").addClass("selected");
 		$("img.leftCombatant").addClass("notSelected");
 		winnerSelected();
@@ -114,7 +157,8 @@ $(document).ready(function(){
 	
 	$(window).resize(function() {
   		sizeTitles();
-  		positionControls();
+  		//positionControls();
+ 
 	});
 
 	$('img.combatant').live("hover",function(e) {
@@ -124,17 +168,6 @@ $(document).ready(function(){
 		//$(this).css("borderColor","#000000");
 				
 		var pos = $(this).offset();
-		
-		/*if($(this).hasClass("leftCombatant")) { //----- Place controls ontop of the img
-	
-			$("input.leftControl").css("backgroundColor","#000000");
-			
-		} else {
-			
-			$("input.rightControl").css("backgroundColor","#000000");
-		}*/
-		
-		//positionControls();
 
 		var isLeftCombatant = $(this).hasClass("leftCombatant"); //----- apply notSelected class to the other img
 		if(isLeftCombatant) {
@@ -143,47 +176,51 @@ $(document).ready(function(){
 		else {
 			$("img.leftCombatant").addClass("notSelected");
 		}
-				
-		$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
-				 if (jQuery.browser.mozilla) {
-					return '-moz-zoom-in';
-				}
-				else if (jQuery.browser.webkit) {
-					return '-webkit-zoom-in';
-				}
-				else {
-				   return 'pointer'; 
-				}
-		 });
+		
+		
+		if($(this).hasClass("zoomed")) {
+			$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
+					 if (jQuery.browser.mozilla) {
+						return '-moz-zoom-out';
+					}
+					else if (jQuery.browser.webkit) {
+						return '-webkit-zoom-out';
+					}
+					else {
+					   return 'pointer'; 
+					}
+			 });
+		 } else {
+		 	$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
+					 if (jQuery.browser.mozilla) {
+						return '-moz-zoom-in';
+					}
+					else if (jQuery.browser.webkit) {
+						return '-webkit-zoom-in';
+					}
+					else {
+					   return 'pointer'; 
+					}
+			 });
+		 }
 	
 	});
 	
-	$('img.combatant').live("mouseout",function(e){
-		$("input.leftControl").css("backgroundColor","#808080");
-		$("input.rightControl").css("backgroundColor","#808080");
-		$("img.combatant").css("borderColor","#808080");
-	});
-	
-	$("input.leftControl").live("hover",function(){
+	$("div#leftVoteButton").live("hover",function(){
 		$("img.leftCombatant").css("borderColor","#000000");
-		$(this).css("backgroundColor","#000000")
 	});
 	
-	$("input.leftControl").live("mouseout",function(){
+	$("div#leftVoteButton").live("mouseout",function(){
 		$("img.leftCombatant").css("borderColor","#808080");
-		$(this).css("backgroundColor","#808080")
 	});
 	
-	$("input.rightControl").live("hover",function(){
+	$("div#rightVoteButton").live("hover",function(){
 		$("img.rightCombatant").css("borderColor","#000000");
-		$(this).css("backgroundColor","#000000")
 	});
 	
-	$("input.rightControl").live("mouseout",function(){
+	$("div#rightVoteButton").live("mouseout",function(){
 		$("img.rightCombatant").css("borderColor","#808080");
-		$(this).css("backgroundColor","#808080")
 	});
-
 
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& FUNCTIONS
@@ -196,50 +233,45 @@ $(document).ready(function(){
 function get2Images() {
 	// Fetch 2 images from server, add to DOM, position them (center horiz/vert), animate them in, preload more
 
-	/*		var firstEl = $("<img />");
-			firstEl.attr({
-				'src':'./static/no_image.jpg',
-				'title':'Is there a problem?',
-				'hash':'',
-				'elo':1600,
-				'id':"img_"+999
-			});
-			firstEl.addClass("preloaded");
-			firstEl.appendTo("div#main");
-			
-			var secondEl = $("<img />");
-			secondEl.attr({
-				'src':'./static/no_image.jpg',
-				'title':'Is there a problem?',
-				'hash':'',
-				'elo':1600,
-				'id':"img_"+999
-			});
-			secondEl.addClass("preloaded");
-			secondEl.appendTo("div#main");
-			
-			getNextCombatants();
-			positionControls();
-	*/
+		//$("img.preloaded:eq(0)").attr("trueWidth",$("img.preloaded:eq(0)").width());
+		//$("img.preloaded:eq(0)").attr("trueHeight",$("img.preloaded:eq(0)").height());
+		$("div#leftTitle span").html($("img.preloaded:eq(0)").attr("title"));
+		
+		//$("img.preloaded:eq(1)").attr("trueWidth",$("img.preloaded:eq(1)").width());
+		//$("img.preloaded:eq(1)").attr("trueHeight",$("img.preloaded:eq(1)").height());
+		$("div#rightTitle span").html($("img.preloaded:eq(1)").attr("title"));
+
 	
-	getNextCombatants();
+		$("img.preloaded:first").addClass("leftCombatant combatant").removeClass("preloaded"); //grab first 2 from preloaded stack
+		$("img.preloaded:first").addClass("rightCombatant combatant").removeClass("preloaded");	
+		//positionImages();
+		sizeTitles();
+		
+		if(firstTwoImagesLoaded >= 2) {
+			//preloadImages(4);
+		}
 	
 	
 }
 
 function winnerSelected() {
-//animate winner/loser, setup next combatants
-//$("div.controls").css("left",-1200);
+	//animate winner/loser, setup next combatants
+	//$("div.controls").css("left",-1200);
+	
+	var winnerHash = $("img.selected").attr("hash");
+	var loserHash = $("img.notSelected").attr("hash");
+	
+	$("img.selected").remove();
+	$("img.notSelected").remove();
+	
+	getNextCombatants();
+	preloadImages(2);
 
-var winnerHash = $("img.selected").attr("hash");
-var loserHash = $("img.notSelected").attr("hash");
-
-$("img.selected").remove();
-$("img.notSelected").remove();
-
-getNextCombatants();
-$.post("/vote",{'winner':winnerHash, 'loser':loserHash},function(){},"json");
-preloadImages(2);
+	
+	data('vote', { img1: winnerHash }, true, function(newImages){addImageDataToImageArray(newImages);});
+	
+	//$.post("/vote",{'winner':winnerHash, 'loser':loserHash},function(){},"json");
+	//preloadImages(2);
 
 }
 
@@ -248,14 +280,18 @@ function drawGame() {
 	//$("div.controls").css("left",-1200);
 
 	var imgHashes = []	
-	$("img.combatant").each(function()
-	{
+	$("img.combatant").each(function(){
 		imgHashes.push($(this).attr("hash"));
 	});			
-		$("img.combatant").remove();
-		getNextCombatants();
-$.post("/vote", { 'winner' : '', 'loser':'', 'draw[]':imgHashes});
-		preloadImages(2);
+	$("img.combatant").remove();
+	getNextCombatants();
+	preloadImages(2);
+
+	//$.post("/vote", { 'winner' : '', 'loser':'', 'draw[]':imgHashes});
+	//		preloadImages(2);
+	
+	data('skip', { img1: imgHashes[0], img2 : imgHashes[1] }, true, function(newImages){addImageDataToImageArray(newImages);});
+
 }
 
 
@@ -263,13 +299,13 @@ function getNextCombatants() {
 	// change 2 preloaded images into combatants
 	
 	if($("img.preloaded").size() >= 2) {
-		$("img.preloaded:eq(0)").attr("trueWidth",$("img.preloaded:eq(0)").width());
-		$("img.preloaded:eq(0)").attr("trueHeight",$("img.preloaded:eq(0)").height());
-		$("div.leftTitle span").html($("img.preloaded:eq(0)").attr("title"));
+		//$("img.preloaded:eq(0)").attr("trueWidth",$("img.preloaded:eq(0)").width());
+		//$("img.preloaded:eq(0)").attr("trueHeight",$("img.preloaded:eq(0)").height());
+		$("div#leftTitle span").html($("img.preloaded:eq(0)").attr("title"));
 		
-		$("img.preloaded:eq(1)").attr("trueWidth",$("img.preloaded:eq(1)").width());
-		$("img.preloaded:eq(1)").attr("trueHeight",$("img.preloaded:eq(1)").height());
-		$("div.rightTitle span").html($("img.preloaded:eq(1)").attr("title"));
+		//$("img.preloaded:eq(1)").attr("trueWidth",$("img.preloaded:eq(1)").width());
+		//$("img.preloaded:eq(1)").attr("trueHeight",$("img.preloaded:eq(1)").height());
+		$("div#rightTitle span").html($("img.preloaded:eq(1)").attr("title"));
 
 	
 		$("img.preloaded:first").addClass("leftCombatant combatant").removeClass("preloaded"); //grab first 2 from preloaded stack
@@ -282,13 +318,36 @@ function getNextCombatants() {
 		//alert("not enough images preloaded");
 	}
 	needNextCombatants = false;
-	positionControls();
+	//positionControls();
+	
 
 }
 
 function preloadImages(numToPreload) {
 	// preload images by fetching from server and putting them in DOM with css hidden
+	//imagesArray[0].title
 	
+	
+				for(i=0;i<numToPreload;i++) {
+						var el = $("<img />");
+						var imageData = imagesArray.shift();
+						
+						
+						el.attr("src","/img?h="+imageData.key);
+						el.attr("title",imageData.title);
+						el.attr("hash",imageData.key);
+						//el.attr("elo",imageData.elo);
+						el.addClass("preloaded");
+						el.attr("id","img_"+imgIndexOffset);
+						el.appendTo("div#content");
+						/*el.load(function(){
+							preloadComplete();
+						});*/
+						
+						imgIndexOffset = imgIndexOffset+1;
+					}
+
+/*	
 		var imgHashes;
 		
 		if(firstHash.length > 0) {	//initial hash given so preload the image with given hash, then preload the rest - 1
@@ -367,11 +426,11 @@ function preloadImages(numToPreload) {
 			});	
 		}
 
-		
+	*/	
 }
 
-function preloadComplete() {
-	//this function gets called when an image is done loading. Checks needNextCombatants, if true it
+function preloadComplete() { //-------- DEPRECATED Function!!!
+//this function gets called when an image is done loading. Checks needNextCombatants, if true it
 	// calls function getNextCombatants. Else, it increments count of images preloaded for next time.
 	
 	preloadedImages++;
@@ -476,79 +535,12 @@ function zoomInImage() { // Enlarge selected image
 		});
 }
 
-function positionImages() { //******* BUG with cached images giving 0 height so calculating top margin is wrong
-	//vertically and horizontally align images
-	var windowHeight = $(window).height();
-	var windowWidth =  $(window).width();
-	
-	var combatantSpacing = 6; //this is a percentage
-	var fixedSpacing = 20;
-	//var combatantWidth = (100-(3*combatantSpacing))/2;  //this is a percentage
-	var combatantWidth = 0.5*(100-(2*combatantSpacing) - fixedSpacing);
-	var rightCombatantPositionLeft = combatantSpacing + fixedSpacing + combatantWidth; //this is a percentage
-	
-	var el = $("img.leftCombatant");
-	el.css({ //Must scale the img by width before you calculate the topMargin below
-		width:combatantWidth+"%"
-	});
-	var el1Height = el.height();
-	if(el1Height >= windowHeight) {
-		var el1TopMargin = "10";
-	} else {
-		var el1TopMargin =  (((windowHeight/2) - (el1Height/2)) / windowHeight) * 100;
-	}
-	el.css({
-		top:"15%",
-		left:combatantSpacing-3+"%"
-	});
-	
-	var el2 = $("img.rightCombatant");
-	el2.css({ //Must scale the img by width before you calculate the topMargin below
-		width:combatantWidth+"%"
-	});
-	var el2Height = el2.height();
-	if(el2Height >= windowHeight) {
-		var el2TopMargin = "10";
-	} else {
-		var el2TopMargin =  (((windowHeight/2) - (el2Height/2)) / windowHeight) * 100;
-	}
-	el2.css({
-		top:"15%",
-		left:rightCombatantPositionLeft+"%",
-		width:combatantWidth+"%"
-	});
-}
-
-function positionControls() {
-	var position = $("img.combatant").offset();
-	var controlWidth = $("input.faceVote").outerWidth();
-	var halfDocumentWidth = $(document).width() / 2;
-	var spacingBetween = 20 / 2; //px
-	
-	//alert(halfDocumentWidth +"- "+ spacingBetween+" -"+controlWidth)
-
-
-	$("input.leftControl").css({ //----- Place controls ontop of the img
-		left:halfDocumentWidth - spacingBetween - controlWidth,
-		top:position.top
-	});	
-	
-	$("input.rightControl").css({ //----- Place controls ontop of the img
-		left:halfDocumentWidth + spacingBetween,
-		top:position.top
-	});
-	
-	/*$("div#instructions").css({
-		top:(rightpos.top+150),
-		display:"block"
-	});*/
+function addImageDataToImageArray(imageObject) {
+	//alert(imageObject.vote);
 }
 
 function sizeTitles() {
-	$("div.title").each(function(i,el){//Make font as big as possible
-		$(el).textfill({ maxFontPixels: 38 })
-	}); 
-	$("div.imgControl").each(function(i,el){//Make font as big as possible
+	$("div.imgTitle").each(function(i,el){//Make font as big as possible
 		$(el).textfill({ maxFontPixels: 38 })
 	}); 
 }

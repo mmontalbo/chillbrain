@@ -1,22 +1,63 @@
 {% extends "base_web_facebook.html" %}
-
 {% block head %}
 	{{ block.super }}
 
-	<LINK href="css/stylesheet2.css" rel="stylesheet" type="text/css">
+	<LINK href="css/stylesheet.css" rel="stylesheet" type="text/css">
 	
 	<script type="text/javascript" src="js/infoBox.js"></script>
-	<script type="text/javascript" src="js/chillbrain.js"></script>
+
 	<script type="text/javascript">
 	
 		var shareURL = "{{url.share}}h="; 
-	
+		
+		var imagesArray = [];
+
+		{% for image in imgs %}
+			imagesArray.push({ title : "{{image.title|addslashes}}", link : "{{image.permalink}}", key : "{{image.key}}"});
+		{% endfor %}
+
+					
 	</script>
+	<script type="text/javascript" src="js/chillbrain.js"></script>
+
 {% endblock %}
 
 
+
 {% block content %}
-	<div id="top">
+
+<div id="main">
+	<div id="header">
+		<ul>
+			<li><a href="#">about</a></li>
+			<li><a href="#">contact</a></li>
+			{% if uid %}
+			<li><a href="#" onclick="logout();">logout</a></li>
+			{% else %}	
+			<li><a href="#" onclick="login();">login</a></li>
+			{% endif %}
+		</ul>
+	</div>
+	<div id="titles">
+		<div class="imgTitle" id="leftTitle"><span>title1</span></div>
+		<div class="imgTitle" id="rightTitle"><span>title2</span></div>
+	</div>
+
+	<div id="content">
+		<!--<img class="combatant leftCombatant" src="asdf" />
+		<img class="combatant rightCombatant" src="asdf" />-->
+		<img class="preloaded" title="{{img1.title}}" elo="{{img1.elo}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" />
+		<img class="preloaded" title="{{img2.title}}" elo="{{img2.elo}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" />
+		
+
+		<div id="controls">
+			<div class="voteButton" id="leftVoteButton"><img src="css/vote.png" /></div>
+			<div class="voteButton" id="rightVoteButton"><img src="css/vote.png" /></div>
+		</div>
+	</div>
+</div>
+
+		<!--<div id="top">
 			<div class="title leftTitle"><span></span></div>
 			<div class="title rightTitle"><span></span></div>
 		</div>
@@ -24,16 +65,22 @@
 		<div id="main">
 			<img class="preloaded" title="{{img1.title}}" elo="{{img1.elo}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" />
 			<img class="preloaded" title="{{img2.title}}" elo="{{img2.elo}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" />
-			
+		-->	
 			<!--<img class="preloaded" title="Is there a problem?" src="static/no_image.jpg"/>-->
 			<!--<img class="preloaded" title="Is there a problem?" src="static/no_image.jpg"/>-->
 
-		</div>
+		<!--</div>
+		
+		<div id="leftControl" class="control"><img src="css/vote.png" /></div>
+		<div id="rightControl" class="control"><img src="css/vote.png" /></div>
 		
 		<input type="button" class="faceVote leftControl"/>
 		<input type="button" class="faceVote rightControl"/>
 		
 		<div id="zoomInPicture">
 			<input class="zoomedImgURLInput" value="http://www.chillbrain.com/#"/>
-	</div>
+		</div>-->
+		
+	
+		
 {% endblock %}
