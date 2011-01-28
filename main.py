@@ -1,6 +1,9 @@
 from config import appengine_config
 from brains.imgserve import *
 from surface import *
+#from util import datastore_cache
+
+#datastore_cache.DatastoreCachingShim.Install()
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -12,15 +15,20 @@ import os
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
-    application = webapp.WSGIApplication([('/', MainPage),
-                                          ('/img', ImageServe),
-                                          ('/vote', ImageVote),
-                                          ('/tests/login', LoginScaffolding),
-                                          ('/tests/image', ImageServeScaffolding),
-                                          ('/enter', Entrance),
-                                          ('/data', DataHandler),
-                                          ('/logout', Logout)],
-                                         appengine_config.isDebug())
+    publish_urls = [('/', MainPage),
+                       ('/img', ImageServe),
+                       ('/vote', ImageVote),
+                       ('/enter', Entrance),
+                       ('/data', DataHandler),
+                       ('/logout', Logout)]
+    
+    # in pre-production extend the publish list with the test URLs
+    if appengine_config.isDebug():
+        publish_urls.extend([('/tests/login', LoginScaffolding),
+                             ('/tests/image', ImageServeScaffolding)])
+    
+    
+    application = webapp.WSGIApplication(publish_urls, appengine_config.isDebug())
     application = appengine_config.add_middleware(application)
     run_wsgi_app(application)
 

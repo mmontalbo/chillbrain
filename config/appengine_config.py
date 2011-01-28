@@ -8,6 +8,7 @@ import os
 
 DEBUG = False
 
+# If we are in a development setting (app engine dev server) then set debug to True
 if os.environ['SERVER_SOFTWARE'].find('Development') > -1:
     DEBUG = True
 

@@ -1,12 +1,9 @@
-import math
-from config.sources import *
+from config.chill_constants import *
 from model import cbmodel
-import logging
 
-class FeedSource():
-    def __init__(self, source, cursor):
-        self.source = source
-        self.cursor = cursor
+import collections
+import logging
+import math
 
 class ImageFeed():
     """
@@ -19,85 +16,88 @@ class ImageFeed():
     """
     def __init__(self, size):
         ImageFeed.MAX_FEED_SIZE = 20
+        self.feedSources = []
+        self.fetchSizes = []
 
         if size > 0 and size <= ImageFeed.MAX_FEED_SIZE:
             self.feedSize = size
         else:
             self.feedSize = 0
-            
-    def initialImages(self, sourcesList):
-        return self.nextImages([FeedSource(source, None) for source in sourcesList]) 
+       
+    """
+    initial_images inizializes self.feedSouces with the given image source list.
+    It then calls next_images, returning the resulting list of images. initial_images
+    should be called once after ImageFeed is intialized and from then on, next_images
+    should be called to return subsequent images from the given sources.
+
+    @param sourcesList a list of image sources to draw from
+
+    @return shuffled list of images from the given sources
+    """
+    def initial_images(self, sourcesList):
+        self.feedSources = [(source, None) for source in sourcesList]
+        return self.next_images() 
             
     """
-    nextImages returns a list of images, with length feedSize, drawn
-    from each available image source and interleaved evenly. Note that
-    it is possible to leave the cursor blank for each source, in which case
-    a fresh query will be run for the source and a new cursor will be
-    returned.
+    next_images returns a list of images, with length feedSize, drawn
+    from each feedSource defined image source and interleaved.
 
-    @param feedSources list of FeedSource objects that contain a feed source
-    cursor
-
-    @return list of shuffled images with size feedSize and a new list of FeedSources
-    with updated cursors
+    @return list of shuffled images with size feedSize
     """
-    def nextImages(self, feedSources):
+    def next_images(self):
         images = []
         cursors = []
-        numCursors = len(feedSources)
-        if self.feedSize == 0 or numCursors == 0:
+
+        if self.feedSize == 0 or len(self.feedSources) == 0:
             return images
+        
+        # If we haven't calculated fetchSizes yet, calculate them and store
+        # the results.
+        if len(self.fetchSizes) == 0:
+            self.fetchSizes = self.calculate_fetch_sizes()
 
-        fetchSize = []
-        baseQuerySize = self.feedSize/numCursors
-        remainder = self.feedSize % numCursors
-        for i in range(0, numCursors):
-            fetchSize.append(baseQuerySize)
-            if i < remainder:
-                fetchSize[i] += 1
+        # Fetch the fetchSizes[i] specified number of images from each source.
+        for (i, feedSource) in enumerate(self.feedSources):
+            (source,cursor) = feedSource
 
-        position = 0
-        for feedSource in feedSources:
-            source = feedSource.source
-            cursor = feedSource.cursor
-            query = self.imageQuery(source)
+            query = self.image_query(source)
             if cursor is not None and cursor is not "":
-                query.with_cursor(cursor)
-                
-            numToFetch = fetchSize[position]
+                query.with_cursor(cursor)                
+            numToFetch = self.fetchSizes[i]
             srcImgs = query.fetch(numToFetch)
 
+            # If we got less than the number of images we asked for, try 
+            # resetting the cursor and running the query again.
             if len(srcImgs) < numToFetch:
-                logging.info("Only ("+str(len(srcImgs))+") images to return for ("+str(cursor)+","+str(source)+").");
-                logging.info("Resetting cursor.")
-                query = self.imageQuery(source)
-                srcImgs = query.fetch(numToFetch)
-                
-            feedSource.cursor = query.cursor()
+                logging.warn("Only "+str(len(srcImgs))+" images to return for "+str(source)+".");
+                logging.warn("Resetting cursor.")
+                query = self.image_query(source)
+                srcImgs = query.fetch(numToFetch)                
+
             images.append(srcImgs)
-            position += 1
+            feedSource = (source, query.cursor()) # Update feedSource with new cursor
 
-        shuffledImages = self.shuffleImages(images)
+        shuffledImages = self.shuffle_images(images)
 
-        return (shuffledImages,feedSources)
+        return shuffledImages
 
     """
-    imageQuery returns a GQL query for the Image with the given
+    image_query returns a GQL query for the Image with the given
     source.
 
     @return GQL query for Images with given source
     """
-    def imageQuery(self, source):
+    def image_query(self, source):
         return cbmodel.Image.all().filter("source =", source)
 
     """
-    shuffleImages interleaves the elements of each indiviual list
+    shuffle_images interleaves the elements of each indiviual list
     it is given into a single list, which it subsequently returns.
 
     @param list containing lists of images
     @return list of shuffled images
     """
-    def shuffleImages(self, images):
+    def shuffle_images(self, images):
         shuffledImages = []
 
         for i in range(0, self.feedSize):
@@ -106,3 +106,23 @@ class ImageFeed():
                 return shuffledImages
             shuffledImages.append(images[i % len(images)].pop())
         return shuffledImages
+
+    """
+    Calculate the number of images to fetch from each source.
+    If the number of images to fetch can't be distributed evenly
+    among the sources, assign an extra image fetch starting from the
+    beginning of the self.feedSources list until the remainder is exhausted.
+    
+    @return list of fetch sizes
+    """
+    def calculate_fetch_sizes(self):
+        numFeedSources = len(self.feedSources)
+        if numFeedSources > 0:
+            fetchSizes = []
+            baseQuerySize = self.feedSize/numFeedSources
+            remainder = self.feedSize % numFeedSources
+            for i in range(0, numFeedSources):
+                fetchSizes.append(baseQuerySize)
+                if i < remainder:
+                    fetchSizes[i] += 1
+        return fetchSizes

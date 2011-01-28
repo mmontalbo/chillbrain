@@ -14,6 +14,7 @@ class Transaction(polymodel.PolyModel):
 
 class Vote(Transaction):
     img = db.ReferenceProperty(required=True, collection_name="vote_img")
+    validator = db.StringProperty(required=True)
     
 class Skip(Transaction):
     img1 = db.ReferenceProperty(required=True, collection_name="skip_img1")
@@ -30,7 +31,7 @@ class Share(Transaction):
             user.add_temporary_clickback(self)
             return
         # Reject motherfuckers trying to get reputation by their own clickbacks... those bastards
-        elif user.key() == self.user.key():
+        elif user.key() == self.user.key() or user in self.generated_users:
             return
         
         # otherwise generate a hit for this clickback and increment the linkback counter
