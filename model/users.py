@@ -65,8 +65,10 @@ class ChillUser(BaseUser):
         self.put()
     
     # vote with a hash of the image key and user key to prevent double voting
+    # TODO: Add custom exception around this so we can message double votes
     def vote(self, id):
-        hash = hashlib.sha1(str(self.key()) + str(id)).hexdigest()
+        # must use hexdigest to prevent unicode exceptions coming from the datastore
+        hash = hashlib.sha1(str(self.key()) + str(id)).hexdigest() 
         vote = Vote(user=self, img=id, validator=hash, key_name=hash)
         vote.put()
         self.votes.append(vote.key())
