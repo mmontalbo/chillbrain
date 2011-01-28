@@ -14,11 +14,14 @@ from config.chill_constants import *
 import logging
 import os
 
+SESSION_IMAGE_FEED = 'feed'
+
 # Request parameter constants
 REQUEST_IMG_ID = 'img'
 REQUEST_IMG_ID2 = 'img2'
 REQUEST_ACTION = 'action'
 REQUEST_SHARE_ID = 'r'
+REQUEST_FETCH = 'fetch'
 
 # URL configuration
 if appengine_config.isDebug():
@@ -66,8 +69,9 @@ class LoginScaffolding(ChillRequestHandler):
             context["uid"] = user.id
         
         image_feed = feed.ImageFeed(FEED_SIZE)
+        self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
-        initialImages = feed.initial_images([REDDIT_FUNNY])
+        initialImages = image_feed.initial_images([REDDIT_FUNNY])
 
         context["img1"] = initialImages.pop()
         context["img2"] = initialImages.pop()     
@@ -113,6 +117,11 @@ class DataHandler(ChillRequestHandler):
                 response_data['share'] = str(user.share(img))
         except Exception:
             response_data['error'] = "Problem processing data request"
+            
+        if self.request.get(REQUEST_FETCH):
+            logging.debug("Fetch received")
+            feed = self.current_session.get(SESSION_IMAGE_FEED)
+            response_data['images'] = [str(feedElement.key()) for feedElement in feed.next_images()]
 
         self.response.out.write(json.dumps(response_data))
    
