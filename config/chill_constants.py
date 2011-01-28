@@ -5,7 +5,7 @@ REDDIT_FUNNY = "http://reddit.com/r/funny"
 REDDIT_WTF = "http://reddit.com/r/wtf"
 REDDIT_ADVICE_ANIMALS = "http://reddit.com/r/adviceanimals"
 
-sources_list = [REDDIT_PICS, REDDIT_FUNNY, REDDIT_WTF, REDDIT_ADVICE_ANIMALS ]
+sources_list = [REDDIT_PICS, REDDIT_FUNNY, REDDIT_WTF, REDDIT_ADVICE_ANIMALS]
 
 REQUEST_ACTION_VOTE = 'vote'
 REQUEST_ACTION_SKIP = 'skip'

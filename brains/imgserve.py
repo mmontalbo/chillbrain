@@ -11,7 +11,7 @@ from django.utils import simplejson as json
 from google.appengine.api import images
 from google.appengine.ext import db
 from google.appengine.api import images
-from model.cbmodel import *
+from model.image import *
 
 import logging
 
@@ -37,8 +37,8 @@ class ImageVote(webapp.RequestHandler):
                 logging.error('Reason: '+ e.reason)
 
     def calcElo(self,status,a,b):
-        imgA = cbmodel.Image.get(db.Key.from_path('Image',a))
-        imgB = cbmodel.Image.get(db.Key.from_path('Image',b))
+        imgA = Image.get(db.Key.from_path('Image',a))
+        imgB = Image.get(db.Key.from_path('Image',b))
 
         qa = pow(10.0,(imgA.rating/400.0))
         qb = pow(10.0,(imgB.rating/400.0))
