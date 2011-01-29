@@ -124,7 +124,7 @@ class DataHandler(ChillRequestHandler):
         if self.request.get(REQUEST_FETCH):
             logging.debug("Fetch received")
             feed = self.current_session.get(SESSION_IMAGE_FEED)
-            response_data['images'] = [str(feedElement.key()) for feedElement in feed.next_images()]
+            response_data['images'] = [{'key' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink} for feedElement in feed.next_images()]
 
         self.response.out.write(json.dumps(response_data))
    
