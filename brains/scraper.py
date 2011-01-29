@@ -14,8 +14,8 @@ import logging
 import hashlib
 import time
 from brains.feed import *
-from model import cbmodel
-from config import sources
+from model.image import *
+from config import chill_constants
 
 class Scraper(object):
     def __init__(self, url):
@@ -81,7 +81,7 @@ class Scraper(object):
         return True
 
     def isUnsavedURL(self, url):
-        return (len(cbmodel.Image.gql("WHERE url=:1",url).fetch(1)) == 0)
+        return (len(Image.gql("WHERE url=:1",url).fetch(1)) == 0)
 
 class RedditScraper(Scraper):
     def __init__(self, subreddit):
@@ -93,10 +93,10 @@ class RedditScraper(Scraper):
         super(RedditScraper, self).__init__(self.subredditURL)
 
     def parse(self, response):
+        nextLinks = []
+        dlCount = 0
         try:
             responseDict = json.loads(response)
-            nextLinks = []
-            dlCount = 0
             for child in responseDict["data"]["children"]:
                 params = {'url':child['data']['url'],
                 'source':RedditScraper.SUBREDDIT_URL + child['data']['subreddit'],
@@ -106,15 +106,18 @@ class RedditScraper(Scraper):
                 dlCount += 1
                 time.sleep(0.2)
                 nextLinks.append(self.subredditURL+child['data']['name'])
-            return (nextLinks, dlCount)
         except ValueError, e:
             logging.error("Failed to decode JSON: " +response)
+            return (nextLinks, dlCount)
         except URLError, e:
             logging.error("Failed to reach a server.")
+            return (nextLinks, dlCount)
         except NameError, e:
             logging.error("Failed to request url: " +str(e))
+            return (nextLinks, dlCount)
         except Exception, e:
             logging.error("Failed to request url: "+str(type(e)))
+        return (nextLinks, dlCount)
     
 class ScrapeWorker(webapp.RequestHandler):
     def __init__(self):
@@ -130,8 +133,8 @@ class ScrapeWorker(webapp.RequestHandler):
                 response = urlfetch.Fetch(url)
                 if ScrapeWorker.validContentTypes.count(response.headers['Content-Type']) > 0:
                     data = response.content
-                    img = cbmodel.Image()
-                    img.imageData = cbmodel.db.Blob(data)
+                    img = Image()
+                    img.imageData = db.Blob(data)
                     img.url = url
                     img.title = self.request.get('title')
                     img.source = self.request.get('source')
@@ -146,7 +149,7 @@ class ScrapeWorker(webapp.RequestHandler):
                 logging.error("Failed to put image url:"+str(type(e))) 
             except Exception, e:
                 logging.error("Failed to put image url:"+str(type(e))) 
-        cbmodel.db.run_in_transaction(txn)
+        db.run_in_transaction(txn)
 
 class ScrapeService(webapp.RequestHandler):
     def post(self):
@@ -155,10 +158,8 @@ class ScrapeService(webapp.RequestHandler):
         redditScraper.startScraping()
 
     def get(self):
-        # TODO change to use config file for scraping urls
-        subReddits = ["pics","funny","wtf","adviceanimals"]
         count = 0
-        for source in sources.all:
+        for source in sources_list:
             taskqueue.add(url='/scrape',
             params={'scrapeURL':source},countdown=(count*30)+3)
             count = count + 1

@@ -1,0 +1,33 @@
+
+Javascript documentation goes in here:
+
+file: base_web_facebook.html 
+
+function: login
+parameters: none
+purpose: Logs into Facebook using the FB javascript API
+
+function: logout
+parameters: none
+purpose: When called this will first send a post to chillbrain to trigger
+the session to reset, upon response it will trigger a facebook logout.
+
+function: prompt_share(img_id, caption)
+parameters: 
+img_id - The ID of the image to be shared
+caption - The caption of the image being shared
+purpose: This method will first send a "share" data request to chillbrain
+to determine if this user has sufficient permissions to share an image. If so,
+this will trigger a facebook UI API event and offer the ability to share an 
+image on Facebook. If not, a share prompt will not appear and an error message will be returned
+
+file: base_web.html
+
+function: data
+parameters:
+action - The action the server is supposed to perform. These will be sent from the server as action.events (TODO)
+image - A JSON object containing either one or two images. The format for one image is: { img1: (key for image 1) }. The 
+format for two images is: { img1: (key for image 1), img2: (key for image 2) }. In both examples, (key for image x) actually
+means the key (sent from the server).
+fetch (optional) - Boolean value instructing the data handler to return images (if true)
+callback (optional) - Callback function to process the response from the chillbrian server
