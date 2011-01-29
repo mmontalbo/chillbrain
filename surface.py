@@ -1,6 +1,7 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
+from google.appengine.ext import db
 from django.utils import simplejson as json
 
 from model import users
@@ -115,7 +116,8 @@ class DataHandler(ChillRequestHandler):
                 response_data['skip'] = str(user.skip(img, img2))
             if action == REQUEST_ACTION_SHARE:
                 response_data['share'] = str(user.share(img))
-        except Exception:
+        except Exception, e:
+            logging.debug("Processing Error")
             response_data['error'] = "Problem processing data request"
             
         if self.request.get(REQUEST_FETCH):
