@@ -47,6 +47,7 @@ class MainPage(ChillRequestHandler):
             context["uid"] = user.id
         
         image_feed = feed.ImageFeed(FEED_SIZE)
+        self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
         initialImages  = image_feed.initial_images([REDDIT_FUNNY])
 
