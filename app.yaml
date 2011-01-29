@@ -20,6 +20,9 @@ handlers:
 - url: /worker
   script: brains/scraper.py
   login: admin
+  
+- url: /test.*
+  script: test/gaeunit.py  
 
 - url: /.*
   script: main.py
