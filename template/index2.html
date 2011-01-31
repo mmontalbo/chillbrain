@@ -27,6 +27,7 @@
 {% block content %}
 
 <div id="main">
+
 	<div id="header">
 		<ul>
 			<li><a href="#">about</a></li>
@@ -46,8 +47,8 @@
 	<div id="content">
 		<!--<img class="combatant leftCombatant" src="asdf" />
 		<img class="combatant rightCombatant" src="asdf" />-->
-		<img class="preloaded" title="{{img1.title}}" elo="{{img1.elo}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" />
-		<img class="preloaded" title="{{img2.title}}" elo="{{img2.elo}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" />
+		<img class="preloaded" title="{{img1.title}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" permalink="{{img1.permalink}}" />
+		<img class="preloaded" title="{{img2.title}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" permalink="{{img2.permalink}}"/>
 		
 
 		<div id="controls">
@@ -55,31 +56,13 @@
 			<div class="voteButton" id="rightVoteButton"><img src="css/vote.png" /></div>
 		</div>
 	</div>
+	
+	<div id="zoomTitleBlock">
+		<span>Title Goes Here</span><br/>
+		<input type="text" value="http://urlgoeshere.com/!@13245321545"/>
+	</div>
+
 </div>
-
-		<!--<div id="top">
-			<div class="title leftTitle"><span></span></div>
-			<div class="title rightTitle"><span></span></div>
-		</div>
-		
-		<div id="main">
-			<img class="preloaded" title="{{img1.title}}" elo="{{img1.elo}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" />
-			<img class="preloaded" title="{{img2.title}}" elo="{{img2.elo}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" />
-		-->	
-			<!--<img class="preloaded" title="Is there a problem?" src="static/no_image.jpg"/>-->
-			<!--<img class="preloaded" title="Is there a problem?" src="static/no_image.jpg"/>-->
-
-		<!--</div>
-		
-		<div id="leftControl" class="control"><img src="css/vote.png" /></div>
-		<div id="rightControl" class="control"><img src="css/vote.png" /></div>
-		
-		<input type="button" class="faceVote leftControl"/>
-		<input type="button" class="faceVote rightControl"/>
-		
-		<div id="zoomInPicture">
-			<input class="zoomedImgURLInput" value="http://www.chillbrain.com/#"/>
-		</div>-->
 		
 	
 		
