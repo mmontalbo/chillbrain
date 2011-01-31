@@ -43,7 +43,7 @@ class MainPage(ChillRequestHandler):
         context["url"] = { "share" : SHARE_URL, "img" : IMG_URL, "login" : LOGIN_REDIRECT_URL }
         
         user = self.current_user
-        if not user.isTemporary():
+        if user and not user.isTemporary():
             context["uid"] = user.id
         
         image_feed = feed.ImageFeed(FEED_SIZE)
@@ -51,9 +51,12 @@ class MainPage(ChillRequestHandler):
 
         initialImages  = image_feed.initial_images([REDDIT_FUNNY])
 
-        context["img1"] = initialImages.pop()
-        context["img2"] = initialImages.pop()
-        context["imgs"] = initialImages
+        # make sure there are initial images to put into the request
+        # TODO: Decide what error to throw if this is empty
+        if initialImages:
+            context["img1"] = initialImages.pop()
+            context["img2"] = initialImages.pop()
+            context["imgs"] = initialImages
         
         path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
         self.response.out.write(template.render(path, context))
