@@ -11,6 +11,9 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
 from google.appengine.ext import db
 
+# import custom template tags
+webapp.template.register_template_library('config.taglib')
+
 import os
 
 def main():
@@ -26,7 +29,6 @@ def main():
     if appengine_config.isDebug():
         publish_urls.extend([('/tests/login', LoginScaffolding),
                              ('/tests/image', ImageServeScaffolding)])
-    
     
     application = webapp.WSGIApplication(publish_urls, appengine_config.isDebug())
     application = appengine_config.add_middleware(application)

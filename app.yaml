@@ -21,7 +21,7 @@ handlers:
   script: brains/scraper.py
   login: admin
   
-- url: /test.*
+- url: /test/test.*
   script: test/gaeunit.py  
 
 - url: /.*
