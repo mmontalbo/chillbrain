@@ -40,7 +40,7 @@ class MainPage(ChillRequestHandler):
     def get(self):
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
-        context["url"] = { "share" : SHARE_URL, "img" : IMG_URL, "login" : LOGIN_REDIRECT_URL }
+        context["url"] = { "base" : BASE_URL, "share" : SHARE_URL, "img" : IMG_URL, "login" : LOGIN_REDIRECT_URL }
         
         user = self.current_user
         if user and not user.isTemporary():
@@ -65,7 +65,7 @@ class LoginScaffolding(ChillRequestHandler):
     def get(self):
         context = {}
         context["app_id"] = FACEBOOK_APP_ID
-        context["url"] = { "share" : SHARE_URL, "img" : IMG_URL }
+        context["url"] = { "base" : BASE_URL, "share" : SHARE_URL, "img" : IMG_URL }
         
         
         user = self.current_user

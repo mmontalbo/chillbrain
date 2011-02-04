@@ -1,6 +1,17 @@
 {% extends "base_web_facebook.html" %}
+
 {% block head %}
 	{{ block.super }}
+	
+	<script type="text/javascript">
+	
+		function test(msg) {
+			alert(msg.images[0].key);
+			alert(msg.images[0].permalink);
+			alert(msg.images[0].title);
+		}
+		
+	</script>
 {% endblock %}
 
 {% block content %}
@@ -8,14 +19,25 @@
 		<div>
 			<input type="button" onclick="data('vote', { img1: '{{img1.key}}' });" value="Vote" />
 			<input type="button" onclick="data('skip', { img1: '{{img1.key}}', img2 : '{{img2.key}}' });" value="Skip" />
-			<input type="button" onclick="prompt_share('{{img1.key}}', '{{img1.title|addslashes}}')" value="Share" />
+			<input type="button" onclick="prompt_share('{{img1.key}}', '{{img1.title|addslashes}}');" value="Share" />
+			<input type="button" onclick="data('{{img1.key}}', '{{img2.key}}', true, test);" value="Next" />
 		</div>
 		<div>
-			<img src="{{url.img}}h={{img1.key}}" />
+			<div class="voteButton" id="leftVoteButton"><img class="clickable" src="css/vote.png" /></div>
+			<div class="voteButton" id="rightVoteButton"><img src="css/vote.png" /></div>
 		</div>
-		<div>
-			<img src="{{url.img}}h={{img2.key}}" />
+		<div style="float: left;">
+			<span id="leftTitle"></span>
+			<br />
+			<img id="img_0" width="200" height="200" />
 		</div>
+		<div style="float: right;">
+			<span id="rightTitle"></span>
+			<br />
+			<img id="img_1" width="200" height="200" />
+		</div>
+		<br />
+		<div id="pad"></div>
 	</div>
 	
 	<script type="text/javascript">
