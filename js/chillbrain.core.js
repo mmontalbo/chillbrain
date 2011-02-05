@@ -7,19 +7,20 @@
 
 $(function() {
 
-	var UI = Backbone.Controller.extend({
+	var UI = new Object();
+	UI.Controller = Backbone.Controller.extend({
 		
 		// the different controller mappings live here
 		routes : {
-			"imageTransition" : "transition",
+			":img1,:img2" 		  : "transition",
 			"first"			  : "learningOne",
 			"second"		  : "learningTwo",
 			"third"			  : "learningThree",
 			
 		},
 		
-		transition : function() {
-			
+		transition : function(img1, img2) {
+			alert("transitioned one: " + img1 + "  two:" + img2);
 		},
 		
 		learningOne : function() {
@@ -32,10 +33,25 @@ $(function() {
 		
 		learningThree : function() {
 			
+		},
+		
+		vote : function(img) {
+			async("/vote?img=" + img);
+		},
+		
+		skip : function(img, img2) {
+			async("/skip?img=" + img + "&img2=" + img2);
+		},
+		
+		share : function(img) {
+			async("/share?img=" + img);
 		}
 		
-		
 	});
+	
+	var controller = new UI.Controller;
+	Backbone.history.start();
+	var index = 0;
 	
 	UI.VoteButton = Backbone.View.extend({
 		img : null,
@@ -44,11 +60,11 @@ $(function() {
 		},
 		
 		events : {
-			"click" : "clickButton",
+			"click" : "vote",
 		},
 		
-		clickButton : function() {
-			alert($(this.img.el).attr("src"));
+		vote : function() {
+			controller.vote($(this.img.el).attr("hash"));
 		}
 		
 	});
@@ -56,7 +72,7 @@ $(function() {
 	UI.Image = Backbone.View.extend({
 	
 		// STUB TO TEST JSON BEING PASSED DURING RENDERING
-		modelStub : { src : "http://www.chillbrain.com/img?i=d0b4833fcd3db7f32356ae56fd73355a0c7a984f", title : "Ze Title" },
+		modelStub : { src : "/img?h=agllZnBzY3JhcGVyCwsSBUltYWdlGAEM", title : "Ze Title", hash : "agllZnBzY3JhcGVyCwsSBUltYWdlGAEM" },
 		
 		render : function() {
 			// render image
@@ -110,8 +126,6 @@ $(function() {
 			// put right image events in here
 		},
 	});
-	
-	
 	
 	new UI.LeftImage().render();
 	new UI.RightImage().render();

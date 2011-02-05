@@ -97,47 +97,52 @@ class ImageServeScaffolding(webapp.RequestHandler):
         initialImages = image_feed.next_images()
         self.response.out.write([image.permalink for image in initialImages])
   
-# Vote on stuff      
-class Vote(ChillRequestHandler):
+#
+# Base Image Request Handler
+# 
+# This class subclasses ChillRequestHandler and creates a prototype
+# that retrieves the images from the post and delegates that to a 
+# common method to handle them
+#
+class ImageRequestHandler(ChillRequestHandler):
     def __init__(self):
         self.repManager = reputation_manager.RepManager()
     def post(self):
+        img = None
+        img2 = None
         if self.request.get(REQUEST_IMG_ID):
             img = db.Key(self.request.get(REQUEST_IMG_ID))
         if self.request.get(REQUEST_IMG_ID2):
             img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
-        
-        return str(self.current_user.vote(img))
+        self.handle_images(img, img2)
+    
+    def handle_images(self, img, img2):
+        pass
+
+# Vote on stuff      
+class Vote(ImageRequestHandler):
+    def handle_images(self, img, img2):
+        self.response.out.write(str(self.current_user.vote(img)))
     
 # Skip stuff
-class Skip(ChillRequestHandler):
-    def __init__(self):
-        self.repManager = reputation_manager.RepManager()
-    def post(self):
-        if self.request.get(REQUEST_IMG_ID):
-            img = db.Key(self.request.get(REQUEST_IMG_ID))
-        if self.request.get(REQUEST_IMG_ID2):
-            img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
-        
-        return str(self.current_user.skip(img,img2))   
+class Skip(ImageRequestHandler):
+    def handle_images(self, img, img2):
+        self.response.out.write(str(self.current_user.skip(img,img2)))
     
 # Share with friends
-class Share(ChillRequestHandler):
-    def __init__(self):
-        self.repManager = reputation_manager.RepManager()
-    def post(self):
-        if self.request.get(REQUEST_IMG_ID):
-            img = db.Key(self.request.get(REQUEST_IMG_ID)) 
-        
-        return str(self.current_user.share(img))   
+class Share(ImageRequestHandler):
+    def handle_images(self, img, img2):
+        self.response.out.write(str(self.current_user.share(img)))  
 
 # Fetch more images
 class Feed(ChillRequestHandler):
     def get(self):
+        # If this invalid then just return nothing
+        if not self.request.get(REQUEST_NUM_IMAGES):
+            return
         feed = self.current_session.get(SESSION_IMAGE_FEED)
-        feed.set_feed_size(self.request.get(REQUEST_NUM_IMAGES))
-        
-        return json.dumps([{'key' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink } for feedElement in feed.next_images()])
+        feed.set_feed_size(int(self.request.get(REQUEST_NUM_IMAGES)))
+        self.response.out.write(json.dumps([{'key' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink } for feedElement in feed.next_images()]))
             
         
 class DataHandler(ChillRequestHandler):        
