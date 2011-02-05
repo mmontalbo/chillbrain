@@ -20,7 +20,10 @@ def main():
     logging.getLogger().setLevel(logging.DEBUG)
     publish_urls = [('/', MainPage),
                        ('/img', ImageServe),
-                       ('/vote', ImageVote),
+                       ('/vote', Vote),
+                       ('/skip', Skip),
+                       ('/share', Share),
+                       ('/feed', Feed),
                        ('/enter', Entrance),
                        ('/data', DataHandler),
                        ('/logout', Logout)]

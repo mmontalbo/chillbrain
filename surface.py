@@ -20,6 +20,7 @@ SESSION_IMAGE_FEED = 'feed'
 # Request parameter constants
 REQUEST_IMG_ID = 'img'
 REQUEST_IMG_ID2 = 'img2'
+REQUEST_NUM_IMAGES = 'n'
 REQUEST_ACTION = 'action'
 REQUEST_SHARE_ID = 'r'
 REQUEST_FETCH = 'fetch'
@@ -95,6 +96,49 @@ class ImageServeScaffolding(webapp.RequestHandler):
         
         initialImages = image_feed.next_images()
         self.response.out.write([image.permalink for image in initialImages])
+  
+# Vote on stuff      
+class Vote(ChillRequestHandler):
+    def __init__(self):
+        self.repManager = reputation_manager.RepManager()
+    def post(self):
+        if self.request.get(REQUEST_IMG_ID):
+            img = db.Key(self.request.get(REQUEST_IMG_ID))
+        if self.request.get(REQUEST_IMG_ID2):
+            img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
+        
+        return str(self.current_user.vote(img))
+    
+# Skip stuff
+class Skip(ChillRequestHandler):
+    def __init__(self):
+        self.repManager = reputation_manager.RepManager()
+    def post(self):
+        if self.request.get(REQUEST_IMG_ID):
+            img = db.Key(self.request.get(REQUEST_IMG_ID))
+        if self.request.get(REQUEST_IMG_ID2):
+            img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
+        
+        return str(self.current_user.skip(img,img2))   
+    
+# Share with friends
+class Share(ChillRequestHandler):
+    def __init__(self):
+        self.repManager = reputation_manager.RepManager()
+    def post(self):
+        if self.request.get(REQUEST_IMG_ID):
+            img = db.Key(self.request.get(REQUEST_IMG_ID)) 
+        
+        return str(self.current_user.share(img))   
+
+# Fetch more images
+class Feed(ChillRequestHandler):
+    def get(self):
+        feed = self.current_session.get(SESSION_IMAGE_FEED)
+        feed.set_feed_size(self.request.get(REQUEST_NUM_IMAGES))
+        
+        return json.dumps([{'key' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink } for feedElement in feed.next_images()])
+            
         
 class DataHandler(ChillRequestHandler):        
     def __init__(self):
