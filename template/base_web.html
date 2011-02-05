@@ -13,16 +13,15 @@
 		
 		<script type="text/javascript">
 
-			function data(action, img, fetch, callback) {
-				fetch = (!fetch || fetch === "undefined") ? "" : "fetch=true";
-				imgStr = (img.img1 ? "img=" + img.img1 : "") + (img.img2 ? "&img2=" + img.img2 : "");
+			function async(url, extras) {
+				var get = extras.get;
+				var callback = extras.callback;
+				var reference = extras.ref;
 				$.ajax({
-					   type: "POST",
-					   url: "/data",
-					   data : ["action="+action,imgStr, fetch].join("&"),
+					   type: get == null || !get ? "POST" : "GET",
+					   url: url,
 					   success: function(msg){
-					   		if(callback) 
-						   		callback(eval("msg =" + msg));
+							callback.call(reference, msg);
 					   }
 				});
 			}

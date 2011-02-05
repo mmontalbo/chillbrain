@@ -33,6 +33,7 @@ else:
 
 SHARE_URL = BASE_URL + "enter?"
 IMG_URL = BASE_URL + "img?"
+IMG_URL_TEMPLATE = IMG_URL + "h=%s"
 LOGIN_REDIRECT_URL = BASE_URL + "tests/login"
 
 FEED_SIZE = 20
@@ -142,7 +143,7 @@ class Feed(ChillRequestHandler):
             return
         feed = self.current_session.get(SESSION_IMAGE_FEED)
         feed.set_feed_size(int(self.request.get(REQUEST_NUM_IMAGES)))
-        self.response.out.write(json.dumps([{'key' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink } for feedElement in feed.next_images()]))
+        self.response.out.write(json.dumps([{'id' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink, 'src' : IMG_URL_TEMPLATE % str(feedElement.key()) } for feedElement in feed.next_images()]))
             
         
 class DataHandler(ChillRequestHandler):        
