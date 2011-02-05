@@ -16,9 +16,6 @@ $(function()
 	  });
 	
       window.Feed = Backbone.Collection.extend({
-		
-	      _.bindAll(this);
-
 	      model: ImageModel,
 	      
 	      defaults: {
@@ -26,6 +23,8 @@ $(function()
 	      }
 
 	      intialize : function() {
+		  _.bindAll(this);
+
 		  // set bindings
 		  this.bind("vote",nextImages);
 		  this.bind("skip",nextImages);
