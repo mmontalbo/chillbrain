@@ -6,7 +6,7 @@
  */
 
 $(function() 
-{
+{	
 	var ImageModel = Backbone.Model.extend({
 		defaults: {
 			"id" : "",
@@ -16,15 +16,14 @@ $(function()
 		}
 	});
 	
-	var Feed = Backbone.Collection.extend({
+	var globalEvents = new Object();
+	_.extend(globalEvents, Backbone.Events);
+	
+	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
 	    fetchSize : 20,
 	    size : 20,
 	      
-	    initialize : function() {
-    	  
-      	},
-
 	    // point to custom feed url
 	    url: function() {
       		return 'http://localhost:8080/feed?n=' + this.fetchSize;
@@ -37,7 +36,6 @@ $(function()
 			this.remove(nextImages);
 
 			this.fetchMoreImages(this.fetchSize);
-			  
 			return nextImages;
 	    },
 
@@ -45,34 +43,41 @@ $(function()
 	    // collection
 	    fetchMoreImages : function(n) {	
 	    	this.fetchSize = n;
-			this.fetch();
-	    },
-	      
-	    fetchImagesWithCallback : function(n, callback) {
-	    	this.fetchSize = n;
-	    	this.fetch(callback);
-	    },
+			this.fetch({
+				success : function() { 
+					globalEvents.trigger("fetchComplete"); 
+				},
+			});
+	    }
 	});	
 
-    var UI = new Object();
-    UI.Controller = Backbone.Controller.extend({
+    var UIController = Backbone.Controller.extend({
     	feed : null,
     	preloaded : new Array(),
+    	leftImage : null,
+    	rightImage: null,
+    	index : 1,
 	
     	initialize : function() {
-    		_.bindAll(this, "next", "asyncCallback");
-    	  
-    		this.feed = new Feed();
-    	  	this.feed.fetchImagesWithCallback(20, {
-    	  		success : this.asyncCallback,
-    	  	});
+    		_.bindAll(this, "transactionSuccess", "fetchComplete");
+    	
+    		// setup global bindings for this object
+    		globalEvents.bind("fetchComplete", this.fetchComplete);
+    		globalEvents.bind("transactionSuccess", this.transactionSuccess);
+    		
+    		globalEvents.bind("vote", this.vote);
+    		globalEvents.bind("skip", this.skip);
+    		globalEvents.bind("share", this.share);
+    		
+    		this.feed = new Feed;
     	},
     	  
     	// the different controller mappings live here
 	    routes : {
-    		"first":	"learningOne",
+    		"first" :	"learningOne",
 			"second": 	"learningTwo",
 			"third" : 	"learningThree",
+			"next:number"  :	"next",
     	},
 
 	    learningOne : function() {
@@ -86,33 +91,57 @@ $(function()
 	    learningThree : function() {
 			
 	    },
+	    
+	    fetchComplete : function() {
+	    	
+	    },
+	    
+	    // Setup the page. This will get the list of images (which have been rendered into the model)
+	    // and bind them to the already showing images as well as pre-load the rest of the images
+	    setup : function() {
+	    	var nextImages = this.feed.getNextImages();   
+	    	
+	    	var left = nextImages.shift();
+	    	var right = nextImages.shift();
+
+	    	this.leftImage = new UI.LeftImage({  model: left, el : $("#"+left.id) }).render();
+	    	this.rightImage = new UI.RightImage({ model: right, el : $("#"+right.id) }).render();
+	    	
+	    	this.preload(nextImages);
+	    },
+	    
+	    preload : function(images) {
+	    	for(var i=0; i < images.length; i++) 
+	    		this.preloaded.push(new UI.PreloadedImage({ model : images[i] }).render());
+	    },
 	      
-	    next : function(nextImages) {
-	    	new UI.LeftImage({ model : nextImages.pop() }).render();
-	    	new UI.RightImage({ model : nextImages.pop() }).render();	   
+	    next : function(number) {
+	    	this.leftImage = this.leftImage.replace(this.preloaded.pop());
+	    	this.rightImage = this.rightImage.replace(this.preloaded.pop());
+	    	
+	    	if(this.preloaded.length < 5)
+	    		this.preload(this.feed.getNextImages());
 	    },
 		
 	    vote : function(img) {
-	    	async("/vote?img=" + img, { callback : this.asyncCallback });
+	    	async("/vote?img=" + img);
 	    },
 		
 	    skip : function(img, img2) {
-	    	async("/skip?img=" + img + "&img2=" + img2, { callback : this.asyncCallback });
+	    	async("/skip?img=" + img + "&img2=" + img2);
 	    },
 		
 	    share : function(img) {
 	    	async("/share?img=" + img);
-	    },
-	      
-	    asyncCallback : function() {
-	    	this.next();
 	    },	
+	    
+	    transactionSuccess : function(callback) {
+	    	window.location.hash = "next" + this.index++;
+	    }
     });
 	
-	var controller = new UI.Controller;
-	Backbone.history.start();
-	var index = 0;
-	
+	// make UI namespace for View element
+	var UI = new Object();
 	UI.VoteButton = Backbone.View.extend({
 		img : null,
 		bind : function(img) {
@@ -124,7 +153,7 @@ $(function()
 		},
 		
 		vote : function() {
-			controller.vote($(this.img.el).attr("id"));
+			globalEvents.trigger("vote", $(this.img.el).attr("id"));
 		}
 	});
 	
@@ -152,10 +181,10 @@ $(function()
     // tag type with the correct styling when it is rendered
     UI.PreloadedImage = UI.Image.extend({
     	className : "preloaded",
-	    show : function(showingImage) {
-    		new showingImage({ model : this.model });
-    		this.remove();
-      	}
+    	render : function() {
+    		$("#content").append(this.el);
+    		return this;
+    	}
 	 });
 	
      // View for a shown image. These have vote buttons associated with them.
@@ -163,9 +192,16 @@ $(function()
 	 // bad things
      UI.ShowingImage = UI.Image.extend({
     	 render : function() {
+    	 	$(this.el).removeClass("preloaded");
 		 	this.voteButton.bind(this);
 		  	return new UI.Image().render.call(this);
 	     },
+	     
+	     // remove the showing image and render the pre-loaded image into the shown views
+	     replace : function(preloadedImage) {
+	    	this.remove();
+	    	return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
+	     }
      });
 	
      // View for the left image. This is bound to a tag that already exists
@@ -185,4 +221,19 @@ $(function()
 		 	// put right image events in here
 	     },
      });
+     
+     // initialize the controller and start the history
+     window.UIController = new UIController;
+ 	 Backbone.history.start();
+     
+     // Utility functions
+     function async(url, get) {
+     	$.ajax({
+     		   type: get == null || !get ? "POST" : "GET",
+     		   url: url,
+     		   success: function(msg){
+     		       globalEvents.trigger("transactionSuccess", msg);
+     		   }
+     	});
+     }
  });

@@ -12,20 +12,10 @@
 		<script type="text/javascript" src="{{url.base}}js/chillbrain.core.js"></script>
 		
 		<script type="text/javascript">
-
-			function async(url, extras) {
-				var get = extras.get;
-				var callback = extras.callback;
-				var reference = extras.ref;
-				$.ajax({
-					   type: get == null || !get ? "POST" : "GET",
-					   url: url,
-					   success: function(msg){
-							callback.call(reference, msg);
-					   }
-				});
-			}
-			
+			$(function() {
+				UIController.feed.refresh({{img}});
+				UIController.setup();
+			});
 		</script>
 	{% endblock %}
 </head>

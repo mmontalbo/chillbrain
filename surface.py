@@ -79,10 +79,10 @@ class LoginScaffolding(ChillRequestHandler):
         self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
         initialImages = image_feed.initial_images([REDDIT_FUNNY])
-
-        context["img1"] = initialImages.pop()
-        context["img2"] = initialImages.pop()     
-        context["imgs"] = initialImages
+        
+        context["img1"] = initialImages[0]
+        context["img2"] = initialImages[1]
+        context["img"] = format_images_to_json(initialImages)
         
         path = os.path.join(os.path.dirname(__file__), 'template/usertest.html')
         self.response.out.write(template.render(path, context))
@@ -143,8 +143,10 @@ class Feed(ChillRequestHandler):
             return
         feed = self.current_session.get(SESSION_IMAGE_FEED)
         feed.set_feed_size(int(self.request.get(REQUEST_NUM_IMAGES)))
-        self.response.out.write(json.dumps([{'id' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink, 'src' : IMG_URL_TEMPLATE % str(feedElement.key()) } for feedElement in feed.next_images()]))
-            
+        self.response.out.write(format_images_to_json(feed.next_images()))
+  
+def format_images_to_json(images):
+    return json.dumps([{'id' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink, 'src' : IMG_URL_TEMPLATE % str(feedElement.key()) } for feedElement in images])
         
 class DataHandler(ChillRequestHandler):        
     def __init__(self):
