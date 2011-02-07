@@ -5,20 +5,9 @@
 	<LINK href="css/stylesheet.css" rel="stylesheet" type="text/css">
 	
 	<script type="text/javascript" src="js/infoBox.js"></script>
-
-	<script type="text/javascript">
-	
-		var shareURL = "{{url.share}}h="; 
-		
-		var imagesArray = [];
-
-		{% for image in imgs %}
-			imagesArray.push({ title : "{{image.title|addslashes}}", link : "{{image.permalink}}", key : "{{image.key}}"});
-		{% endfor %}
-
-					
-	</script>
+	<!--  
 	<script type="text/javascript" src="js/chillbrain.js"></script>
+	-->
 
 {% endblock %}
 
@@ -47,8 +36,8 @@
 	<div id="content">
 		<!--<img class="combatant leftCombatant" src="asdf" />
 		<img class="combatant rightCombatant" src="asdf" />-->
-		<img class="preloaded" title="{{img1.title}}" id="img_0" hash="{{img1.key}}" src="{{url.img}}h={{img1.key}}" permalink="{{img1.permalink}}" />
-		<img class="preloaded" title="{{img2.title}}" id="img_1" hash="{{img2.key}}" src="{{url.img}}h={{img2.key}}" permalink="{{img2.permalink}}"/>
+		<img class="combatant leftCombatant" id="{{img1.key}}" src="{{url.img}}h={{img1.key}}"  />
+		<img class="combatant rightCombatant" id="{{img2.key}}" src="{{url.img}}h={{img2.key}}" />
 		
 
 		<div id="controls">

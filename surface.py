@@ -56,9 +56,9 @@ class MainPage(ChillRequestHandler):
         # make sure there are initial images to put into the request
         # TODO: Decide what error to throw if this is empty
         if initialImages:
-            context["img1"] = initialImages.pop()
-            context["img2"] = initialImages.pop()
-            context["imgs"] = initialImages
+            context["img1"] = initialImages[0]
+            context["img2"] = initialImages[1]
+            context["img"] = format_images_to_json(initialImages)
         
         path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
         self.response.out.write(template.render(path, context))

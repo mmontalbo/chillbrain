@@ -80,6 +80,9 @@ class ImageFeed():
         shuffledImages = self.shuffle_images(images)
 
         return shuffledImages
+    
+    def set_feed_size(self, size):
+        self.feedSize = size
 
     """
     image_query returns a GQL query for the Image with the given

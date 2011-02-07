@@ -4,46 +4,35 @@
 	{{ block.super }}
 	
 	<script type="text/javascript">
-	
-		function test(msg) {
-			alert(msg.images[0].key);
-			alert(msg.images[0].permalink);
-			alert(msg.images[0].title);
-		}
-		
+
 	</script>
+	
+	<style type="text/css">
+		.preloaded {
+			display: none;
+		}
+	</style>
 {% endblock %}
 
 {% block content %}
 	<div style="width:600px; margin:auto; padding:auto;">
 		<div>
-			<input type="button" onclick="data('vote', { img1: '{{img1.key}}' });" value="Vote" />
-			<input type="button" onclick="data('skip', { img1: '{{img1.key}}', img2 : '{{img2.key}}' });" value="Skip" />
+			<input type="button" onclick="vote();" value="Vote" />
+			<input type="button" onclick="skip();" value="Skip" />
 			<input type="button" onclick="prompt_share('{{img1.key}}', '{{img1.title|addslashes}}');" value="Share" />
-			<input type="button" onclick="data('{{img1.key}}', '{{img2.key}}', true, test);" value="Next" />
+			<input type="button" onclick="feed();" value="Next" />
 		</div>
 		<div>
 			<div class="voteButton" id="leftVoteButton"><img class="clickable" src="css/vote.png" /></div>
 			<div class="voteButton" id="rightVoteButton"><img src="css/vote.png" /></div>
 		</div>
-		<div style="float: left;">
+		<div id="content">
 			<span id="leftTitle"></span>
-			<br />
-			<img id="img_0" width="200" height="200" />
-		</div>
-		<div style="float: right;">
 			<span id="rightTitle"></span>
-			<br />
-			<img id="img_1" width="200" height="200" />
+			<img id="{{img1.key}}" src="/img?h={{img1.key}}" />
+			<img id="{{img2.key}}" src="/img?h={{img2.key}}" />
 		</div>
 		<br />
 		<div id="pad"></div>
 	</div>
-	
-	<script type="text/javascript">
-		var imagesArray = [];
-		{% for image in imgs %}
-			imagesArray.push({ title : "{{image.title|addslashes}}", link : "{{image.permalink}}" });
-		{% endfor %}
-	</script>
 {% endblock %} 

@@ -21,12 +21,11 @@ $(function()
 	
 	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
-	    fetchSize : 20,
-	    size : 20,
+	    fetchSize : 10,
 	      
 	    // point to custom feed url
 	    url: function() {
-      		return 'http://localhost:8080/feed?n=' + this.fetchSize;
+      		return '/feed?n=' + this.fetchSize;
 	    },
 
 	    // triggered on a vote or skip event, returns two Images to be
@@ -41,8 +40,7 @@ $(function()
 
 	    // fetch n more images from the server and add them to the
 	    // collection
-	    fetchMoreImages : function(n) {	
-	    	this.fetchSize = n;
+	    fetchMoreImages : function() {	
 			this.fetch({
 				success : function() { 
 					globalEvents.trigger("fetchComplete"); 
@@ -59,7 +57,7 @@ $(function()
     	index : 1,
 	
     	initialize : function() {
-    		_.bindAll(this, "transactionSuccess", "fetchComplete");
+    		_.bindAll(this, "transactionSuccess", "fetchComplete", "vote");
     	
     		// setup global bindings for this object
     		globalEvents.bind("fetchComplete", this.fetchComplete);
@@ -125,6 +123,7 @@ $(function()
 		
 	    vote : function(img) {
 	    	async("/vote?img=" + img);
+	    	this.transactionSuccess();
 	    },
 		
 	    skip : function(img, img2) {
@@ -162,6 +161,7 @@ $(function()
 	    render : function() {
 			// render image
 			$(this.el).attr(this.model.toJSON());
+			$(this.el).addClass(this.className);
 				
 			// render title
 			$(this.title).text(this.model.get("title"));	
@@ -206,6 +206,7 @@ $(function()
 	
      // View for the left image. This is bound to a tag that already exists
      UI.LeftImage = UI.ShowingImage.extend({
+    	 className : "combatant leftCombatant",
     	 title : $("#leftTitle"),
 	     voteButton : new UI.VoteButton({ el: $("#leftVoteButton") }),
 	     events : {
@@ -215,6 +216,7 @@ $(function()
 	
      // View for the right image. This is bound to a tag that already exists
      UI.RightImage = UI.ShowingImage.extend({
+    	 className : "combatant rightCombatant",
     	 title : $("#rightTitle"),
 	     voteButton : new UI.VoteButton({ el: $("#rightVoteButton") }),
 	     events : {
@@ -232,7 +234,7 @@ $(function()
      		   type: get == null || !get ? "POST" : "GET",
      		   url: url,
      		   success: function(msg){
-     		       globalEvents.trigger("transactionSuccess", msg);
+     		   //    globalEvents.trigger("transactionSuccess", msg);
      		   }
      	});
      }
