@@ -1,5 +1,5 @@
-application: efpscrape
-version: 4
+application: usechillbrain
+version: 1
 runtime: python
 api_version: 1
 
@@ -28,5 +28,5 @@ handlers:
   script: main.py
 
 builtins:
-- appstats: off
+- appstats: on
 - datastore_admin: on
