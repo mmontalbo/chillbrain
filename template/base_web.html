@@ -7,24 +7,15 @@
 		<link rel="shortcut icon" href="css/favicon.ico" >
 	
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-		<script type="text/javascript" src="js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="{{url.base}}js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="{{url.base}}js/backbone-min.js"></script>
+		<script type="text/javascript" src="{{url.base}}js/chillbrain.core.js"></script>
 		
 		<script type="text/javascript">
-
-			function data(action, img, fetch, callback) {
-				fetch = (!fetch || fetch === "undefined") ? "" : "fetch=true";
-				imgStr = (img.img1 ? "img=" + img.img1 : "") + (img.img2 ? "&img2=" + img.img2 : "");
-				$.ajax({
-					   type: "POST",
-					   url: "/data",
-					   data : ["action="+action,imgStr, fetch].join("&"),
-					   success: function(msg){
-					   		if(callback) 
-						   		callback(eval("msg =" + msg));
-					   }
-				});
-			}
-			
+			$(function() {
+				UIController.feed.refresh({{img}});
+				UIController.setup();
+			});
 		</script>
 	{% endblock %}
 </head>
