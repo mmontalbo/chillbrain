@@ -81,7 +81,7 @@ class Scraper(object):
         return True
 
     def isUnsavedURL(self, url):
-        return (len(Image.gql("WHERE url=:1",url).fetch(1)) == 0)
+        return (len(CBImage.gql("WHERE url=:1",url).fetch(1)) == 0)
 
 class RedditScraper(Scraper):
     def __init__(self, subreddit):
@@ -133,7 +133,7 @@ class ScrapeWorker(webapp.RequestHandler):
                 response = urlfetch.Fetch(url)
                 if ScrapeWorker.validContentTypes.count(response.headers['Content-Type']) > 0:
                     data = response.content
-                    img = Image()
+                    img = CBImage()
                     img.imageData = db.Blob(data)
                     img.url = url
                     img.title = self.request.get('title')
