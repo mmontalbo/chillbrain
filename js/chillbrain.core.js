@@ -57,7 +57,7 @@ $(function()
     	index : 1,
 	
     	initialize : function() {
-    		_.bindAll(this, "transactionSuccess", "fetchComplete", "vote");
+    		_.bindAll(this, "transactionSuccess", "fetchComplete", "vote", "skip", "share");
     	
     		// setup global bindings for this object
     		globalEvents.bind("fetchComplete", this.fetchComplete);
@@ -149,10 +149,20 @@ $(function()
 		
 		events : {
 			"click" : "vote",
+			"mouseover" : "hover",
+			"mouseout" : "unhover",
 		},
 		
 		vote : function() {
 			globalEvents.trigger("vote", $(this.img.el).attr("id"));
+		},
+		
+		hover : function() {
+			$(this.img.el).css("borderColor","#000000");
+		},
+		
+		unhover : function() {
+			$(this.img.el).css("borderColor","#505050");
 		}
 	});
 	
@@ -190,7 +200,31 @@ $(function()
      // View for a shown image. These have vote buttons associated with them.
      // Note: Subclasses MUST contain a voteButton attribute or there will be
 	 // bad things
+     var currentZoomedImage = {
+         zoomed : false,
+         image : null,
+         set : function(image) {
+    	 	this.image = image;
+    	 	this.zoomed = true;
+     	 },
+     	 reset : function() {
+     		this.image = null;
+     		this.zoomed = false;
+     	 },
+     	 isZoomed : function() {
+     		return this.zoomed; 
+     	 },
+     	 canZoom : function(image) {
+     		return this.image == null && this.zoomed == false; 
+     	 },
+     };
+     _.bindAll(currentZoomedImage);
+     
      UI.ShowingImage = UI.Image.extend({
+    	 zoomedIn : false,
+    	 zoomedTitle : $("div#zoomTitleBlock").find("span"),
+    	 zoomedPermalink : $("div#zoomTitleBlock").find("input"),
+    	 
     	 render : function() {
     	 	$(this.el).removeClass("preloaded");
 		 	this.voteButton.bind(this);
@@ -201,6 +235,89 @@ $(function()
 	     replace : function(preloadedImage) {
 	    	this.remove();
 	    	return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
+	     }, 
+	     
+	     events : {
+	    	"mouseover": "hover",
+	    	"mouseout" : "unhover",
+	    	"click"    : "click"
+	     },
+	     
+	     hover : function() {
+	    	 var el = $(this.el);
+	    	 
+	    	 $('img.combatant').removeClass("selected notSelected");
+	    	 el.addClass("selected");
+	 		 var pos = el.offset();
+	 		 $(el).css('cursor', function() { //------ adds magnifying glass effect
+				 if (jQuery.browser.mozilla) {
+						return '-moz-zoom-in';
+					}
+					else if (jQuery.browser.webkit) {
+						return '-webkit-zoom-in';
+					}
+					else {
+					   return 'pointer'; 
+					}
+			 });
+	     },
+	     
+	     unhover : function() {
+	    	 
+	     },
+	     
+	     click : function() {
+	    	var el = $(this.el);
+	 		var scaleFactor = 2;
+			
+			var documentWidth = $(window).width();
+			var imgPosition = el.offset();
+			var imgWidth = el.width();
+			var imgWidthScaled = el.width() * scaleFactor;
+			var translateOffset = (documentWidth/2) - (imgPosition.left) - (imgWidth/2);
+			var zoomedOffset = documentWidth - imgWidthScaled - (imgWidth) + (imgWidthScaled / 20);
+
+			if(currentZoomedImage.isZoomed()) {
+				currentZoomedImage.reset();
+				$("div#content").css("opacity",1);
+				$("div#commandCenter").css("opacity",1);
+				$("div#titles").css("opacity",1);
+			
+				$("div#zoomedImage").fadeOut(175);
+				
+				$("div#zoomTitleBlock").css("top",-100);
+			} else {
+				// if there is a zoomed image then don't try to zoom in
+				if(! currentZoomedImage.canZoom(this)) return;
+				currentZoomedImage.set(this);
+				
+				$("div#content").css("opacity",0.1);
+				$("div#commandCenter").css("opacity",0.1);
+				$("div#titles").css("opacity",0.1);
+
+				$("img#zoomed").attr("src", this.model.get("src"));
+				$("div#zoomedImage").fadeIn(300);
+				
+				this.zoomedTitle.text(this.model.get("title"));
+				this.zoomedPermalink.val(this.model.get("permalink"));
+				$("div#zoomTitleBlock").each(function(i,el){//Make font as big as possible
+					$(el).textfill({ maxFontPixels: 34 })
+				}); 
+				
+				$("div#zoomInPicture img").css('cursor', function() { //------ adds magnifying glass effect
+					if (jQuery.browser.mozilla) {
+						return '-moz-zoom-out';
+					} else if (jQuery.browser.webkit) {
+						return '-webkit-zoom-out';
+					} else {
+					   return 'pointer'; 
+					}
+				});
+			
+				$("div#zoomTitleBlock").css("top",0);
+			} 
+			
+			$("div#zoomedImage").toggleClass("zoomedIn"); 
 	     }
      });
 	
@@ -209,9 +326,6 @@ $(function()
     	 className : "combatant leftCombatant",
     	 title : $("#leftTitle"),
 	     voteButton : new UI.VoteButton({ el: $("#leftVoteButton") }),
-	     events : {
-		 	// put left image events in here
-	      },
      });
 	
      // View for the right image. This is bound to a tag that already exists
@@ -219,9 +333,6 @@ $(function()
     	 className : "combatant rightCombatant",
     	 title : $("#rightTitle"),
 	     voteButton : new UI.VoteButton({ el: $("#rightVoteButton") }),
-	     events : {
-		 	// put right image events in here
-	     },
      });
      
      // initialize the controller and start the history
@@ -238,4 +349,56 @@ $(function()
      		   }
      	});
      }
+     
+     function showImages(){
+     	$("img.combatant").css("opacity",1);
+     	$("div.voteButton").css("opacity",1);
+     	$("div#titles").css("opacity",1);
+     }
+
+     function skipImages() {
+     	$("img.combatant").css("opacity",0);
+     	$("div#titles").css("opacity",0);
+     }
+
+     function fadeTextTo(fadeTo) {
+     	$("div#commandCenter").find("img").addClass("jiggle");
+     	$("div#commandCenterText").find("span").css("opacity","0");
+     	$("div#commandCenterText").find("span").attr("message",fadeTo);
+     }
+
+     function showMessage(message) {
+     	fadeTextTo(message);	
+     }
+
+     function showWarning(warning) {
+     	fadeTextTo(warning);
+     }
+
+     function achievmentUnlocked(achievment){
+     	fadeTextTo("achievment unlocked");
+     }
+     
+ 	$("div#zoomInPicture").click(function(e){ //----- closes image unless you click on something else
+		if(event.target != this){
+			return true;
+		} else {
+			$("div#zoomInPicture").css({ //make wrapper div visible
+				display:"none"
+			});
+		}
+	});
+	
+	$("img#closeButton").live("click",function(){ //----- ways to hide img
+		$("div#content").css("opacity",1);
+		$("div#commandCenter").css("opacity",1);
+		$("div#titles").css("opacity",1)
+		$("div#zoomedImage").fadeOut("fast");
+		$("div#zoomTitleBlock").css("top",-75);	
+		$("div#zoomedImage").toggleClass("zoomedIn");
+		
+		currentZoomedImage.reset();
+	});	
  });
+
+
