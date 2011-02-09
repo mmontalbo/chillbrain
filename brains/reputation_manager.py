@@ -1,22 +1,21 @@
 from config.chill_constants import *
 
 class RepManager():
-    def __init__(self):
-        RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
-                               REQUEST_ACTION_VOTE:0.0,
-                               REQUEST_ACTION_SHARE : 30.0,
-                               REQUEST_ACTION_REPORT: 300.0,
-                               REQUEST_ACTION_UPLOAD: 3000.0}
-        
-        RepManager.ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
-                                       REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
-                                       REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
-
-        RepManager.DENIED_MSGS = { REQUEST_ACTION_SHARE : "Sharing requires "+RepManager.REP_REQ.REQUEST_ACTION_SHARE+" rep.",
-                                   REQUEST_ACTION_REPORT: "Reporting images requires "+RepManager.REP_REQ.REQUEST_ACTION_REPORT+" rep.",
-                                   REQUEST_ACTION_UPLOAD: "Uploading images requires "+RepManager.REP_REQ.REQUEST_ACTION_UPLOAD+" rep."}
-        
-        RepManager.LINKBACK_FACTOR = 0.25
+    REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
+                REQUEST_ACTION_VOTE:0.0,
+                REQUEST_ACTION_SHARE : 30.0,
+                REQUEST_ACTION_REPORT: 300.0,
+                REQUEST_ACTION_UPLOAD: 3000.0 }
+    
+    ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
+                        REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
+                        REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
+    
+    DENIED_MSGS = { REQUEST_ACTION_SHARE : "Sharing requires %d rep." % REP_REQ[REQUEST_ACTION_SHARE],
+                    REQUEST_ACTION_REPORT: "Reporting images requires %d rep." % REP_REQ[REQUEST_ACTION_REPORT],
+                    REQUEST_ACTION_UPLOAD: "Uploading images requires %d rep." % REP_REQ[REQUEST_ACTION_UPLOAD] }
+    
+    LINKBACK_FACTOR = 0.25
 
     def update_rep(self, action, reputation, linkbacks = 0):
         # get rep increase for linkbacks

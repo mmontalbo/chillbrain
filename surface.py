@@ -4,8 +4,7 @@ from google.appengine.api import memcache
 from google.appengine.ext import db
 from django.utils import simplejson as json
 
-from model import users
-from model import transactions
+from model import users, transactions, image
 from net.handlers import ChillRequestHandler, FACEBOOK_APP_ID
 from brains import feed
 from brains import reputation_manager
@@ -25,17 +24,6 @@ REQUEST_ACTION = 'action'
 REQUEST_SHARE_ID = 'r'
 REQUEST_FETCH = 'fetch'
 
-# URL configuration
-if appengine_config.isDebug():
-    BASE_URL = 'http://localhost:8080/'
-else:
-    BASE_URL = 'http://chillbrain.com/'
-
-SHARE_URL = BASE_URL + "enter?"
-IMG_URL = BASE_URL + "img?"
-IMG_URL_TEMPLATE = IMG_URL + "h=%s"
-LOGIN_REDIRECT_URL = BASE_URL + "tests/login"
-
 FEED_SIZE = 20
         
 class MainPage(ChillRequestHandler):
@@ -52,13 +40,16 @@ class MainPage(ChillRequestHandler):
         self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
         initialImages  = image_feed.initial_images([REDDIT_FUNNY])
+        
+        logging.debug("Path of URL: %s" % self.request.url)
 
         # make sure there are initial images to put into the request
         # TODO: Decide what error to throw if this is empty
         if initialImages:
             context["img1"] = initialImages[0]
             context["img2"] = initialImages[1]
-            context["img"] = format_images_to_json(initialImages)
+        
+        context["img"] = format_images_to_json(initialImages)
         
         path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
         self.response.out.write(template.render(path, context))
@@ -153,35 +144,8 @@ class DataHandler(ChillRequestHandler):
         self.repManager = reputation_manager.RepManager()
 
     def post(self):         
-        img = None
-        img2 = None
-        if self.request.get(REQUEST_IMG_ID):
-            img = db.Key(self.request.get(REQUEST_IMG_ID))
-        if self.request.get(REQUEST_IMG_ID2):
-            img2 = db.Key(self.request.get(REQUEST_IMG_ID2))        
-
-        action = self.request.get(REQUEST_ACTION)
-        user = self.current_user
-
-        # process the data request and setup the response
-        response_data = {}
-        try: 
-            if action == REQUEST_ACTION_VOTE:
-                response_data['vote'] = str(user.vote(img))
-            if action == REQUEST_ACTION_SKIP: 
-                response_data['skip'] = str(user.skip(img, img2))
-            if action == REQUEST_ACTION_SHARE:
-                response_data['share'] = str(user.share(img))
-        except Exception, e:
-            logging.debug("Processing Error")
-            response_data['error'] = "Problem processing data request"
-            
-        if self.request.get(REQUEST_FETCH):
-            logging.debug("Fetch received")
-            feed = self.current_session.get(SESSION_IMAGE_FEED)
-            response_data['images'] = [{'key' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink} for feedElement in feed.next_images()]
-
-        self.response.out.write(json.dumps(response_data))
+        # Put the logic to return a JSON array of image metadata
+        self.response.out.write("Stubbed like a motherfucker")
    
 '''
     Handle shared link redirects and tracking

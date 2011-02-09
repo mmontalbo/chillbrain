@@ -12,6 +12,7 @@ from google.appengine.api import images
 from google.appengine.ext import db
 from google.appengine.api import images
 from model.image import *
+from config.chill_constants import *
 
 import logging
 
@@ -88,7 +89,7 @@ class ImageServe(webapp.RequestHandler):
             self.response.headers['Content-Type'] = 'image/jpeg'
             from google.appengine.api import urlfetch
             logging.error("Couldn't retrieve image: "+imgHash+". Error: "+str(type(e)))
-            self.response.out.write(urlfetch.Fetch("http://efpscrape.appspot.com/static/no_image.jpg").content)
+            self.response.out.write(urlfetch.Fetch(BASE_URL + "static/no_image.jpg").content)
 
     def resizeImg(self,img,height,width):
         if(height is not "" and width is not ""):
@@ -104,5 +105,5 @@ class ImageServe(webapp.RequestHandler):
         return img
 
     def getImg(self,imgHash):
-        img = Image.get(db.Key(imgHash))
+        img = CBImage.get(db.Key(imgHash))
         return img
