@@ -47,8 +47,7 @@ $(document).ready(function(){
 		var imgWidthScaled = $(this).width() * scaleFactor;
 		var translateOffset = (documentWidth/2) - (imgPosition.left) - (imgWidth/2);
 		var zoomedOffset = documentWidth - imgWidthScaled - (imgWidth) + (imgWidthScaled / 20);
-		//alert(imgWidth);
-		
+
 		if($(this).hasClass("zoomed")) {
 		
 			$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
