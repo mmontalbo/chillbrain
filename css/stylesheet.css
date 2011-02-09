@@ -1,7 +1,11 @@
 body {
 	margin:0 3% 3% 3%;
 	font-family:geneva;
-	font-weight:bold;
+	font-weight:normal;
+	
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
+	background: -moz-linear-gradient(top,  #666,  #575757);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
 }
 
 div#main {
@@ -16,33 +20,19 @@ div#header {
 	width:100%;
 	height:2em;
 	//background-color:orange;
-	text-align:right;
-}
-
-div#header ul {
-		font-size:10px;
-		list-style-type:none;
-		padding:0;
-		margin:0;
-}
-div#header ul li{
-	display:inline;
-	margin-right:10px;
-	line-height:30px;
-}
-
-div#header ul li a{
-	color:#ccc;
-}
-
-div#header ul li a:hover{
-	color:#000;
 }
 
 div#titles {
 	width:100%;
 	height:75px;
 	//background-color:green;
+	
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: ease-in-out;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: ease-in-out;
 }
 
 div.imgTitle {
@@ -60,24 +50,35 @@ div#rightTitle {
 }
 
 div#content {
+	opacity:1;
 	width:100%;
-	//background-color:magenta;
+	background-color:magenta;
 	position:relative;
-	height:100px;
+	
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: ease-in-out;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: ease-in-out;
+	
 }
 
 img.combatant {
 	position:absolute;
 	width:34%;
-	margin:0 1.5% 0 1.5%;
-	border:15px solid #808080;
+	margin:0 3% 0 3%;
+	border:10px solid #575757;
+	//border-top:35px solid #575757;
+	
+	border-background: #505050;
 	
 	-webkit-border-radius: 10px 10px 10px 10px;
 	-moz-border-radius: 10px 10px 10px 10px;
 	
-	-webkit-transition-property: -webkit-transform, opacity, borderColor;
-	-webkit-transition-duration: 0.2s, 0.2s, 0.2s;
-	-webkit-transition-timing-function: linear, linear, linear;
+	-webkit-transition-property: -webkit-transform, opacity;
+	-webkit-transition-duration: 0.2s, 0.2s;
+	-webkit-transition-timing-function: linear, linear;
 	-moz-transition-property: -moz-transform, opacity;
 	-moz-transition-duration: 0.2s, 0.2s;
 	-moz-transition-timing-function: linear, linear;
@@ -108,8 +109,45 @@ div#controls {
 	left:50%;
 	width:18%;
 	margin-left:-9%;
-	height:200px;
-	//background-color:blue;
+	background-color:blue;
+}
+
+.button {
+	display: inline-block;
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 1px rgba(0,0,0,.3);
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.button:hover {
+	text-decoration: none;
+}
+.button:active {
+	//position: relative;
+	//top: 1px;
+}
+
+.gray {
+	color: #e9e9e9;
+	border: solid 1px #555;
+	background: #6e6e6e;
+	background: -webkit-gradient(linear, left top, left bottom, from(#666), to(#575757));
+	background: -moz-linear-gradient(top,  #666,  #575757);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
+}
+.gray:hover {
+	background: #000000;
+	background: -webkit-gradient(linear, left top, left bottom, from(#757575), to(#4b4b4b));
+	background: -moz-linear-gradient(top,  #757575,  #4b4b4b);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#757575', endColorstr='#4b4b4b');
+}
+.gray:active {
+	margin-top:2px;
+	
 }
 
 div.voteButton {
@@ -117,15 +155,20 @@ div.voteButton {
 	top:0;
 	width:35%;
 	overflow:hidden;
-	background-color:#808080;
-	border:1px solid rgba(0,0,0,0);
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
+	//background-color:#808080;
+	//border:1px solid rgba(0,0,0,0);
+
+	
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: linear;
 	
 }
 
 div.voteButton:hover {
-	background-color:#000000;
 	cursor:pointer;
 }
 
@@ -138,6 +181,106 @@ div.voteButton img:hover{
 	margin-left:0%;
 }
 
+div#commandCenter {
+	position:relative;
+	min-height:15%;
+	height:auto;
+	margin:9% auto 0 auto;
+	width:16%;
+	background-color:#000000;
+	padding:1%;
+	text-align:center;
+	
+	border: solid 1px #555;
+	background: #6e6e6e;
+	background: -webkit-gradient(linear, left top, left bottom, from(#666), to(#444));
+	background: -moz-linear-gradient(top,  #666,  #575757);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
+	
+	-webkit-border-radius: 10px 10px 10px 10px;
+	-moz-border-radius: 10px 10px 10px 10px;
+	
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: ease-in-out;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: ease-in-out;
+
+}
+
+div#commandCenter img {
+	max-width:400px;
+	width:80%;
+    display: block;
+	margin:0 auto 0 auto;
+	
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.1s;
+	-webkit-transition-timing-function: linear;
+	
+	cursor:pointer;
+	
+
+}
+
+div#commandCenter img.jiggle{
+	-webkit-animation-name: jiggle;
+ 	-webkit-animation-duration: 0.05s;
+ 	-webkit-animation-direction: alternate;
+ 	-webkit-animation-timing-function: ease-in-out;
+ 	-webkit-animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes jiggle {
+ 0% {
+   -webkit-transform: scale(1.0) ;//rotate(-2deg);
+ }
+ 100% {
+	-webkit-transform: scale(1.1);// rotate(2deg);
+ }
+}
+
+div#commandCenter span{
+	font-size:0.75em;
+	color:white;
+	//position:absolute;
+	width:90%;
+	bottom:15%;
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.5s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: color;
+	-moz-transition-duration: 0.5s;
+	-moz-transition-timing-function: linear;
+		
+	moz-text-shadow: 1px 1px 1px #000;
+	-webkit-text-shadow: 1px 1px 1px #000;
+	text-shadow: 1px 1px 1px #000;
+}
+
+div#commandCenterText {
+font-family: HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-weight:normal;
+	font-size:1em;
+	position:relative;
+	min-height:15%;
+	height:auto;
+	margin:0% auto;
+	width:16%;
+	padding:1%;
+	text-align:center;
+}
+
+div#commandCenterText span{
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.25s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: color;
+	-moz-transition-duration: 0.25s;
+	-moz-transition-timing-function: linear;
+}
+
 div#leftVoteButton {
 	left:0;
 }
@@ -146,21 +289,83 @@ div#rightVoteButton {
 }
 
 div#zoomTitleBlock {
+	color:white;
+	moz-text-shadow: 2px 2px 2px #000;
+	-webkit-text-shadow: 2px 2px 2px #000;
+	text-shadow: 2px 2px 2px #000;
+	
 	position:absolute;
-	top:-100px;
+	top:-75px;
 	left:0;
 	width:100%;
-	height:100px;
+	height:75px;
 	background-color:#808080;
 	text-align:center;
 	-webkit-transition-property: top;
 	-webkit-transition-duration: 0.2s;
 	-webkit-transition-timing-function: linear;
+	
+	background: #6e6e6e;
+	background: -webkit-gradient(linear, left top, left bottom, from(#666), to(#444));
+	background: -moz-linear-gradient(top,  #666,  #575757);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
 }
 
 div#zoomTitleBlock input {
 	width:400px;
 	text-align:center;
+}
+
+div#zoomedImage {
+	position:absolute;
+	min-width:360px;
+	top:75px;
+	width:60%;
+	left:50%;
+	margin-left:-30%;
+	display:none;
+	height:auto;
+	
+}
+
+div#zoomedImage img#zoomed {
+	width:100%;
+}
+
+img#closeButton {
+	cursor:pointer;
+	position:absolute;
+	width:34px;
+	left:-17;
+	top:-17;
+	
+}
+
+ul#menu {
+	//width:200;
+	text-align:center;
+	font-size:0.7em;
+	list-style-type:none;
+	padding:0;
+	margin:0;
+	position:absolute;
+	right:0;
+	top:0;
+	font-weight:normal;
+}
+
+ul#menu li{
+	display:inline;
+	margin-right:10px;
+	line-height:30px;
+}
+
+ul#menu li a{
+	color:#ccc;
+}
+
+ul#menu li a:hover{
+	color:#000;
 }
 
 a {
