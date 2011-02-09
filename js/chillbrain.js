@@ -16,10 +16,11 @@ $(document).ready(function(){
 	var cursor = "";
 	var displayInstructions = true;
 	var firstTwoImagesLoaded = 0;
+	var displayMessageText = true;
 
-	get2Images();
+	//get2Images();
 
-	$("img.combatant").bind('load',function() {
+	/*$("img.combatant").bind('load',function() {
 		firstTwoImagesLoaded++;
 		if(firstTwoImagesLoaded == 2) {
 			//alert("done");
@@ -32,12 +33,13 @@ $(document).ready(function(){
 		if(this.complete) {
 			$(this).load();
 		}
-	});
+	});*/
 	
 	
 	$('img.combatant').live("click",function(e) { //----- ways to select winner
 		//zoomInImage();
 		//$("div#zoomInPicture").fadeIn("fast");
+		
 		
 		var scaleFactor = 2;
 		
@@ -49,9 +51,15 @@ $(document).ready(function(){
 		var zoomedOffset = documentWidth - imgWidthScaled - (imgWidth) + (imgWidthScaled / 20);
 		//alert(imgWidth);
 		
-		if($(this).hasClass("zoomed")) {
+		if($("div#zoomedImage").hasClass("zoomedIn")) {
 		
-			$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
+			$("div#content").css("opacity",1);
+			$("div#commandCenter").css("opacity",1);
+			$("div#titles").css("opacity",1);
+		
+			$("div#zoomedImage").fadeOut(175);
+		
+			/*$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
 					if (jQuery.browser.mozilla) {
 						return '-moz-zoom-in';
 					}
@@ -61,22 +69,29 @@ $(document).ready(function(){
 					else {
 					   return 'pointer'; 
 					}
-			 });
+			 });*/
 		
-			$("div#controls").css("display","block");
+			/*$("div#controls").css("display","block");
 			$("img.notSelected").css("display","block");
+			$("div#commandCenter").css("display","block");
 			$("div#titles").css("opacity","1");
 			
-			$(this).removeClass("zoomed");
+			//$(this).removeClass("zoomed");
 			$(this).css({
 				"-webkit-transform":"scale(1,1) translate(0, 0)",
 				"-moz-transform":"scale(1,1) translate(0, 0)"
-			});
+			});*/
 			
 			$("div#zoomTitleBlock").css("top",-100);
 			
 		} else {
-		
+			
+			$("div#content").css("opacity",0.1);
+			$("div#commandCenter").css("opacity",0.1);
+			$("div#titles").css("opacity",0.1);
+
+			$("div#zoomedImage").fadeIn(300);
+			
 			$("div#zoomTitleBlock").find("span").text($(this).attr('title'));
 			$("div#zoomTitleBlock").find("input").val($(this).attr('permalink'));
 			$("div#zoomTitleBlock").each(function(i,el){//Make font as big as possible
@@ -95,41 +110,48 @@ $(document).ready(function(){
 					}
 			 });
 		
-			$("div#controls").css("display","none");
+			/*$("div#controls").css("display","none");
 			$("img.notSelected").css("display","none");
-			$("div#titles").css("opacity","0");
+			$("div#commandCenter").css("display","none");
+			$("div#titles").css("opacity","0");*/
 			
-			$(this).addClass("zoomed");
+			//$(this).addClass("zoomed");
 			if($(this).hasClass("leftCombatant")) {
 				$(this).css({
-					"-webkit-transform":"scale(1,1) translate("+translateOffset+"px, 20px)",
-					"-moz-transform":"scale(1,1) translate("+translateOffset+"px, 20px)"
+					/*"-webkit-transform":"scale(2,2) translate("+translateOffset+"px, 20px)",
+					"-moz-transform":"scale(2,2) translate("+translateOffset+"px, 20px)"
+					*/
 
 				});
 			} else {
 				$(this).css({
-					"-webkit-transform":"scale(1,1) translate("+translateOffset+"px, 20px)",
-					"-moz-transform":"scale(1,1) translate("+translateOffset+"px, 20px)"
+					/*
+					"-webkit-transform":"scale(2,2) translate("+translateOffset+"px, 20px)",
+					"-moz-transform":"scale(2,2) translate("+translateOffset+"px, 20px)"
+					*/
 				});			
 			}
 			$("div#zoomTitleBlock").css("top",0);
 		} 
-		
+		$("div#zoomedImage").toggleClass("zoomedIn");
 		
 	});
 	
 	$("div#leftVoteButton").live("click",function(e) {
-		$("img.leftCombatant").addClass("selected");
+		/*$("img.leftCombatant").addClass("selected");
 		$("img.rightCombatant").addClass("notSelected");
 		winnerSelected();
 		$(this).css("backgroundColor","#808080");
+		*/
 	});
 	
 	$("div#rightVoteButton").live("click",function(e) {
+		/*
 		$("img.rightCombatant").addClass("selected");
 		$("img.leftCombatant").addClass("notSelected");
 		winnerSelected();
 		$(this).css("backgroundColor","#808080");
+		*/
 	});
 	
 	
@@ -159,16 +181,22 @@ $(document).ready(function(){
 		}
 	});
 	
-	$("div#zoomInPicture img").live("click",function(){ //----- ways to hide img
-		$("div#zoomInPicture").css({
-			display:"none"
-		});
-		
+	$("img#closeButton").live("click",function(){ //----- ways to hide img
+			$("div#content").css("opacity",1);
+			$("div#commandCenter").css("opacity",1);
+			$("div#titles").css("opacity",1);
+
+			$("div#zoomedImage").fadeOut("fast");
+			
+			$("div#zoomTitleBlock").css("top",-75);
+			
+			$("div#zoomedImage").toggleClass("zoomedIn");
 	});	
 	
 	$(window).resize(function() {
   		sizeTitles();
   		//positionControls();
+  		//$("div#commandCenter").textfill({ maxFontPixels: "0.75em" })
  
 	});
 
@@ -189,7 +217,7 @@ $(document).ready(function(){
 		}
 		
 		
-		if($(this).hasClass("zoomed")) {
+		/*if($(this).hasClass("zoomed")) {
 			$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
 					 if (jQuery.browser.mozilla) {
 						return '-moz-zoom-out';
@@ -201,7 +229,7 @@ $(document).ready(function(){
 					   return 'pointer'; 
 					}
 			 });
-		 } else {
+		 } else {*/
 		 	$("img.combatant").css('cursor', function() { //------ adds magnifying glass effect
 					 if (jQuery.browser.mozilla) {
 						return '-moz-zoom-in';
@@ -213,25 +241,57 @@ $(document).ready(function(){
 					   return 'pointer'; 
 					}
 			 });
-		 }
+		 //}
 	
 	});
 	
-	$("div#leftVoteButton").live("hover",function(){
+	
+	
+	$("div#leftVoteButton").find("img").live("mouseenter",function(){
 		$("img.leftCombatant").css("borderColor","#000000");
 	});
 	
 	$("div#leftVoteButton").live("mouseout",function(){
-		$("img.leftCombatant").css("borderColor","#808080");
+		$("img.leftCombatant").css("borderColor","#505050");
 	});
 	
-	$("div#rightVoteButton").live("hover",function(){
+	$("div#rightVoteButton").find("img").live("mouseenter",function(){
 		$("img.rightCombatant").css("borderColor","#000000");
 	});
 	
 	$("div#rightVoteButton").live("mouseout",function(){
-		$("img.rightCombatant").css("borderColor","#808080");
+		$("img.rightCombatant").css("borderColor","#505050");
 	});
+
+	$("div#commandCenterText").find("span").bind("webkitTransitionEnd",function(){
+		if(displayMessageText) {
+			$("div#commandCenterText").find("span").text($("div#commandCenterText").find("span").attr('message'));
+			//$("div#commandCenter").textfill({ maxFontPixels: 24 })
+			$("div#commandCenterText").find("span").css("opacity","1");
+			$("div#commandCenter").find("img").removeClass("jiggle");
+		} else {
+			$("div#commandCenterText").find("span").html("");
+			$("div#commandCenterText").find("span").css("opacity","1");
+			displayMessageText = true;
+			$("div#commandCenter").find("img").removeClass("jiggle");
+			$("div#commandCenterText").find("span").attr('message',"");
+		}
+	});
+	
+	$("div#commandCenter").find("img").click(function(){
+		$(this).addClass("jiggle");
+		window.setTimeout(stopBrainJiggle, 300);
+		hideText();
+	})
+	
+	function stopBrainJiggle(){
+	$("div#commandCenter").find("img").removeClass("jiggle");
+}
+
+function hideText() {
+	$("div#commandCenterText").find("span").css("opacity","0");
+	displayMessageText = false;
+}
 
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& FUNCTIONS
@@ -345,106 +405,26 @@ function preloadImages(numToPreload) {
 	//imagesArray[0].title
 	
 	
-				for(i=0;i<numToPreload;i++) {
-						var el = $("<img />");
-						var imageData = imagesArray.shift();
-						
-						
-						el.attr("src","/img?h="+imageData.key);
-						el.attr("title",imageData.title);
-						el.attr("hash",imageData.key);
-						el.attr("permalink",imageData.link);
-						//el.attr("elo",imageData.elo);
-						el.addClass("preloaded");
-						el.attr("id","img_"+imgIndexOffset);
-						el.appendTo("div#content");
-						/*el.load(function(){
-							preloadComplete();
-						});*/
-						
-						imgIndexOffset = imgIndexOffset+1;
-					}
-
-/*	
-		var imgHashes;
-		
-		if(firstHash.length > 0) {	//initial hash given so preload the image with given hash, then preload the rest - 1
-			var getHashImageData = "/img?h="+firstHash+"&info";
-			var getTheRestOfTheImagesString = "/next?p="+(numToPreload)+"&c="+cursor+"&s="+$.cookie("cb_sid");
+	for(i=0;i<numToPreload;i++) {
+			var el = $("<img />");
+			var imageData = imagesArray.shift();
 			
-			$.get(getHashImageData, function(data) { //Get data of first img
-				hashImgInfo = $.parseJSON(data);
-				
-				var firstEl = $("<img />");
-					
-				firstEl.attr("src","/img?h="+firstHash);
-				firstEl.attr("title",hashImgInfo.title);
-				firstEl.attr("hash",firstHash);
-				firstEl.attr("elo",hashImgInfo.rating);
-				firstEl.addClass("preloaded");
-				firstEl.attr("id","img_"+imgIndexOffset);
-				firstEl.appendTo("div#main");
-				firstEl.load(function(){
-					preloadComplete();
-				});
-				
-				imgIndexOffset = imgIndexOffset+1;
-				
-				$.get(getTheRestOfTheImagesString, function(data) { //After you load first img, then preload the rest:
-
-					imgHashes = $.parseJSON(data);
-								$.cookie("cb_sid",imgHashes.cb_sid, { path: '/' });
-		
-					cursor = imgHashes.cursor
-					for(i=0;i<numToPreload;i++) {
-						var el = $("<img />");
-						
-						el.attr("src","/img?h="+imgHashes.hashes[i]);
-						el.attr("title",imgHashes.titles[i]);
-						el.attr("hash",imgHashes.hashes[i]);
-						el.attr("elo",imgHashes.elos[i]);
-						el.addClass("preloaded");
-						el.attr("id","img_"+imgIndexOffset);
-						el.appendTo("div#main");
-						el.load(function(){
-							preloadComplete();
-						});
-						
-						imgIndexOffset = imgIndexOffset+1;
-					}
-				});
-				
-				
-			});			
-		} else {
-			var getString = "/next?p="+numToPreload+"&s="+$.cookie("cb_sid");
 			
-			$.get(getString, function(data) { //Hash for pictures
-
-				imgHashes = $.parseJSON(data);
-							$.cookie("cb_sid",imgHashes.cb_sid, { path: '/' });
-	
-				cursor = imgHashes.cursor
-				for(i=0;i<numToPreload;i++) {
-					var el = $("<img />");
-					
-					el.attr("src","/img?h="+imgHashes.hashes[i]);
-					el.attr("title",imgHashes.titles[i]);
-					el.attr("hash",imgHashes.hashes[i]);
-					el.attr("elo",imgHashes.elos[i]);
-					el.addClass("preloaded");
-					el.attr("id","img_"+imgIndexOffset);
-					el.appendTo("div#main");
-					el.load(function(){
-						preloadComplete();
-					});
-					
-					imgIndexOffset = imgIndexOffset+1;
-				}
-			});	
+			el.attr("src","/img?h="+imageData.key);
+			el.attr("title",imageData.title);
+			el.attr("hash",imageData.key);
+			el.attr("permalink",imageData.link);
+			//el.attr("elo",imageData.elo);
+			el.addClass("preloaded");
+			el.attr("id","img_"+imgIndexOffset);
+			el.appendTo("div#content");
+			/*el.load(function(){
+				preloadComplete();
+			});*/
+			
+			imgIndexOffset = imgIndexOffset+1;
 		}
 
-	*/	
 }
 
 function preloadComplete() { //-------- DEPRECATED Function!!!
@@ -570,6 +550,14 @@ function sizeTitles() {
 	$("div.imgTitle").each(function(i,el){//Make font as big as possible
 		$(el).textfill({ maxFontPixels: 38 })
 	}); 
+	
+	var ccWidth = parseFloat($("div#commandCenter").css("width"));
+	
+	$("div#commandCenter").css("height",0.66*ccWidth);
+	
+	$("div#commandCenterText").textfill({ maxFontPixels: 14 })
+
+	
 }
 
 
@@ -601,6 +589,67 @@ function getUrlVars()
     return vars;
 }
 
+function hideImages() {
+		/*$("img.leftCombatant").addClass("selected");
+		$("img.rightCombatant").addClass("notSelected");
+		winnerSelected();
+		$(this).css("backgroundColor","#808080");
+		
+		$("img.rightCombatant").addClass("selected");
+		$("img.leftCombatant").addClass("notSelected");
+		winnerSelected();
+		$(this).css("backgroundColor","#808080");*/
+		
+		$("img.combatant").css("opacity",0);
+		$("div.voteButton").css("opacity",0);
+		$("div#titles").css("opacity",0);
+		
+}
+
+function showImages(){
+		$("img.combatant").css("opacity",1);
+		$("div.voteButton").css("opacity",1);
+		$("div#titles").css("opacity",1);
+
+}
+
+function skipImages() {
+		$("img.combatant").css("opacity",0);
+		$("div#titles").css("opacity",0);
+}
+
+function fadeTextTo(fadeTo) {
+		$("div#commandCenter").find("img").addClass("jiggle");
+		$("div#commandCenterText").find("span").css("opacity","0");
+		//$("div#commandCenter").textfill({ maxFontPixels: 24 })
+		//$("div#commandCenter").find("span").css("color","black");
+		$("div#commandCenterText").find("span").attr("message",fadeTo);
+}
+
+
+
+function showMessage(message) {
+		fadeTextTo(message);
+		$("div#commandCenter").css({
+			//paddingBottom:"5%"
+		});
+		
+}
+
+function showWarning(warning) {
+		fadeTextTo(warning);
+		$("div#commandCenter").css({
+			//paddingBottom:"1%"
+		});
+}
+
+function achievmentUnlocked(achievment){
+	fadeTextTo("achievment unlocked");
+	$("div#commandCenter").css({
+	//		paddingBottom:"5%"
+	});
+}
+	
 ;(function($) {
     $.fn.textfill = function(options) {
         var fontSize = options.maxFontPixels;
