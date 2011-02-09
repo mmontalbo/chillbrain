@@ -4,13 +4,17 @@ class RepManager():
     def __init__(self):
         RepManager.REP_REQ = { REQUEST_ACTION_SKIP: 0.0,
                                REQUEST_ACTION_VOTE:0.0,
-                               REQUEST_ACTION_SHARE : 20.0,
-                               REQUEST_ACTION_REPORT: 100.0,
-                               REQUEST_ACTION_UPLOAD: 500.0}
+                               REQUEST_ACTION_SHARE : 30.0,
+                               REQUEST_ACTION_REPORT: 300.0,
+                               REQUEST_ACTION_UPLOAD: 3000.0}
         
         RepManager.ACHIEVMENT_MSGS = { REQUEST_ACTION_SHARE : "Sharing is now enabled.",
                                        REQUEST_ACTION_REPORT: "Reporting images is now enabled.",
                                        REQUEST_ACTION_UPLOAD: "Uploading images is now enabled."}
+
+        RepManager.DENIED_MSGS = { REQUEST_ACTION_SHARE : "Sharing requires "+RepManager.REP_REQ.REQUEST_ACTION_SHARE+" rep.",
+                                   REQUEST_ACTION_REPORT: "Reporting images requires "+RepManager.REP_REQ.REQUEST_ACTION_REPORT+" rep.",
+                                   REQUEST_ACTION_UPLOAD: "Uploading images requires "+RepManager.REP_REQ.REQUEST_ACTION_UPLOAD+" rep."}
         
         RepManager.LINKBACK_FACTOR = 0.25
 
@@ -23,9 +27,9 @@ class RepManager():
             inc_rep += 1.0
             
         # message if new achievment is unlocked
-        msg = self.get_achievment_msg(reputation, inc_rep)
+        msgs = self.get_achievment_msg(reputation, inc_rep)
         reputation += inc_rep
-        return (reputation, msg)
+        return (reputation, msgs)
 
     # Check if the given action can be performed based on the given reputation
     def check_permission(self, action, reputation):
@@ -41,12 +45,12 @@ class RepManager():
 
     # Get any new achievment messages
     def get_achievment_msg(self,reputation,inc_rep):
-        msg = None
+        msgs = []
         for action,req in RepManager.REP_REQ.iteritems():
             if reputation < req and (reputation + inc_rep) >= req:
-                return RepManager.ACHIEVMENT_MSGS[action]
-        return msg
+                msgs.append(RepManager.ACHIEVMENT_MSGS[action])
+        return msgs
 
     # Construct an appropriate permission denied error message
     def get_permission_denied_msg(self, action):
-        return "Need "+str(RepManager.REP_REQ[action])+" rep to "+action+"."
+        return RepManager.DENIED_MSGS.action
