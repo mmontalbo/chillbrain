@@ -1,4 +1,4 @@
-from config import appengine_config
+from config import chill_config
 from brains.imgserve import *
 from surface import *
 #from util import datastore_cache
@@ -29,12 +29,12 @@ def main():
                        ('/logout', Logout)]
     
     # in pre-production extend the publish list with the test URLs
-    if appengine_config.isDebug():
+    if chill_config.isDebug():
         publish_urls.extend([('/tests/login', LoginScaffolding),
                              ('/tests/image', ImageServeScaffolding)])
     
-    application = webapp.WSGIApplication(publish_urls, appengine_config.isDebug())
-    application = appengine_config.add_middleware(application)
+    application = webapp.WSGIApplication(publish_urls, chill_config.isDebug())
+    application = chill_config.add_middleware(application)
     run_wsgi_app(application)
 
 if __name__ == "__main__":
