@@ -8,7 +8,7 @@ from model import users, transactions, image
 from net.handlers import ChillRequestHandler, FACEBOOK_APP_ID
 from brains import feed
 from brains import reputation_manager
-from config import appengine_config
+from config import chill_config
 from config.chill_constants import *
 
 import logging
