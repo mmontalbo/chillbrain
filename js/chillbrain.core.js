@@ -5,7 +5,31 @@
  * 
  */
 
-if(window.location.hash) {
+const DELIMITER = "-";
+const EVENT_FETCH = "fetchComplete";
+const EVENT_QUICK_FETCH = "quickFetchComplete";
+const EVENT_TRANSACTION = "transactionSuccess";
+const EVENT_VOTE = "vote";
+const EVENT_SKIP = "skip";
+const EVENT_SHARE = "share";
+
+var chillbrain = {
+	constants : {
+		delimiter : "-",
+	},
+	
+	event : {
+		fetch : "fetchComplete",
+		quickFetch : "quickFetchComplete",
+		transaction : "transactionSuccess",
+		vote : "vote",
+		skip : "skip",
+		share : "share"
+	}
+};
+
+var setup = window.location.hash.length ? false : true;
+if(! setup) {
 	window.location.hash = "load/" + window.location.hash.substring(1);
 }
 
@@ -47,11 +71,40 @@ $(function()
 	    fetchMoreImages : function() {	
 			this.fetch({
 				success : function() { 
-					globalEvents.trigger("fetchComplete"); 
+					globalEvents.trigger(chillbrain.event.fetch); 
 				},
 			});
 	    }
 	});	
+	 
+	var fetcherEvents = new Object();
+	_.extend(fetcherEvents, Backbone.Events);
+	var QuickFetcher = Backbone.Collection.extend({
+		model: ImageModel,
+		data : null,
+		
+		initialize : function() {
+			_.bindAll(this, "send");
+			fetcherEvents.bind(chillbrain.event.fetch, this.send);
+		},
+		
+		url : function() {
+			return '/data?data=' + this.data;
+		},
+		
+		send : function() {
+			globalEvents.trigger(chillbrain.event.quickFetch, this.models[0], this.models[1]);
+		},
+		
+		get : function(images) {
+			this.data = $.toJSON(images);
+			this.fetch({
+				success: function() {
+					fetcherEvents.trigger(chillbrain.event.fetch);
+				}
+			});
+		},
+	});
 
     var UIController = Backbone.Controller.extend({
     	feed : null,
@@ -61,15 +114,15 @@ $(function()
     	index : 1,
 	
     	initialize : function() {
-    		_.bindAll(this, "transactionSuccess", "fetchComplete", "vote", "skip", "share");
+    		_.bindAll(this, "transactionSuccess", "setImages", "vote", "skip", "share");
     	
     		// setup global bindings for this object
-    		globalEvents.bind("fetchComplete", this.fetchComplete);
-    		globalEvents.bind("transactionSuccess", this.transactionSuccess);
+    		globalEvents.bind(chillbrain.event.quickFetch, this.setImages);
+    		globalEvents.bind(chillbrain.event.transaction, this.transactionSuccess);
     		
-    		globalEvents.bind("vote", this.vote);
-    		globalEvents.bind("skip", this.skip);
-    		globalEvents.bind("share", this.share);
+    		globalEvents.bind(chillbrain.event.vote, this.vote);
+    		globalEvents.bind(chillbrain.event.skip, this.skip);
+    		globalEvents.bind(chillbrain.event.share, this.share);
     		
     		this.feed = new Feed;
     	},
@@ -79,8 +132,8 @@ $(function()
     		"first" 				: "learningOne",
 			"second"				: "learningTwo",
 			"third" 				: "learningThree",
-			":image1,:image2"  		: "next",
-			"load/:image1,:image2"	: "landing"
+			":image1-:image2"  		: "next",
+			"load/:images"			: "landing"
     	},
 
 	    learningOne : function() {
@@ -95,12 +148,8 @@ $(function()
 			
 	    },
 	    
-	    fetchComplete : function() {
-	    	
-	    },
-	    
-	    landing : function(image1, image2) {
-	    	
+	    landing : function(images) {
+	    	new QuickFetcher().get(images.split(chillbrain.constants.delimiter));
 	    },
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
@@ -108,11 +157,11 @@ $(function()
 	    setup : function() {
 	    	var nextImages = this.feed.getNextImages();   
 	    	
-	    	var left = nextImages.shift();
-	    	var right = nextImages.shift();
-
-	    	this.leftImage = new UI.LeftImage({  model: left, el : $("#"+left.id) }).render();
-	    	this.rightImage = new UI.RightImage({ model: right, el : $("#"+right.id) }).render();
+	    	if(setup) {
+	    		var left = nextImages.shift();
+	    		var right = nextImages.shift();
+	    		this.setImages(left, right);
+	    	}
 	    	
 	    	this.preload(nextImages);
 	    },
@@ -143,8 +192,13 @@ $(function()
 	    	async("/share?img=" + img);
 	    },	
 	    
+	    setImages : function(left, right) {
+	    	this.leftImage = new UI.LeftImage({  model: left }).render();
+	    	this.rightImage = new UI.RightImage({ model: right }).render();
+	    },
+	    
 	    transactionSuccess : function(callback) {
-	    	window.location.hash = [this.leftImage.model.get("id"), this.rightImage.model.get("id")].join(",");
+	    	window.location.hash = [this.leftImage.model.get("id"), this.rightImage.model.get("id")].join(chillbrain.constants.delimiter);
 	    }
     });
 	
