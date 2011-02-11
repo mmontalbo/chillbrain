@@ -133,7 +133,7 @@ $(function()
 			"second"				: "learningTwo",
 			"third" 				: "learningThree",
 			":image1-:image2"  		: "next",
-			"load/:images"			: "landing"
+			"load/:image1-:image2"	: "landing"
     	},
 
 	    learningOne : function() {
@@ -148,8 +148,8 @@ $(function()
 			
 	    },
 	    
-	    landing : function(images) {
-	    	new QuickFetcher().get(images.split(chillbrain.constants.delimiter));
+	    landing : function(image1, image2) {
+	    	new QuickFetcher().get([image1, image2]);
 	    },
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
