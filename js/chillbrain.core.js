@@ -159,10 +159,18 @@ $(function()
 		
 		hover : function() {
 			$(this.img.el).css("borderColor","#000000");
+			$('div.controlBar').css({
+			 		'borderColor':'#000000',
+			 		'backgroundColor':'#000000'
+			 });
 		},
 		
 		unhover : function() {
-			$(this.img.el).css("borderColor","#505050");
+			$(this.img.el).css("borderColor","#575757");
+			$('div.controlBar').css({
+			 		'borderColor':'#575757',
+			 		'backgroundColor':'#575757'
+		 });
 		}
 	});
 	
@@ -260,10 +268,26 @@ $(function()
 					   return 'pointer'; 
 					}
 			 });
+			 
+			 $('div.controlBar').css({
+			 		'margin':'-0.7em 3% 0 3%'
+			 });
+			 
+			 $('div.controlBar').find('span').css({
+			 		'opacity':'1'
+			 });
+			 
 	     },
 	     
 	     unhover : function() {
-	    	 
+	     
+	    	 $('div.controlBar').css({
+			 		'margin':'0 3% 0 3%'
+			 });
+			 
+			 $('div.controlBar').find('span').css({
+			 		'opacity':'0'
+			 });
 	     },
 	     
 	     click : function() {

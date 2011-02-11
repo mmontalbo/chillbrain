@@ -5,8 +5,8 @@
 	<LINK href="css/stylesheet.css" rel="stylesheet" type="text/css">
 	
 	<script type="text/javascript" src="js/infoBox.js"></script>
-	<!--  
-	<script type="text/javascript" src="js/chillbrain.js"></script>
+	 
+	<!--<script type="text/javascript" src="js/chillbrain.js"></script>-->
 	
 	<style>
 		#debugControls {
@@ -15,7 +15,7 @@
 			left:0;
 		}
 	</style>
-	-->
+	
 
 {% endblock %}
 
@@ -45,8 +45,13 @@
 	</div>
 
 	<div id="content">
+	
+		<div class="controlBar leftControls"><span><a href="#">share</a>&nbsp;<img src="static/share_icon.png"/></span></div>
+		<div class="controlBar rightControls"><span><img src="static/share_icon.png"/>&nbsp;<a href="#">share</a></span></div>
+	
 		<!--<img class="combatant leftCombatant" src="asdf" />
 		<img class="combatant rightCombatant" src="asdf" />-->
+		
 		<img class="combatant leftCombatant" id="{{img1.key}}" src="{{url.img}}h={{img1.key}}" permalink="{{img1.permalink}}" hash="{{img1.key}}"/>
 		<img class="combatant rightCombatant" id="{{img2.key}}" src="{{url.img}}h={{img2.key}}" permalink="{{img2.permalink}}" hash="{{img2.key}}"/>
 		
@@ -59,7 +64,7 @@
 	</div>
 	
 	<div id="commandCenter"><img src="/static/brain.png" /></div>
-	<div id="commandCenterText"><span>welcome to chillbrain</span></div>
+	<div id="commandCenterText"><span>chillbrain</span></div>
 	<div id="zoomTitleBlock">
 		<span>Title Goes Here</span><br/>
 		<input type="text" value="http://urlgoeshere.com/!@13245321545"/>
