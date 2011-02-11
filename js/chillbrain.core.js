@@ -168,7 +168,7 @@ $(function()
 		
 		hover : function() {
 			$(this.img.el).css("borderColor","#000000");
-			$('div.controlBar').css({
+			this.img.controlBar.css({
 			 		'borderColor':'#000000',
 			 		'backgroundColor':'#000000'
 			 });
@@ -176,7 +176,7 @@ $(function()
 		
 		unhover : function() {
 			$(this.img.el).css("borderColor","#575757");
-			$('div.controlBar').css({
+			this.img.controlBar.css({
 			 		'borderColor':'#575757',
 			 		'backgroundColor':'#575757'
 		 });
@@ -193,7 +193,7 @@ $(function()
 			// render title
 			$(this.title).text(this.model.get("title"));	
 			  
-			$("#content").append(this.el);
+			this.wrapper.append(this.el);
 			return this;
 		},
 		
@@ -240,9 +240,15 @@ $(function()
      UI.ShowingImage = UI.Image.extend({
     	 zoomedIn : false,
     	 zoomedTitle : $("div#zoomTitleBlock").find("span"),
-    	 zoomedPermalink : $("div#zoomTitleBlock").find("input"),
+    	 zoomedPermalink : $("div#zoomTitleBlock").find("a"),
     	 
     	 render : function() {
+    	     	 
+    	 	_.bindAll(this,'parentHover','parentUnhover');
+    	 
+    	 	this.wrapper.live('mouseover',this.parentHover);
+    	 	this.wrapper.live('mouseout',this.parentUnhover);
+    	 
     	 	$(this.el).removeClass("preloaded");
 		 	this.voteButton.bind(this);
 		  	return new UI.Image().render.call(this);
@@ -258,6 +264,34 @@ $(function()
 	    	"mouseover": "hover",
 	    	"mouseout" : "unhover",
 	    	"click"    : "click"
+	     },
+	     
+	     parentHover : function() {
+	     	this.controlBar.css({
+					'top':"0",
+					'opacity':'1'
+			});
+						 
+			 /*this.controlBar.css({
+			 		'margin':'-0.7em 3% 0 3%'
+			 });
+			 */
+			 
+			 this.controlBar.find('span').css({
+			 		'opacity':'1'
+			 });
+	     },
+	     
+	     parentUnhover : function() {
+				//_.delay(function(el){
+	     			this.controlBar.css({
+			 			'top':'0.7em'
+			 		});
+			 		this.controlBar.find('span').css({
+			 			'opacity':'0'
+			 		});
+	     		//}, 800, this.controlBar);
+	     		
 	     },
 	     
 	     hover : function() {
@@ -277,26 +311,10 @@ $(function()
 					   return 'pointer'; 
 					}
 			 });
-			 
-			 $('div.controlBar').css({
-			 		'margin':'-0.7em 3% 0 3%'
-			 });
-			 
-			 $('div.controlBar').find('span').css({
-			 		'opacity':'1'
-			 });
-			 
 	     },
 	     
 	     unhover : function() {
-	     
-	    	 $('div.controlBar').css({
-			 		'margin':'0 3% 0 3%'
-			 });
-			 
-			 $('div.controlBar').find('span').css({
-			 		'opacity':'0'
-			 });
+	     		 
 	     },
 	     
 	     click : function() {
@@ -332,7 +350,8 @@ $(function()
 				$("div#zoomedImage").fadeIn(300);
 				
 				this.zoomedTitle.text(this.model.get("title"));
-				this.zoomedPermalink.val(this.model.get("permalink"));
+				this.zoomedPermalink.text(this.model.get("permalink"));
+				this.zoomedPermalink.attr('href',this.model.get("permalink"));
 				$("div#zoomTitleBlock").each(function(i,el){//Make font as big as possible
 					$(el).textfill({ maxFontPixels: 34 })
 				}); 
@@ -359,6 +378,8 @@ $(function()
     	 className : "combatant leftCombatant",
     	 title : $("#leftTitle"),
 	     voteButton : new UI.VoteButton({ el: $("#leftVoteButton") }),
+	     controlBar : $("div.leftControls"),
+	     wrapper : $("div.leftWrapper"),
      });
 	
      // View for the right image. This is bound to a tag that already exists
@@ -366,6 +387,8 @@ $(function()
     	 className : "combatant rightCombatant",
     	 title : $("#rightTitle"),
 	     voteButton : new UI.VoteButton({ el: $("#rightVoteButton") }),
+	     controlBar : $("div.rightControls"),
+	     wrapper : $("div.rightWrapper"),
      });
      
      // initialize the controller and start the history
@@ -383,34 +406,11 @@ $(function()
      	});
      }
      
-     function showImages(){
-     	$("img.combatant").css("opacity",1);
-     	$("div.voteButton").css("opacity",1);
-     	$("div#titles").css("opacity",1);
+     function hideControlBar(el) {
+     
      }
-
-     function skipImages() {
-     	$("img.combatant").css("opacity",0);
-     	$("div#titles").css("opacity",0);
-     }
-
-     function fadeTextTo(fadeTo) {
-     	$("div#commandCenter").find("img").addClass("jiggle");
-     	$("div#commandCenterText").find("span").css("opacity","0");
-     	$("div#commandCenterText").find("span").attr("message",fadeTo);
-     }
-
-     function showMessage(message) {
-     	fadeTextTo(message);	
-     }
-
-     function showWarning(warning) {
-     	fadeTextTo(warning);
-     }
-
-     function achievmentUnlocked(achievment){
-     	fadeTextTo("achievment unlocked");
-     }
+     
+     
      
  	$("div#zoomInPicture").click(function(e){ //----- closes image unless you click on something else
 		if(event.target != this){
@@ -433,5 +433,61 @@ $(function()
 		currentZoomedImage.reset();
 	});	
  });
+ 
+ function hideImages() {
+		
+		$("img.combatant").css("opacity",0);
+		$("div.voteButton").css("opacity",0);
+		$("div#titles").css("opacity",0);
+		$("div.controlBar").css("opacity",0);
+}
+ 
+ function showImages(){
+     	$("img.combatant").css("opacity",1);
+     	$("div.voteButton").css("opacity",1);
+     	$("div#titles").css("opacity",1);
+     	$("div.controlBar").css("opacity",1);
+     }
+
+     function skipImages() {
+     	$("img.combatant").css("opacity",0);
+     	$("div#titles").css("opacity",0);
+     	$("div.controlBar").css("opacity",0);
+     }
+
+     function fadeTextTo(fadeTo) {
+     	$("div#commandCenter").find("img").addClass("jiggle");
+     	$("div#commandCenterText").find("span").css("opacity","0");
+     	$("div#commandCenterText").find("span").attr("message",fadeTo);
+     	window.setTimeout(stopBrainJiggle, 300);
+
+     }
+
+     function showMessage(message) {
+     	fadeTextTo(message);	
+     }
+
+     function showWarning(warning) {
+     	fadeTextTo(warning);
+     }
+
+     function achievmentUnlocked(achievment){
+     	fadeTextTo("achievment unlocked");
+     }
+     
+     
+	function stopBrainJiggle(){
+		$("div#commandCenter").find("img").removeClass("jiggle");
+		$("div#commandCenterText").find("span").text($("div#commandCenterText").find("span").attr("message"));
+		$("div#commandCenterText").find("span").css("opacity","1");
+	}
+	
+	/*function hideControlBar(el) {
+		el.css({
+			margin:"-0.7em 3% 0 3%",
+			'opacity':'1'
+		});
+	}*/
+
 
 
