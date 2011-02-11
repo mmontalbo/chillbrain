@@ -3,8 +3,8 @@ body {
 	font-family:geneva;
 	font-weight:normal;
 	height:100%;
-	
-	background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
+	background-color:#eee;
+	//background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
 	background: -moz-linear-gradient(top,  #ffffff,  #cccccc);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc');
 }
@@ -65,14 +65,24 @@ div#content {
 	
 }
 
-img.combatant {
+div.wrapper {
 	position:absolute;
 	width:34%;
-	margin:10px 3% 0 3%;
+	//height:75%;
+	margin:-10px 3% 0 3%;
+	//background-color:red;
+}
+
+img.combatant {
+	position:absolute;
+	top:0.7em;
+	width:95%;
+	margin:0.7em 0 0 0;
 	border-top:0px solid #575757;
 	border-left:10px solid #575757;
 	border-right:10px solid #575757;
 	border-bottom:10px solid #575757;
+	z-index:999;
 
 	//border-top:35px solid #575757;
 	
@@ -94,13 +104,11 @@ img.combatant:hover {
 	//-moz-box-shadow:0px 2px 20px #999;
 }
 
-img.leftCombatant {
-	top:0;
+div.leftWrapper {
 	left:0;
 }
 
-img.rightcombatant {
-	top:0;
+div.rightWrapper {
 	right:0;
 }
 
@@ -110,8 +118,9 @@ img.preloaded {
 
 div.controlBar {
 	position:absolute;
-	width:34%;
-	margin:-0.7em 3% 0 3%;
+	top:0.7em;
+	width:95%;
+	margin:0;
 	border-top:1px solid #575757;
 	border-left:10px solid #575757;
 	border-right:10px solid #575757;
@@ -122,22 +131,23 @@ div.controlBar {
 	font-size:0.8em;
 	font-weight:normal;
 	height:3em;
+	z-index:0;
 	
 	border-background: #505050;
 	
 	-webkit-border-radius: 10px 10px 0px 0px;
 	-moz-border-radius: 10px 10px 10px 10px;
 	
-	-webkit-transition-property: -webkit-transform, opacity, margin;
-	-webkit-transition-duration: 0.2s, 0.2s, 0.2s;
-	-webkit-transition-timing-function: linear, linear, linear;
-	-moz-transition-property: -moz-transform, opacity, margin;
-	-moz-transition-duration: 0.2s, 0.2s, 0.2s;
-	-moz-transition-timing-function: linear, linear, linear;
+	-webkit-transition-property: top;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: top;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: linear;
 }
 
 div.controlBar span {
-	opacity:1;
+	opacity:0;
 	//text-decoration:underline;
 
 	text-shadow:0px 2px 2px #000;
@@ -145,9 +155,12 @@ div.controlBar span {
 	-webkit-transition-property: opacity;
 	-webkit-transition-duration: 0.2s;
 	-webkit-transition-timing-function: linear;
-	-moz-transition-property: margin;
+	-moz-transition-property: opacity;
 	-moz-transition-duration: 0.2s;
 	-moz-transition-timing-function: linear;
+}
+
+div.controlBar:hover {
 }
 
 div.controlBar span img {
@@ -165,14 +178,11 @@ div.controlBar span a:hover {
 }
 
 div.leftControls {
-	top:0;
 	left:0;
 	text-align:right;
 }
 
 div.rightControls {
-	top:0;
-	right:0;
 	text-align:left;
 }
 
@@ -299,7 +309,7 @@ div#commandCenter img {
 
 div#commandCenter img.jiggle{
 	-webkit-animation-name: jiggle;
- 	-webkit-animation-duration: 0.05s;
+ 	-webkit-animation-duration: 0.1s;
  	-webkit-animation-direction: alternate;
  	-webkit-animation-timing-function: ease-in-out;
  	-webkit-animation-iteration-count: infinite;
@@ -323,7 +333,7 @@ div#commandCenter span{
 	-webkit-transition-property: opacity;
 	-webkit-transition-duration: 0.5s;
 	-webkit-transition-timing-function: linear;
-	-moz-transition-property: color;
+	-moz-transition-property: opacity;
 	-moz-transition-duration: 0.5s;
 	-moz-transition-timing-function: linear;
 		
@@ -349,7 +359,7 @@ div#commandCenterText span{
 	-webkit-transition-property: opacity;
 	-webkit-transition-duration: 0.25s;
 	-webkit-transition-timing-function: linear;
-	-moz-transition-property: color;
+	-moz-transition-property: opacity;
 	-moz-transition-duration: 0.25s;
 	-moz-transition-timing-function: linear;
 }
@@ -384,9 +394,13 @@ div#zoomTitleBlock {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
 }
 
-div#zoomTitleBlock input {
-	width:400px;
-	text-align:center;
+div#zoomTitleBlock a {
+	//-webkit-target-new: tab;
+	color:white;
+}
+
+div#zoomTitleBlock a:hover {
+	text-decoration:underline;
 }
 
 div#zoomedImage {
@@ -403,6 +417,8 @@ div#zoomedImage {
 
 div#zoomedImage img#zoomed {
 	width:100%;
+	border: 9px solid #555;
+	border-top:0;
 }
 
 img#closeButton {

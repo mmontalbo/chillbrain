@@ -50,13 +50,21 @@
 
 	<div id="content">
 	
-		<div class="controlBar leftControls"><span><a href="#">share</a>&nbsp;<img src="static/share_icon.png"/></span></div>
-		<div class="controlBar rightControls"><span><img src="static/share_icon.png"/>&nbsp;<a href="#">share</a></span></div>
 	
 		<!--<img class="combatant leftCombatant" src="asdf" />
 		<img class="combatant rightCombatant" src="asdf" />
 		<img class="combatant rightCombatant" src="asdf" />-->
 
+		<div class="wrapper leftWrapper">
+			<div class="controlBar leftControls"><span><a href="#">share</a>&nbsp;<img src="static/share_icon.png"/></span></div>
+			<img class="combatant leftCombatant" id="{{img1.key}}" src="{{url.img}}h={{img1.key}}" permalink="{{img1.permalink}}" hash="{{img1.key}}"/>
+		</div>
+		
+		<div class="wrapper rightWrapper">
+			<div class="controlBar rightControls"><span><img src="static/share_icon.png"/>&nbsp;<a href="#">share</a></span></div>
+			<img class="combatant rightCombatant" id="{{img2.key}}" src="{{url.img}}h={{img2.key}}" permalink="{{img2.permalink}}" hash="{{img2.key}}"/>
+		</div>
+		
 		<div id="controls">
 			<div class="voteButton" id="leftVoteButton"><img src="css/vote.png" /></div>
 			<div class="voteButton" id="rightVoteButton"><img src="css/vote.png" /></div>
@@ -68,7 +76,8 @@
 	<div id="commandCenterText"><span>chillbrain</span></div>
 	<div id="zoomTitleBlock">
 		<span>Title Goes Here</span><br/>
-		<input type="text" value="http://urlgoeshere.com/!@13245321545"/>
+		<!--<input type="text" value="http://urlgoeshere.com/!@13245321545"/>-->
+		<a href="#" target="_newtab" src="http://urlgoeshere.com/!@13245321545">http://urlgoeshere.com/!@13245321545</a>
 	</div>
 	
 	<div id="zoomedImage">
