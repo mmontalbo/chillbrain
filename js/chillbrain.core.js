@@ -5,14 +5,6 @@
  * 
  */
 
-const DELIMITER = "-";
-const EVENT_FETCH = "fetchComplete";
-const EVENT_QUICK_FETCH = "quickFetchComplete";
-const EVENT_TRANSACTION = "transactionSuccess";
-const EVENT_VOTE = "vote";
-const EVENT_SKIP = "skip";
-const EVENT_SHARE = "share";
-
 var chillbrain = {
 	constants : {
 		delimiter : "-",
@@ -28,6 +20,7 @@ var chillbrain = {
 	}
 };
 
+var loaded = false;
 var setup = window.location.hash.length ? false : true;
 if(! setup) {
 	window.location.hash = "load/" + window.location.hash.substring(1);
@@ -49,7 +42,7 @@ $(function()
 	
 	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
-	    fetchSize : 10,
+	    fetchSize : 20,
 	      
 	    // point to custom feed url
 	    url: function() {
@@ -105,13 +98,46 @@ $(function()
 			});
 		},
 	});
+	
+	var imageBuffer = {
+		dict : new Object(),
+		keys : new Array(),
+		index : 0,
+		
+		add : function(image) {
+			var id = image.get('id');
+			this.dict[id] = new UI.PreloadedImage({ model : image }).render();
+			this.keys.push(id);
+		},
+		
+		get : function(id) {
+			return this.dict[id];
+		},
+		
+		getKeyByIndex : function(index) {
+			return this.keys[index];
+		},
+		
+		getNextId : function() {
+			return this.keys[this.index++];
+		},
+		
+		getPreviousId : function() {
+			return this.keys[this.index--];
+		},
+		
+		backup : function() {
+			this.index = this.index - 2;
+		}
+	};
+	_.bindAll(imageBuffer);
 
     var UIController = Backbone.Controller.extend({
     	feed : null,
-    	preloaded : new Array(),
     	leftImage : null,
     	rightImage: null,
-    	index : 1,
+    	transactionPerformed : false,
+    	imageBuffer : imageBuffer,
 	
     	initialize : function() {
     		_.bindAll(this, "transactionSuccess", "setImages", "vote", "skip", "share");
@@ -129,11 +155,12 @@ $(function()
     	  
     	// the different controller mappings live here
 	    routes : {
-    		"first" 				: "learningOne",
+    		""						: "root",
+			":image1-:image2"  		: "next",
+			"load/:image1-:image2"	: "landing",
+			"first" 				: "learningOne",
 			"second"				: "learningTwo",
 			"third" 				: "learningThree",
-			":image1-:image2"  		: "next",
-			"load/:image1-:image2"	: "landing"
     	},
 
 	    learningOne : function() {
@@ -160,6 +187,10 @@ $(function()
 	    	if(setup) {
 	    		var left = nextImages.shift();
 	    		var right = nextImages.shift();
+	    		
+	    		this.imageBuffer.add(left);
+	    		this.imageBuffer.add(right);
+	    		this.imageBuffer.index = 2;
 	    		this.setImages(left, right);
 	    	}
 	    	
@@ -167,16 +198,31 @@ $(function()
 	    },
 	    
 	    preload : function(images) {
-	    	for(var i=0; i < images.length; i++) 
-	    		this.preloaded.push(new UI.PreloadedImage({ model : images[i] }).render());
+	    	for(var i=0; i < images.length; i++)
+	    		this.imageBuffer.add(images[i]);
+	    },
+	    
+	    root : function() {
+	    	if(!loaded) 
+	    		return;
+	    	else
+	    		this.next();
 	    },
 	      
-	    next : function(image1, image2) {
-	    	this.leftImage = this.leftImage.replace(this.preloaded.pop());
-	    	this.rightImage = this.rightImage.replace(this.preloaded.pop());
+	    next : function(image1, image2) {	  	
+	    	if(! this.transactionPerformed) {
+	    		this.imageBuffer.backup();
+	    		if(this.imageBuffer.index == 2) {
+	    			image1 = this.imageBuffer.getKeyByIndex(0);
+	    			image2 = this.imageBuffer.getKeyByIndex(1);
+	    		}
+	    	}
+	    			
 	    	
-	    	if(this.preloaded.length < 5)
-	    		this.preload(this.feed.getNextImages());
+	    	this.leftImage = this.leftImage.replace(imageBuffer.get(image1));
+	    	this.rightImage = this.rightImage.replace(imageBuffer.get(image2));
+	    	
+	    	this.transactionPerformed = false;
 	    },
 		
 	    vote : function(img) {
@@ -198,7 +244,9 @@ $(function()
 	    },
 	    
 	    transactionSuccess : function(callback) {
-	    	window.location.hash = [this.leftImage.model.get("id"), this.rightImage.model.get("id")].join(chillbrain.constants.delimiter);
+	    	this.transactionPerformed = true;
+
+	    	window.location.hash = [this.imageBuffer.getNextId(), this.imageBuffer.getNextId()].join(chillbrain.constants.delimiter);
 	    }
     });
 	
@@ -222,10 +270,18 @@ $(function()
 		
 		hover : function() {
 			$(this.img.el).css("borderColor","#000000");
+			$('div.controlBar').css({
+			 		'borderColor':'#000000',
+			 		'backgroundColor':'#000000'
+			 });
 		},
 		
 		unhover : function() {
-			$(this.img.el).css("borderColor","#505050");
+			$(this.img.el).css("borderColor","#575757");
+			$('div.controlBar').css({
+				'borderColor':'#575757',
+				'backgroundColor':'#575757'
+		 });
 		}
 	});
 	
@@ -255,6 +311,7 @@ $(function()
     UI.PreloadedImage = UI.Image.extend({
     	className : "preloaded",
     	render : function() {
+    		$(this.el).attr(this.model.toJSON());
     		$("#content").append(this.el);
     		return this;
     	}
@@ -296,7 +353,7 @@ $(function()
 	     
 	     // remove the showing image and render the pre-loaded image into the shown views
 	     replace : function(preloadedImage) {
-	    	this.remove();
+	    	$(this.el).addClass("preloaded");
 	    	return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
 	     }, 
 	     
@@ -323,10 +380,26 @@ $(function()
 					   return 'pointer'; 
 					}
 			 });
+			 
+			 $('div.controlBar').css({
+			 		'margin':'-0.7em 3% 0 3%'
+			 });
+			 
+			 $('div.controlBar').find('span').css({
+			 		'opacity':'1'
+			 });
+			 
 	     },
 	     
 	     unhover : function() {
-	    	 
+	     
+	    	 $('div.controlBar').css({
+			 		'margin':'0 3% 0 3%'
+			 });
+			 
+			 $('div.controlBar').find('span').css({
+			 		'opacity':'0'
+			 });
 	     },
 	     
 	     click : function() {

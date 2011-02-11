@@ -2,10 +2,11 @@ body {
 	margin:0 3% 3% 3%;
 	font-family:geneva;
 	font-weight:normal;
+	height:100%;
 	
 	background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
-	background: -moz-linear-gradient(top,  #666,  #575757);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
+	background: -moz-linear-gradient(top,  #ffffff,  #cccccc);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc');
 }
 
 div#main {
@@ -67,8 +68,12 @@ div#content {
 img.combatant {
 	position:absolute;
 	width:34%;
-	margin:0 3% 0 3%;
-	border:10px solid #575757;
+	margin:10px 3% 0 3%;
+	border-top:0px solid #575757;
+	border-left:10px solid #575757;
+	border-right:10px solid #575757;
+	border-bottom:10px solid #575757;
+
 	//border-top:35px solid #575757;
 	
 	border-background: #505050;
@@ -85,8 +90,8 @@ img.combatant {
 }
 
 img.combatant:hover {
-	-webkit-box-shadow:0px 2px 20px #999;
-	-moz-box-shadow:0px 2px 20px #999;
+	//-webkit-box-shadow:0px 2px 20px #999;
+	//-moz-box-shadow:0px 2px 20px #999;
 }
 
 img.leftCombatant {
@@ -101,6 +106,74 @@ img.rightcombatant {
 
 img.preloaded {
 	display:none;
+}
+
+div.controlBar {
+	position:absolute;
+	width:34%;
+	margin:-0.7em 3% 0 3%;
+	border-top:1px solid #575757;
+	border-left:10px solid #575757;
+	border-right:10px solid #575757;
+	border-bottom:10px solid #575757;
+	//border-top:35px solid #575757;
+	background-color:#575757;
+	color:white;
+	font-size:0.8em;
+	font-weight:normal;
+	height:3em;
+	
+	border-background: #505050;
+	
+	-webkit-border-radius: 10px 10px 0px 0px;
+	-moz-border-radius: 10px 10px 10px 10px;
+	
+	-webkit-transition-property: -webkit-transform, opacity, margin;
+	-webkit-transition-duration: 0.2s, 0.2s, 0.2s;
+	-webkit-transition-timing-function: linear, linear, linear;
+	-moz-transition-property: -moz-transform, opacity, margin;
+	-moz-transition-duration: 0.2s, 0.2s, 0.2s;
+	-moz-transition-timing-function: linear, linear, linear;
+}
+
+div.controlBar span {
+	opacity:1;
+	//text-decoration:underline;
+
+	text-shadow:0px 2px 2px #000;
+
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: margin;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: linear;
+}
+
+div.controlBar span img {
+	margin-top:-3px;
+	height:1em;
+	vertical-align:middle;
+}
+
+div.controlBar span a {
+	color:white;
+}
+
+div.controlBar span a:hover {
+	text-decoration:underline;
+}
+
+div.leftControls {
+	top:0;
+	left:0;
+	text-align:right;
+}
+
+div.rightControls {
+	top:0;
+	right:0;
+	text-align:left;
 }
 
 div#controls {
@@ -183,7 +256,7 @@ div.voteButton img:hover{
 
 div#commandCenter {
 	position:relative;
-	min-height:15%;
+	//min-height:15%;
 	height:auto;
 	margin:9% auto 0 auto;
 	width:16%;
@@ -361,7 +434,7 @@ ul#menu li{
 }
 
 ul#menu li a{
-	color:#ccc;
+	color:#aaa;
 }
 
 ul#menu li a:hover{
