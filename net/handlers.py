@@ -1,13 +1,13 @@
 from google.appengine.ext import webapp
 from model.users import ChillUser, BaseUser
 from facebook.facebook import *
-from config import appengine_config
+from config import chill_config
 from gaesessions import get_current_session
 
 import logging
 import os
 
-if appengine_config.isDebug():
+if chill_config.isDebug():
     FACEBOOK_APP_ID = "688b1ffd024a472d1a14cc9fd5b3c1e0"
     FACEBOOK_APP_SECRET = "5d3c956fb414068031fb6a9209d5e4d5"
 else:

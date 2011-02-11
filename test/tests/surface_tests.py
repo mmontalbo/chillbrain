@@ -3,7 +3,7 @@ from google.appengine.ext import webapp
 import unittest
 import logging
 from webtest import TestApp
-from config import appengine_config
+from config import chill_config
 from surface import *
 
 class SurfaceSessionTests(unittest.TestCase):
@@ -11,7 +11,7 @@ class SurfaceSessionTests(unittest.TestCase):
     def setUp(self):
         logging.info('In setUp()')
         self.application = webapp.WSGIApplication([('/', MainPage)], debug=True)
-        self.application = appengine_config.add_middleware(self.application)
+        self.application = chill_config.add_middleware(self.application)
         
     def tearDown(self):
         logging.info('In tearDown()')

@@ -5,6 +5,10 @@
  * 
  */
 
+if(window.location.hash) {
+	window.location.hash = "load/" + window.location.hash.substring(1);
+}
+
 $(function() 
 {	
 	var ImageModel = Backbone.Model.extend({
@@ -72,10 +76,11 @@ $(function()
     	  
     	// the different controller mappings live here
 	    routes : {
-    		"first" :	"learningOne",
-			"second": 	"learningTwo",
-			"third" : 	"learningThree",
-			"next:number"  :	"next",
+    		"first" 				: "learningOne",
+			"second"				: "learningTwo",
+			"third" 				: "learningThree",
+			":image1,:image2"  		: "next",
+			"load/:image1,:image2"	: "landing"
     	},
 
 	    learningOne : function() {
@@ -91,6 +96,10 @@ $(function()
 	    },
 	    
 	    fetchComplete : function() {
+	    	
+	    },
+	    
+	    landing : function(image1, image2) {
 	    	
 	    },
 	    
@@ -113,7 +122,7 @@ $(function()
 	    		this.preloaded.push(new UI.PreloadedImage({ model : images[i] }).render());
 	    },
 	      
-	    next : function(number) {
+	    next : function(image1, image2) {
 	    	this.leftImage = this.leftImage.replace(this.preloaded.pop());
 	    	this.rightImage = this.rightImage.replace(this.preloaded.pop());
 	    	
@@ -135,7 +144,7 @@ $(function()
 	    },	
 	    
 	    transactionSuccess : function(callback) {
-	    	window.location.hash = "next" + this.index++;
+	    	window.location.hash = [this.leftImage.model.get("id"), this.rightImage.model.get("id")].join(",");
 	    }
     });
 	

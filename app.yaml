@@ -24,13 +24,13 @@ handlers:
 - url: /test/test.*
   script: test/gaeunit.py  
 
+- url: /migrateImages
+  script: util/migrateImageToCBImage.py
+
 - url: /.*
   script: main.py
-
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
-  login: admin
 
 builtins:
 - appstats: on
 - datastore_admin: on
+- remote_api: on
