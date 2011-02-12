@@ -5,7 +5,24 @@
  * 
  */
 
-if(window.location.hash) {
+var chillbrain = {
+	constants : {
+		delimiter : "-",
+	},
+	
+	event : {
+		fetch : "fetchComplete",
+		quickFetch : "quickFetchComplete",
+		transaction : "transactionSuccess",
+		vote : "vote",
+		skip : "skip",
+		share : "share"
+	}
+};
+
+var loaded = false;
+var setup = window.location.hash.length ? false : true;
+if(! setup) {
 	window.location.hash = "load/" + window.location.hash.substring(1);
 }
 
@@ -35,7 +52,7 @@ $("div#commandCenter").find("img").click(function(){
 	
 	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
-	    fetchSize : 10,
+	    fetchSize : 20,
 	      
 	    // point to custom feed url
 	    url: function() {
@@ -57,40 +74,103 @@ $("div#commandCenter").find("img").click(function(){
 	    fetchMoreImages : function() {	
 			this.fetch({
 				success : function() { 
-					globalEvents.trigger("fetchComplete"); 
+					globalEvents.trigger(chillbrain.event.fetch); 
 				},
 			});
 	    }
 	});	
+	 
+	var fetcherEvents = new Object();
+	_.extend(fetcherEvents, Backbone.Events);
+	var QuickFetcher = Backbone.Collection.extend({
+		model: ImageModel,
+		data : null,
+		
+		initialize : function() {
+			_.bindAll(this, "send");
+			fetcherEvents.bind(chillbrain.event.fetch, this.send);
+		},
+		
+		url : function() {
+			return '/data?data=' + this.data;
+		},
+		
+		send : function() {
+			globalEvents.trigger(chillbrain.event.quickFetch, this.models[0], this.models[1]);
+		},
+		
+		get : function(images) {
+			this.data = $.toJSON(images);
+			this.fetch({
+				success: function() {
+					fetcherEvents.trigger(chillbrain.event.fetch);
+				}
+			});
+		},
+	});
+	
+	var imageBuffer = {
+		dict : new Object(),
+		keys : new Array(),
+		index : 0,
+		
+		add : function(image) {
+			var id = image.get('id');
+			this.dict[id] = new UI.PreloadedImage({ model : image }).render();
+			this.keys.push(id);
+		},
+		
+		get : function(id) {
+			return this.dict[id];
+		},
+		
+		getKeyByIndex : function(index) {
+			return this.keys[index];
+		},
+		
+		getNextId : function() {
+			return this.keys[this.index++];
+		},
+		
+		getPreviousId : function() {
+			return this.keys[this.index--];
+		},
+		
+		backup : function() {
+			this.index = this.index - 2;
+		}
+	};
+	_.bindAll(imageBuffer);
 
     var UIController = Backbone.Controller.extend({
     	feed : null,
-    	preloaded : new Array(),
     	leftImage : null,
     	rightImage: null,
-    	index : 1,
+    	transactionPerformed : false,
+    	imageBuffer : imageBuffer,
 	
     	initialize : function() {
-    		_.bindAll(this, "transactionSuccess", "fetchComplete", "vote", "skip", "share");
+    		_.bindAll(this, "transactionSuccess", "setImages", "vote", "skip", "share");
     	
     		// setup global bindings for this object
-    		globalEvents.bind("fetchComplete", this.fetchComplete);
-    		globalEvents.bind("transactionSuccess", this.transactionSuccess);
+    		globalEvents.bind(chillbrain.event.quickFetch, this.setImages);
+    		globalEvents.bind(chillbrain.event.transaction, this.transactionSuccess);
     		
-    		globalEvents.bind("vote", this.vote);
-    		globalEvents.bind("skip", this.skip);
-    		globalEvents.bind("share", this.share);
+    		globalEvents.bind(chillbrain.event.vote, this.vote);
+    		globalEvents.bind(chillbrain.event.skip, this.skip);
+    		globalEvents.bind(chillbrain.event.share, this.share);
     		
     		this.feed = new Feed;
     	},
     	  
     	// the different controller mappings live here
 	    routes : {
-    		"first" 				: "learningOne",
+    		""						: "root",
+			":image1-:image2"  		: "next",
+			"load/:image1-:image2"	: "landing",
+			"first" 				: "learningOne",
 			"second"				: "learningTwo",
 			"third" 				: "learningThree",
-			":image1,:image2"  		: "next",
-			"load/:image1,:image2"	: "landing"
     	},
 
 	    learningOne : function() {
@@ -105,12 +185,8 @@ $("div#commandCenter").find("img").click(function(){
 			
 	    },
 	    
-	    fetchComplete : function() {
-	    	
-	    },
-	    
 	    landing : function(image1, image2) {
-	    	
+	    	new QuickFetcher().get([image1, image2]);
 	    },
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
@@ -118,26 +194,45 @@ $("div#commandCenter").find("img").click(function(){
 	    setup : function() {
 	    	var nextImages = this.feed.getNextImages();   
 	    	
-	    	var left = nextImages.shift();
-	    	var right = nextImages.shift();
-
-	    	this.leftImage = new UI.LeftImage({  model: left, el : $("#"+left.id) }).render();
-	    	this.rightImage = new UI.RightImage({ model: right, el : $("#"+right.id) }).render();
+	    	if(setup) {
+	    		var left = nextImages.shift();
+	    		var right = nextImages.shift();
+	    		
+	    		this.imageBuffer.add(left);
+	    		this.imageBuffer.add(right);
+	    		this.imageBuffer.index = 2;
+	    		this.setImages(left, right);
+	    	}
 	    	
 	    	this.preload(nextImages);
 	    },
 	    
 	    preload : function(images) {
-	    	for(var i=0; i < images.length; i++) 
-	    		this.preloaded.push(new UI.PreloadedImage({ model : images[i] }).render());
+	    	for(var i=0; i < images.length; i++)
+	    		this.imageBuffer.add(images[i]);
+	    },
+	    
+	    root : function() {
+	    	if(!loaded) 
+	    		return;
+	    	else
+	    		this.next();
 	    },
 	      
-	    next : function(image1, image2) {
-     		this.leftImage = this.leftImage.replace(this.preloaded.pop());
-	    	this.rightImage = this.rightImage.replace(this.preloaded.pop());
-	    		    	
-	    	if(this.preloaded.length < 5)
-	    		this.preload(this.feed.getNextImages());
+	    next : function(image1, image2) {	  	
+	    	if(! this.transactionPerformed) {
+	    		this.imageBuffer.backup();
+	    		if(this.imageBuffer.index == 2) {
+	    			image1 = this.imageBuffer.getKeyByIndex(0);
+	    			image2 = this.imageBuffer.getKeyByIndex(1);
+	    		}
+	    	}
+	    			
+	    	
+	    	this.leftImage = this.leftImage.replace(imageBuffer.get(image1));
+	    	this.rightImage = this.rightImage.replace(imageBuffer.get(image2));
+	    	
+	    	this.transactionPerformed = false;
 	    },
 		
 	    vote : function(img) {
@@ -157,8 +252,15 @@ $("div#commandCenter").find("img").click(function(){
 	    	async("/share?img=" + img);
 	    },	
 	    
+	    setImages : function(left, right) {
+	    	this.leftImage = new UI.LeftImage({  model: left }).render();
+	    	this.rightImage = new UI.RightImage({ model: right }).render();
+	    },
+	    
 	    transactionSuccess : function(callback) {
-	    	window.location.hash = [this.leftImage.model.get("id"), this.rightImage.model.get("id")].join(",");
+	    	this.transactionPerformed = true;
+
+	    	window.location.hash = [this.imageBuffer.getNextId(), this.imageBuffer.getNextId()].join(chillbrain.constants.delimiter);
 	    }
     });
 	
@@ -193,7 +295,7 @@ $("div#commandCenter").find("img").click(function(){
 			this.img.controlBar.css({
 			 		'borderColor':'#575757',
 			 		'backgroundColor':'#575757'
-		 });
+			});
 		}
 	});
 	
@@ -227,6 +329,7 @@ $("div#commandCenter").find("img").click(function(){
     UI.PreloadedImage = UI.Image.extend({
     	className : "preloaded",
     	render : function() {
+    		$(this.el).attr(this.model.toJSON());
     		$("#content").append(this.el);
     		return this;
     	}
@@ -274,7 +377,7 @@ $("div#commandCenter").find("img").click(function(){
 	     
 	     // remove the showing image and render the pre-loaded image into the shown views
 	     replace : function(preloadedImage) {
-	    	this.remove();
+	    	$(this.el).addClass("preloaded");
 	    	return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
 	     }, 
 	     

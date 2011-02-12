@@ -23,6 +23,7 @@ REQUEST_NUM_IMAGES = 'n'
 REQUEST_ACTION = 'action'
 REQUEST_SHARE_ID = 'r'
 REQUEST_FETCH = 'fetch'
+REQUEST_DATA = 'data'
 
 FEED_SIZE = 20
         
@@ -137,16 +138,27 @@ class Feed(ChillRequestHandler):
         self.response.out.write(format_images_to_json(feed.next_images()))
   
 def format_images_to_json(images):
-    return json.dumps([{'id' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink, 'src' : IMG_URL_TEMPLATE % str(feedElement.key()) } for feedElement in images])
+    return json.dumps([{'id' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink, 'src' : IMG_URL_TEMPLATE % str(feedElement.key()) } for feedElement in images]) 
         
 class DataHandler(ChillRequestHandler):        
     def __init__(self):
         self.repManager = reputation_manager.RepManager()
 
-    def post(self):         
+    def get(self):         
         # Put the logic to return a JSON array of image metadata
-        self.response.out.write("Stubbed like a motherfucker")
-   
+        keys = self.request.get(REQUEST_DATA)
+        
+        if keys:
+            key_array = json.loads(keys)
+            logging.debug(key_array)
+            images = []
+            for key in key_array:
+                images.append(image.CBImage.get(db.Key(key)))
+            self.response.out.write(format_images_to_json(images))
+        else:
+            logging.debug("No keys...")
+            # Put a 500 error here
+            
 '''
     Handle shared link redirects and tracking
 '''   
