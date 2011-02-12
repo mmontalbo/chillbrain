@@ -33,8 +33,8 @@
 			{% else %}	
 			<li><a href="#" onclick="login();">login</a></li>
 			{% endif %}
-			<li><a href="#">contact</a></li>
-			<li><a href="#">about</a></li>
+			<li><a href="#" onclick="showMessage('laughter @ chillbrain.com')">contact</a></li>
+			<li><a href="#" onclick="showMessage('Wait, what do you mean \'about\'. It\'s just funny images.')">about</a></li>
 			
 		</ul>
 
@@ -71,7 +71,7 @@
 	</div>
 	
 	<div id="commandCenter"><img src="/static/brain.png" /></div>
-	<div id="commandCenterText"><span>chillbrain</span></div>
+	<div id="commandCenterText"><span message='chillbrain'>chillbrain</span></div>
 	<div id="zoomTitleBlock">
 		<span>Title Goes Here</span><br/>
 		<!--<input type="text" value="http://urlgoeshere.com/!@13245321545"/>-->
