@@ -209,7 +209,8 @@ $(function()
 	    		this.next();
 	    },
 	      
-	    next : function(image1, image2) {	  	
+	    next : function(image1, image2) {	
+	    	// if there was no transaction being performed then we going back or initializing the page
 	    	if(! this.transactionPerformed) {
 	    		this.imageBuffer.backup();
 	    		if(this.imageBuffer.index == 2) {
@@ -217,7 +218,6 @@ $(function()
 	    			image2 = this.imageBuffer.getKeyByIndex(1);
 	    		}
 	    	}
-	    			
 	    	
 	    	this.leftImage = this.leftImage.replace(imageBuffer.get(image1));
 	    	this.rightImage = this.rightImage.replace(imageBuffer.get(image2));
@@ -290,7 +290,7 @@ $(function()
 	    render : function() {
 			// render image
 			$(this.el).attr(this.model.toJSON());
-			$(this.el).addClass(this.className);
+			$(this.el).removeClass().addClass(this.className);
 				
 			// render title
 			$(this.title).text(this.model.get("title"));	
@@ -351,16 +351,15 @@ $(function()
     	 
     	 	this.wrapper.live('mouseover',this.parentHover);
     	 	this.wrapper.live('mouseout',this.parentUnhover);
-    	 
-    	 	$(this.el).removeClass("preloaded");
+    	
 		 	this.voteButton.bind(this);
 		  	return new UI.Image().render.call(this);
 	     },
 	     
 	     // remove the showing image and render the pre-loaded image into the shown views
 	     replace : function(preloadedImage) {
-	    	$(this.el).addClass("preloaded");
-	    	return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
+	    	 $(this.el).removeClass().addClass("preloaded");
+	    	 return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
 	     }, 
 	     
 	     events : {
