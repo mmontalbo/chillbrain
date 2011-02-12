@@ -38,6 +38,21 @@ $("div#commandCenter").find("img").click(function(){
 	}
 })
 
+$(document).keyup(function(event){
+
+		switch(event.keyCode) {
+			case 32: //spacebar
+				globalEvents.trigger("skip");
+				break;
+			case 37: // left arrow key
+				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
+				break;
+			case 39: //right arrow key
+				globalEvents.trigger("vote",$("img.rightCombatant").attr('id'));
+				break;
+		}
+});
+
 	var ImageModel = Backbone.Model.extend({
 		defaults: {
 			"id" : "",
