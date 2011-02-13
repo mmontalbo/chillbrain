@@ -23,4 +23,4 @@ else:
 SHARE_URL = BASE_URL + "enter?"
 IMG_URL = BASE_URL + "img?"
 IMG_URL_TEMPLATE = IMG_URL + "h=%s"
-LOGIN_REDIRECT_URL = BASE_URL + "tests/login"
+LOGIN_REDIRECT_URL = BASE_URL + ""

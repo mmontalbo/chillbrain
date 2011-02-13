@@ -9,7 +9,9 @@ from net.handlers import ChillRequestHandler, FACEBOOK_APP_ID
 from brains import feed
 from brains import reputation_manager
 from config import chill_config
+from config.error import *
 from config.chill_constants import *
+from net.response import *
 
 import logging
 import os
@@ -103,29 +105,35 @@ class ImageRequestHandler(ChillRequestHandler):
     def post(self):
         img = None
         img2 = None
-        if self.request.get(REQUEST_IMG_ID):
-            img = db.Key(self.request.get(REQUEST_IMG_ID))
-        if self.request.get(REQUEST_IMG_ID2):
-            img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
-        self.handle_images(img, img2)
-    
+        try:
+            if self.request.get(REQUEST_IMG_ID):
+                img = db.Key(self.request.get(REQUEST_IMG_ID))
+            if self.request.get(REQUEST_IMG_ID2):
+                img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
+            self.handle_images(img, img2)
+        except PermissionError:
+            self.response.out.write(PermissionError.asJSON())
+        
     def handle_images(self, img, img2):
         pass
 
 # Vote on stuff      
 class Vote(ImageRequestHandler):
     def handle_images(self, img, img2):
-        self.response.out.write(str(self.current_user.vote(img)))
+        vote_key = self.current_user.vote(img).key()
+        self.response.out.write(ChillResponse(str(vote_key), str(img)).toJSON())
     
 # Skip stuff
 class Skip(ImageRequestHandler):
     def handle_images(self, img, img2):
-        self.response.out.write(str(self.current_user.skip(img,img2)))
+        skip_key = self.current_user.skip(img,img2).key()
+        self.response.out.write(ChillResponse(str(skip_key), str(img)).toJSON())
     
 # Share with friends
 class Share(ImageRequestHandler):
     def handle_images(self, img, img2):
-        self.response.out.write(str(self.current_user.share(img)))  
+        share = self.current_user.share(img)
+        self.response.out.write(ShareResponse(str(share.key()), str(img)).toJSON())  
 
 # Fetch more images
 class Feed(ChillRequestHandler):

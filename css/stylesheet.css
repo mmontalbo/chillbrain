@@ -474,3 +474,13 @@ ul#menu li a:hover{
 a {
 	text-decoration:none;
 }
+
+.shareButton {
+	cursor: pointer;	
+}
+#leftShare {
+	margin-right: 5px;	
+}
+#rightShare {
+	margin-left: 5px;
+}

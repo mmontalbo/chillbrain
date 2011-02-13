@@ -14,6 +14,7 @@ var chillbrain = {
 		fetch : "fetchComplete",
 		quickFetch : "quickFetchComplete",
 		transaction : "transactionSuccess",
+		transactionCallback : "transactionCallback",
 		vote : "vote",
 		skip : "skip",
 		share : "share"
@@ -22,9 +23,6 @@ var chillbrain = {
 
 var loaded = false;
 var setup = window.location.hash.length ? false : true;
-if(! setup) {
-	window.location.hash = "load/" + window.location.hash.substring(1);
-}
 
 $(function() 
 {	
@@ -136,6 +134,10 @@ $("div#commandCenter").find("img").click(function(){
 			return this.keys[this.index--];
 		},
 		
+		getTitle : function(id) {
+			return this.dict[id].model.get("title");
+		},
+		
 		backup : function() {
 			this.index = this.index - 2;
 		}
@@ -150,11 +152,12 @@ $("div#commandCenter").find("img").click(function(){
     	imageBuffer : imageBuffer,
 	
     	initialize : function() {
-    		_.bindAll(this, "transactionSuccess", "setImages", "vote", "skip", "share");
+    		_.bindAll(this, "transactionSuccess", "transactionCallback", "setImages", "vote", "skip", "share");
     	
     		// setup global bindings for this object
     		globalEvents.bind(chillbrain.event.quickFetch, this.setImages);
     		globalEvents.bind(chillbrain.event.transaction, this.transactionSuccess);
+    		globalEvents.bind(chillbrain.event.transactionCallback, this.transactionCallback);
     		
     		globalEvents.bind(chillbrain.event.vote, this.vote);
     		globalEvents.bind(chillbrain.event.skip, this.skip);
@@ -167,27 +170,7 @@ $("div#commandCenter").find("img").click(function(){
 	    routes : {
     		""						: "root",
 			":image1-:image2"  		: "next",
-			"load/:image1-:image2"	: "landing",
-			"first" 				: "learningOne",
-			"second"				: "learningTwo",
-			"third" 				: "learningThree",
     	},
-
-	    learningOne : function() {
-			
-	    },
-		
-	    learningTwo : function() {
-			
-	    },
-		
-	    learningThree : function() {
-			
-	    },
-	    
-	    landing : function(image1, image2) {
-	    	new QuickFetcher().get([image1, image2]);
-	    },
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
 	    // and bind them to the already showing images as well as pre-load the rest of the images
@@ -202,7 +185,7 @@ $("div#commandCenter").find("img").click(function(){
 	    		this.imageBuffer.add(right);
 	    		this.imageBuffer.index = 2;
 	    		this.setImages(left, right);
-	    	}
+	    	} 
 	    	
 	    	this.preload(nextImages);
 	    },
@@ -219,9 +202,12 @@ $("div#commandCenter").find("img").click(function(){
 	    		this.next();
 	    },
 	      
-	    next : function(image1, image2) {	
+	    next : function(image1, image2) {		    	
 	    	// if there was no transaction being performed then we going back or initializing the page
-	    	if(! this.transactionPerformed) {
+	    	if(!loaded) {
+	    		new QuickFetcher().get([image1, image2]);
+	    		return;
+	    	} else if(! this.transactionPerformed) {
 	    		this.imageBuffer.backup();
 	    		if(this.imageBuffer.index == 2) {
 	    			image1 = this.imageBuffer.getKeyByIndex(0);
@@ -238,10 +224,6 @@ $("div#commandCenter").find("img").click(function(){
 	    vote : function(img) {
 	    	async("/vote?img=" + img);
 	    	this.transactionSuccess();
-	    	$("div.controlBar").css({
-	    		"borderColor":"#575757",
-	    		"backgroundColor":"#575757"
-	    	});
 	    },
 		
 	    skip : function(img, img2) {
@@ -255,31 +237,53 @@ $("div#commandCenter").find("img").click(function(){
 	    setImages : function(left, right) {
 	    	this.leftImage = new UI.LeftImage({  model: left }).render();
 	    	this.rightImage = new UI.RightImage({ model: right }).render();
+	    	_.delay(showImages, 200);
 	    },
 	    
-	    transactionSuccess : function(callback) {
+	    transactionSuccess : function() {
 	    	this.transactionPerformed = true;
-
 	    	window.location.hash = [this.imageBuffer.getNextId(), this.imageBuffer.getNextId()].join(chillbrain.constants.delimiter);
-	    }
+	    },
+	    
+	    transactionCallback : function(callback) {
+	    	if(callback.process_response) {
+	    		fb_share(callback.id, callback.img, this.imageBuffer.getTitle(callback.img));
+	    	} else if(callback.error){
+	    		if(callback.error.code == 100) {
+	    			login();
+	    		}
+	    		
+	    		showWarning(callback.error.msg);
+	    	}
+	    },
     });
 	
 	// make UI namespace for View element
 	var UI = new Object();
-	UI.VoteButton = Backbone.View.extend({
+	UI.BindableButton = Backbone.View.extend({
 		img : null,
 		bind : function(img) {
 			this.img = img;
 		},
 		
 		events : {
-			"click" : "vote",
+			"click" : "performAction",
 			"mouseover" : "hover",
 			"mouseout" : "unhover",
 		},
 		
-		vote : function() {
-			globalEvents.trigger("vote", $(this.img.el).attr("id"));
+		performAction : function(){},
+		hover : function() {},
+		unhover : function() {}
+	});
+	
+	UI.VoteButton = UI.BindableButton.extend({		
+		performAction : function() {
+			globalEvents.trigger("vote", this.img.getId());
+	    	$("div.controlBar").css({
+	    		"borderColor":"#575757",
+	    		"backgroundColor":"#575757"
+	    	});
 		},
 		
 		hover : function() {
@@ -296,6 +300,11 @@ $("div#commandCenter").find("img").click(function(){
 			 		'borderColor':'#575757',
 			 		'backgroundColor':'#575757'
 			});
+		}
+	});
+	UI.ShareButton = UI.BindableButton.extend({
+		performAction : function() {
+			globalEvents.trigger(chillbrain.event.share, this.img.getId());
 		}
 	});
 	
@@ -365,12 +374,14 @@ $("div#commandCenter").find("img").click(function(){
     	 
     	 render : function() {
     	     	 
-    	 	_.bindAll(this,'parentHover','parentUnhover');
+    	 	_.bindAll(this,'parentHover','parentUnhover', 'getId');
     	 
     	 	this.wrapper.live('mouseover',this.parentHover);
     	 	this.wrapper.live('mouseout',this.parentUnhover);
     	
 		 	this.voteButton.bind(this);
+		 	this.shareButton.bind(this);
+		 	
 		  	return new UI.Image().render.call(this);
 	     },
 	     
@@ -379,6 +390,10 @@ $("div#commandCenter").find("img").click(function(){
 	    	 $(this.el).removeClass().addClass("preloaded");
 	    	 return new this.constructor({ model : preloadedImage.model, el : preloadedImage.el }).render();
 	     }, 
+	     
+	     getId : function() {
+	    	return this.model.get("id");
+	     },
 	     
 	     events : {
 	    	"mouseover": "hover",
@@ -500,6 +515,7 @@ $("div#commandCenter").find("img").click(function(){
 	     voteButton : new UI.VoteButton({ el: $("#leftVoteButton") }),
 	     controlBar : $("div.leftControls"),
 	     wrapper : $("div.leftWrapper"),
+	     shareButton : new UI.ShareButton({ el: $("#leftShare") }),
      });
 	
      // View for the right image. This is bound to a tag that already exists
@@ -509,6 +525,7 @@ $("div#commandCenter").find("img").click(function(){
 	     voteButton : new UI.VoteButton({ el: $("#rightVoteButton") }),
 	     controlBar : $("div.rightControls"),
 	     wrapper : $("div.rightWrapper"),
+	     shareButton : new UI.ShareButton({ el: $("#rightShare") }),
      });
      
      // initialize the controller and start the history
@@ -518,19 +535,17 @@ $("div#commandCenter").find("img").click(function(){
      // Utility functions
      function async(url, get) {
      	$.ajax({
-     		   type: get == null || !get ? "POST" : "GET",
-     		   url: url,
-     		   success: function(msg){
-     		   //    globalEvents.trigger("transactionSuccess", msg);
-     		   }
+     		type: get == null || !get ? "POST" : "GET",
+     		url: url,
+     		success: function(msg){
+     			globalEvents.trigger(chillbrain.event.transactionCallback, $.parseJSON(msg));
+     		}
      	});
      }
      
      function hideControlBar(el) {
      
      }
-     
-     
      
  	$("div#zoomInPicture").click(function(e){ //----- closes image unless you click on something else
 		if(event.target != this){

@@ -2,7 +2,7 @@ from google.appengine.ext import db
 from google.appengine.ext.db import polymodel
 
 from transactions import *
-from exception import *
+from config.error import *
 
 import logging
 import hashlib
@@ -38,6 +38,9 @@ class BaseUser(polymodel.PolyModel):
         self.skips.append(skip.key())
         self.put()
         return skip
+    
+    def share(self, image):
+        raise PermissionError()
         
     # add a temporary share to a BaseUser (they can't be counted until migration to logged in state)    
     def add_temporary_clickback(self, share_ref):
@@ -73,7 +76,7 @@ class ChillUser(BaseUser):
         # must use hexdigest to prevent unicode exceptions coming from the datastore
         try:
             hash = hashlib.sha1(str(self.key()) + str(id)).hexdigest()
-            vote = Vote(user=self, img=id, validator=hash, key_name=validator)
+            vote = Vote(user=self, img=id, validator=hash, key_name=hash)
             vote.put()
         except db.BadValueError:
             raise PermissionException('vote')

@@ -44,24 +44,15 @@
 	    	} 
 	    }
 
-	    function prompt_share(img_id, caption) {
-			data('share', { img1: img_id }, false, function(msg) {
-				if(msg.error) return false;
-			
-		    	FB.ui({
-				    	method: 'feed',
-				    	picture: "{{url.img}}h=" + img_id,
-				    	name: 'Another funny picture from Chillbrain',
-				    	caption: caption,
-				    	link: "{{url.share}}r=" + msg.share,
-				    },
-				    function(response) {
-				    	if (!response) {
-							
-				    	} 
-				   	}
-			    );
-			});
+	    function fb_share(share_id, img_id, caption) {
+	    	FB.ui({
+			    	method: 'feed',
+			    	picture: "{{url.img}}h=" + img_id,
+			    	name: 'Another funny picture from Chillbrain',
+			    	caption: caption,
+			    	link: "{{url.share}}r=" + share_id,
+				}
+			);
 	    }
     </script>
 {% endblock %} 
