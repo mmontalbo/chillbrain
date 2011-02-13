@@ -237,6 +237,7 @@ $(function()
 	    
 	    transactionCallback : function(callback) {
 	    	if(callback.process_response) {
+	    		alert(callback.img);
 	    		fb_share(callback.id, callback.img, this.imageBuffer.getTitle(callback.img));
 	    	} else if(callback.error){
 	    		if(callback.error.code == 100) {
@@ -533,10 +534,6 @@ $(function()
      	});
      }
      
-     function hideControlBar(el) {
-     
-     }
-     
  	$("div#zoomInPicture").click(function(e){ //----- closes image unless you click on something else
 		if(event.target != this){
 			return true;
@@ -567,6 +564,7 @@ $(function()
 		}
 	})
 
+	// key bindings for page
 	$(document).keyup(function(event){
 		switch(event.keyCode) {
 			case 32: //spacebar
@@ -583,56 +581,47 @@ $(function()
  });
  
  function hideImages() {
-		
-		$("div.wrapper").css("opacity",0);
-		$("div.voteButton").css("opacity",0);
-		$("div#titles").css("opacity",0);
+	$("div.wrapper").css("opacity",0);
+	$("div.voteButton").css("opacity",0);
+	$("div#titles").css("opacity",0);
 }
  
  function showImages(){
-     	$("div.wrapper").css("opacity",1);
-     	$("div.voteButton").css("opacity",1);
-     	$("div#titles").css("opacity",1);
-     }
+ 	$("div.wrapper").css("opacity",1);
+ 	$("div.voteButton").css("opacity",1);
+ 	$("div#titles").css("opacity",1);
+ }
 
-     function skipImages() {
-     	$("div.wrapper").css("opacity",0);
-     	$("div#titles").css("opacity",0);
-     }
+ function skipImages() {
+ 	$("div.wrapper").css("opacity",0);
+ 	$("div#titles").css("opacity",0);
+ }
 
-     function fadeTextTo(fadeTo) {
-     	$("div#commandCenter").find("img").addClass("jiggle");
-     	$("div#commandCenterText").find("span").css("opacity","0");
-     	$("div#commandCenterText").find("span").attr("message",fadeTo);
-     	window.setTimeout(stopBrainJiggle, 300);
+ function fadeTextTo(fadeTo) {
+ 	$("div#commandCenter").find("img").addClass("jiggle");
+ 	$("div#commandCenterText").find("span").css("opacity","0");
+ 	$("div#commandCenterText").find("span").attr("message",fadeTo);
+ 	window.setTimeout(stopBrainJiggle, 300);
+ }
 
-     }
+ function showMessage(message) {
+ 	fadeTextTo(message);	
+ }
 
-     function showMessage(message) {
-     	fadeTextTo(message);	
-     }
+ function showWarning(warning) {
+ 	fadeTextTo(warning);
+ }
 
-     function showWarning(warning) {
-     	fadeTextTo(warning);
-     }
-
-     function achievmentUnlocked(achievment){
-     	fadeTextTo("achievment unlocked");
-     }
-     
-     
-	function stopBrainJiggle(){
-		$("div#commandCenter").find("img").removeClass("jiggle");
-		$("div#commandCenterText").find("span").text($("div#commandCenterText").find("span").attr("message"));
-		$("div#commandCenterText").find("span").css("opacity","1");
-	}
-	
-	/*function hideControlBar(el) {
-		el.css({
-			margin:"-0.7em 3% 0 3%",
-			'opacity':'1'
-		});
-	}*/
+ function achievmentUnlocked(achievment){
+ 	fadeTextTo("achievment unlocked");
+ }
+ 
+ 
+function stopBrainJiggle(){
+	$("div#commandCenter").find("img").removeClass("jiggle");
+	$("div#commandCenterText").find("span").text($("div#commandCenterText").find("span").attr("message"));
+	$("div#commandCenterText").find("span").css("opacity","1");
+}
 
 function sizeTitles() {
 	$("div.imgTitle").each(function(i,el){//Make font as big as possible
@@ -641,7 +630,7 @@ function sizeTitles() {
 }
 
 $(window).resize(function() {
-  		sizeTitles();
+  	sizeTitles();
 });
 
 (function($) {
