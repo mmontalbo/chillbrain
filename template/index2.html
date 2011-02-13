@@ -29,12 +29,12 @@
 
 		<ul id="menu">
 			{% if uid %}
-			<li><a href="#" onclick="logout();">logout</a></li>
+			<li><span onclick="logout();">logout</span></li>
 			{% else %}	
-			<li><a href="#" onclick="login();">login</a></li>
+			<li><span onclick="login();">login</span></li>
 			{% endif %}
-			<li><a href="#" onclick="showMessage('laughter @ chillbrain.com')">contact</a></li>
-			<li><a href="#" onclick="showMessage('Wait, what do you mean \'about\'. It\'s just funny images.')">about</a></li>
+			<li><span onclick="showMessage('laughter @ chillbrain.com')">contact</span></li>
+			<li><span onclick="showMessage('Wait, what do you mean \'about\'. It\'s just funny images.')">about<span></li>
 			
 		</ul>
 
@@ -49,12 +49,6 @@
 	</div>
 
 	<div id="content">
-	
-	
-		<!--<img class="combatant leftCombatant" src="asdf" />
-		<img class="combatant rightCombatant" src="asdf" />
-		<img class="combatant rightCombatant" src="asdf" />-->
-
 		<div class="wrapper leftWrapper">
 			<div class="controlBar leftControls"><span class="shareButton" id="leftShare">share<img src="static/share_icon.png"/></span></div>
 		</div>

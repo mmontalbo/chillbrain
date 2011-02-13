@@ -22,13 +22,16 @@
 	    );
 
 	    function login() {
-	    	FB.login(callback, { perms: "publish_stream" });
+	    	FB.login(function(response){
+				if(response.session) 
+					window.location.reload();
+	    	}, { perms: "publish_stream" });
 	    }
 
 	    function logout() {
 	    	$.ajax({ type: "POST", url: "/logout" });
 	    	FB.logout(function(){
-				window.location = "{{url.login}}";
+	    		window.location.reload();
 	    	});
 	    }
 
@@ -36,12 +39,6 @@
 	    	FB.api({ method: 'Auth.revokeAuthorization' }, function(response) {
 	        	
 	        });
-	    }
-
-	    function callback(response) {
-	    	if(response.session){
-		    	window.location = "{{url.login}}";
-	    	} 
 	    }
 
 	    function fb_share(share_id, img_id, caption) {

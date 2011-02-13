@@ -108,7 +108,6 @@ class ChillRequestHandler(webapp.RequestHandler):
         self._current_session.terminate()
         del self._current_session
         del self._current_user
-        del self.request.cookies
                       
 # Migrate a temporary user to ChillUser object 
 # and migrate all temporary transactions.

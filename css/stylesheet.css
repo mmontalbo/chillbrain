@@ -463,11 +463,12 @@ ul#menu li{
 	line-height:30px;
 }
 
-ul#menu li a{
+ul#menu li a, ul#menu li span{
 	color:#aaa;
+	cursor: pointer;
 }
 
-ul#menu li a:hover{
+ul#menu li a:hover, ul#menu li span:hover{
 	color:#000;
 }
 

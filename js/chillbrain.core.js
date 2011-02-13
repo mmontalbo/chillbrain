@@ -26,31 +26,6 @@ var setup = window.location.hash.length ? false : true;
 
 $(function() 
 {	
-
-$("div#commandCenter").find("img").click(function(){
-	$(this).addClass("jiggle");
-	window.setTimeout(stopBrainJiggle, 300);
-	if($("div#commandCenterText").find("span").attr("message") != "chillbrain") {
-		$("div#commandCenterText").find("span").attr("message",'chillbrain');
-		$("div#commandCenterText").find("span").css("opacity","0");
-	}
-})
-
-$(document).keyup(function(event){
-
-		switch(event.keyCode) {
-			case 32: //spacebar
-				globalEvents.trigger("skip");
-				break;
-			case 37: // left arrow key
-				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
-				break;
-			case 39: //right arrow key
-				globalEvents.trigger("vote",$("img.rightCombatant").attr('id'));
-				break;
-		}
-});
-
 	var ImageModel = Backbone.Model.extend({
 		defaults: {
 			"id" : "",
@@ -582,6 +557,29 @@ $(document).keyup(function(event){
 		
 		currentZoomedImage.reset();
 	});	
+	
+	$("div#commandCenter").find("img").click(function(){
+		$(this).addClass("jiggle");
+		window.setTimeout(stopBrainJiggle, 300);
+		if($("div#commandCenterText").find("span").attr("message") != "chillbrain") {
+			$("div#commandCenterText").find("span").attr("message",'chillbrain');
+			$("div#commandCenterText").find("span").css("opacity","0");
+		}
+	})
+
+	$(document).keyup(function(event){
+		switch(event.keyCode) {
+			case 32: //spacebar
+				globalEvents.trigger("skip");
+				break;
+			case 37: // left arrow key
+				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
+				break;
+			case 39: //right arrow key
+				globalEvents.trigger("vote",$("img.rightCombatant").attr('id'));
+				break;
+		}
+	});
  });
  
  function hideImages() {
