@@ -1,9 +1,9 @@
 body {
-	margin:0 3% 3% 3%;
+	margin:0 3% 0 3%;
 	font-family:geneva;
 	font-weight:normal;
 	height:100%;
-	background-color:#eee;
+	background-color:#cccccc;
 	//background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
 	background: -moz-linear-gradient(top,  #ffffff,  #cccccc);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc');
