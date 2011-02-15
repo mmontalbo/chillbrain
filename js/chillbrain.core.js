@@ -130,7 +130,11 @@ $(function()
 		
 		backup : function() {
 			this.index = this.index - 2;
-		}
+	    },
+
+	    isExhausted : function() {
+		return (this.keys.length - this.index) < 2; 
+	    },
 	};
 	_.bindAll(imageBuffer);
 
@@ -142,7 +146,7 @@ $(function()
     	imageBuffer : imageBuffer,
 	
     	initialize : function() {
-    		_.bindAll(this, "transactionSuccess", "transactionCallback", "setImages", "vote", "skip", "share");
+    		_.bindAll(this, "transactionSuccess", "transactionCallback", "setImages", "vote", "skip", "share", "preload");
     	
     		// setup global bindings for this object
     		globalEvents.bind(chillbrain.event.quickFetch, this.setImages);
@@ -181,8 +185,7 @@ $(function()
 	    },
 	    
 	    preload : function(images) {
-	    	for(var i=0; i < images.length; i++)
-	    		this.imageBuffer.add(images[i]);
+		_.each(images, function(image) { this.imageBuffer.add(image); }, this);
 	    },
 	    
 	    root : function() {
@@ -205,9 +208,13 @@ $(function()
 	    		}
 	    	}
 	    	
-	    	this.leftImage = this.leftImage.replace(imageBuffer.get(image1));
-	    	this.rightImage = this.rightImage.replace(imageBuffer.get(image2));
+	    	this.leftImage = this.leftImage.replace(this.imageBuffer.get(image1));
+	    	this.rightImage = this.rightImage.replace(this.imageBuffer.get(image2));
 	    	
+		// fetch more images if we have seen all the ones in the buffer so far
+		if(this.imageBuffer.isExhausted())
+		    this.preload(this.feed.getNextImages());
+		
 	    	this.transactionPerformed = false;
 	    },
 		
@@ -228,7 +235,7 @@ $(function()
 	    setImages : function(left, right) {
 	    	this.leftImage = new UI.LeftImage({  model: left }).render();
 	    	this.rightImage = new UI.RightImage({ model: right }).render();
-	    	_.delay(showImages, 200);
+	    	_.delay(showImages, 100);
 	    },
 	    
 	    transactionSuccess : function() {
@@ -358,7 +365,7 @@ $(function()
      	 },
      };
      _.bindAll(currentZoomedImage);
-     
+    
      UI.ShowingImage = UI.Image.extend({
     	 zoomedIn : false,
     	 zoomedTitle : $("div#zoomTitleBlock").find("span"),
