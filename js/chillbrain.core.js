@@ -218,6 +218,7 @@ $(function()
 		
 	    skip : function(img, img2) {
 	    	async("/skip?img=" + img + "&img2=" + img2);
+	    	this.transactionSuccess();
 	    },
 		
 	    share : function(img) {
@@ -568,7 +569,7 @@ $(function()
 	$(document).keyup(function(event){
 		switch(event.keyCode) {
 			case 32: //spacebar
-				globalEvents.trigger("skip");
+   			        globalEvents.trigger("skip",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
 				break;
 			case 37: // left arrow key
 				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
