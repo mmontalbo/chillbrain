@@ -18,7 +18,7 @@ request_actions_list = [REQUEST_ACTION_VOTE, REQUEST_ACTION_SKIP, REQUEST_ACTION
 if chill_config.isDebug():
     BASE_URL = 'http://localhost:8080/'
 else:
-    BASE_URL = 'http://chillbrain.com/'
+    BASE_URL = 'http://usechillbrain.appspot.com/'
 
 SHARE_URL = BASE_URL + "enter?"
 IMG_URL = BASE_URL + "img?"

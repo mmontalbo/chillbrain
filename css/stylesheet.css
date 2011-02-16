@@ -5,8 +5,8 @@ body {
 	height:100%;
 	background-color:#cccccc;
 	//background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#cccccc));
-	background: -moz-linear-gradient(top,  #ffffff,  #cccccc);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc');
+	//background: -moz-linear-gradient(top,  #ffffff,  #cccccc);
+	//filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc');
 }
 
 div#main {
@@ -19,7 +19,7 @@ div#main {
 
 div#header {
 	width:100%;
-	height:2em;
+	height:4em;
 	//background-color:orange;
 }
 
@@ -447,7 +447,7 @@ img#closeButton {
 ul#menu {
 	//width:200;
 	text-align:center;
-	font-size:0.7em;
+	font-size:1.0em;
 	list-style-type:none;
 	padding:0;
 	margin:0;
@@ -464,7 +464,7 @@ ul#menu li{
 }
 
 ul#menu li a, ul#menu li span{
-	color:#aaa;
+	color:#777;
 	cursor: pointer;
 }
 
