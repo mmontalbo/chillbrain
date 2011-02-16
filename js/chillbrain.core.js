@@ -235,6 +235,7 @@ $(function()
 	    setImages : function(left, right) {
 	    	this.leftImage = new UI.LeftImage({  model: left }).render();
 	    	this.rightImage = new UI.RightImage({ model: right }).render();
+
 	    	_.delay(showImages, 100);
 	    },
 	    
