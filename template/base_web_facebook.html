@@ -42,6 +42,7 @@
 	    }
 
 	    function fb_share(share_id, img_id, caption) {
+		    alert("{{url.img}}h=" + img_id);
 	    	FB.ui({
 			    	method: 'feed',
 			    	picture: "{{url.img}}h=" + img_id,
