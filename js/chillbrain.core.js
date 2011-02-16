@@ -627,7 +627,7 @@ $(function()
  
 function stopBrainJiggle(){
 	$("div#commandCenter").find("img").removeClass("jiggle");
-	$("div#commandCenterText").find("span").text($("div#commandCenterText").find("span").attr("message"));
+	$("div#commandCenterText").find("span").html($("div#commandCenterText").find("span").attr("message"));
 	$("div#commandCenterText").find("span").css("opacity","1");
 }
 

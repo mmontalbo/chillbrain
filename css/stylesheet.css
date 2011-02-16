@@ -430,6 +430,7 @@ div#zoomedImage {
 }
 
 div#zoomedImage img#zoomed {
+	position:absolute;
 	width:100%;
 	border: 9px solid #555;
 	border-top:0;
@@ -439,15 +440,17 @@ img#closeButton {
 	cursor:pointer;
 	position:absolute;
 	width:34px;
-	left:-17;
-	top:-17;
+	left:0;
+	top:0;
+	margin:-17px 0 0 -17px; 
 	
 }
 
 ul#menu {
 	//width:200;
+font-family: HelveticaNeue-Light, 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	text-align:center;
-	font-size:1.0em;
+	font-size:1em;
 	list-style-type:none;
 	padding:0;
 	margin:0;
@@ -455,6 +458,8 @@ ul#menu {
 	right:0;
 	top:0;
 	font-weight:normal;
+		letter-spacing:2px;
+
 }
 
 ul#menu li{
