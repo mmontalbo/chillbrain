@@ -42,12 +42,11 @@
 	    }
 
 	    function fb_share(share_id, img_id, caption) {
-		    alert("{{url.img}}h=" + img_id);
 	    	FB.ui({
 			    	method: 'feed',
 			    	picture: "{{url.img}}h=" + img_id,
-			    	name: 'Another funny picture from Chillbrain',
-			    	caption: caption,
+			    	name: caption,
+			    	caption: 'Found on chillbrain.com',
 			    	link: "{{url.share}}r=" + share_id,
 				}
 			);

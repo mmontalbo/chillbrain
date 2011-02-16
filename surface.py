@@ -42,7 +42,7 @@ class MainPage(ChillRequestHandler):
         image_feed = feed.ImageFeed(FEED_SIZE)
         self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
-        initialImages  = image_feed.initial_images([REDDIT_FUNNY])
+        initialImages  = image_feed.initial_images(sources_list)
         
         logging.debug("Path of URL: %s" % self.request.url)
 
