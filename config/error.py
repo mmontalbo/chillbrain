@@ -10,4 +10,7 @@ class BaseError(Exception):
     def asJSON(self):
         return json.dumps({ 'error' : { 'msg' : self.errorMessage, 'code' : self.errorCode } })
         
-PermissionError = BaseError("Must log in to perform this action", 100)
+class PermissionError(BaseError):
+    def __init__(self):
+        self.errorMessage = "Must log in to perform this action"
+        self.errorCode = 100     
