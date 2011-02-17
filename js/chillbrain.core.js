@@ -249,7 +249,7 @@ $(function()
 	    		fb_share(callback.id, callback.img, this.imageBuffer.getTitle(callback.img));
 	    	} else if(callback.error){
 	    		if(callback.error.code == 100) {
-
+					$("span#loginButton").addClass('pulsing');
 	    		}
 	    		
 	    		showWarning(callback.error.msg);
