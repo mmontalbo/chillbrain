@@ -75,10 +75,10 @@ div.wrapper {
 
 img.combatant {
 	position:absolute;
-	top:0.7em;
+	top:10px;
 	width:95%;
-	margin:0.7em 0 0 0;
-	border-top:0px solid #575757;
+	margin:0 0 0 0;
+	border-top:10px solid #575757;
 	border-left:10px solid #575757;
 	border-right:10px solid #575757;
 	border-bottom:10px solid #575757;
@@ -109,49 +109,73 @@ div.rightWrapper {
 	right:0;
 }
 
+img#shareButton {
+	width:50px;
+	position:absolute;
+	z-index:1000;
+	top:20px;
+	right:10px;
+}
+
+img#shareButton:hover {
+	background-color:black;
+}
+
 img.preloaded {
 	display:none;
 }
 
 div.controlBar {
 	position:absolute;
-	top:0.7em;
+	overflow:visible;
+	top:20px;
+	right:0;
 	width:95%;
 	margin:0;
-	border-top:1px solid #575757;
 	border-left:10px solid #575757;
 	border-right:10px solid #575757;
-	border-bottom:10px solid #575757;
+	//border-top:10px solid #575757;
 	background-color:#575757;
 	color:white;
+	height:0px;
 	font-size:0.8em;
 	font-weight:normal;
-	height:3em;
-	z-index:0;
+	z-index:9999;
 	
 	border-background: #505050;
 	
-	-webkit-border-radius: 10px 10px 0px 0px;
-	-moz-border-radius: 10px 10px 10px 10px;
+	//-webkit-border-radius: 10px 10px 0px 0px;
+	//-moz-border-radius: 10px 10px 10px 10px;
 	
-	-webkit-transition-property: top, opacity;
-	-webkit-transition-duration: 0.2s, 0.2s;
-	-webkit-transition-timing-function: linear, linear;
-	-moz-transition-property: top, opacity;
-	-moz-transition-duration: 0.2s, 0.2s;
-	-moz-transition-timing-function: linear, linear;
+	-webkit-transition-property: height;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: linear;
+	-moz-transition-property: height;
+	-moz-transition-duration: 0.2s;
+	-moz-transition-timing-function: linear;
 }
 
 div.controlBar span {
+	width:100%;
 	opacity:0;
+	position:absolute;
+	margin-top:-9px;	
 	text-shadow:0px 2px 2px #000;
-
+	
+	-webkit-transition-delay: 0s;
 	-webkit-transition-property: opacity;
-	-webkit-transition-duration: 0.2s;
+	-webkit-transition-duration: 0.05s;
 	-webkit-transition-timing-function: linear;
+	-moz-transition-delay: 0s;
 	-moz-transition-property: opacity;
-	-moz-transition-duration: 0.2s;
+	-moz-transition-duration: 0.05s;
 	-moz-transition-timing-function: linear;
+}
+
+div.controlBar span.visible{
+	opacity:1;
+	-webkit-transition-delay: 0.3s;
+	-moz-transition-delay: 0.3s;
 }
 
 div.controlBar:hover {
@@ -160,7 +184,7 @@ div.controlBar:hover {
 div.controlBar span img {
 	margin-top:-3px;
 	height:1em;
-	vertical-align:middle;
+	//vertical-align:middle;
 }
 
 div.controlBar span a {
@@ -168,7 +192,7 @@ div.controlBar span a {
 }
 
 div.controlBar span a:hover {
-	text-decoration:underline;
+	//text-decoration:underline;
 }
 
 div.leftControls {
@@ -177,6 +201,7 @@ div.leftControls {
 }
 
 div.rightControls {
+	left:0;
 	text-align:left;
 }
 
@@ -189,41 +214,7 @@ div#controls {
 	background-color:blue;
 }
 
-.button {
-	display: inline-block;
-	outline: none;
-	cursor: pointer;
-	text-align: center;
-	text-decoration: none;
-	text-shadow: 0 1px 1px rgba(0,0,0,.3);
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2);
-}
-.button:hover {
-	text-decoration: none;
-}
-.button:active {
-}
 
-.gray {
-	color: #e9e9e9;
-	border: solid 1px #555;
-	background: #6e6e6e;
-	background: -webkit-gradient(linear, left top, left bottom, from(#666), to(#575757));
-	background: -moz-linear-gradient(top,  #666,  #575757);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#666666', endColorstr='#575757');
-}
-.gray:hover {
-	background: #000000;
-	background: -webkit-gradient(linear, left top, left bottom, from(#757575), to(#4b4b4b));
-	background: -moz-linear-gradient(top,  #757575,  #4b4b4b);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#757575', endColorstr='#4b4b4b');
-}
-.gray:active {
-	margin-top:2px;
-	
-}
 
 div.voteButton {
 	opacity:0;

@@ -402,30 +402,21 @@ $(function()
 	     },
 	     
 	     parentHover : function() {
-	     	this.controlBar.css({
-					'top':"0",
-					'opacity':'1'
-			});
+	     		this.controlBar.css({
+					'height':'9px'
+				});
 						 
-			 /*this.controlBar.css({
-			 		'margin':'-0.7em 3% 0 3%'
-			 });
-			 */
-			 
-			 this.controlBar.find('span').css({
-			 		'opacity':'1'
-			 });
+				this.controlBar.find('span').addClass('visible');
+
 	     },
 	     
 	     parentUnhover : function() {
-				//_.delay(function(el){
-	     			this.controlBar.css({
-			 			'top':'0.7em'
-			 		});
-			 		this.controlBar.find('span').css({
-			 			'opacity':'0'
-			 		});
-	     		//}, 800, this.controlBar);
+				this.controlBar.css({
+					'height':'0'
+				});
+				
+				this.controlBar.find('span').removeClass('visible');
+			 		
 	     		
 	     },
 	     
@@ -577,7 +568,7 @@ $(function()
 	$(document).keyup(function(event){
 		switch(event.keyCode) {
 			case 32: //spacebar
-   			        globalEvents.trigger("skip",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
+   			    globalEvents.trigger("skip",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
 				break;
 			case 37: // left arrow key
 				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
@@ -636,6 +627,14 @@ function sizeTitles() {
 	$("div.imgTitle").each(function(i,el){//Make font as big as possible
 		$(el).textfill({ maxFontPixels: 38 })
 	}); 
+}
+
+function showControls(el) {
+	$("div.controlBar").find('span').addClass('visible');
+}
+
+function hideControls(el) {
+	$("div.controlBar").find('span').removeClass('visible');
 }
 
 $(window).resize(function() {
