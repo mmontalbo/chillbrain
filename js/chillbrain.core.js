@@ -209,12 +209,7 @@ $(function()
 	    	}
 	    	
 	    	this.leftImage = this.leftImage.replace(this.imageBuffer.get(image1));
-	    	this.rightImage = this.rightImage.replace(this.imageBuffer.get(image2));
-	    	
-		// fetch more images if we have seen all the ones in the buffer so far
-		if(this.imageBuffer.isExhausted())
-		    this.preload(this.feed.getNextImages());
-		
+	    	this.rightImage = this.rightImage.replace(this.imageBuffer.get(image2));	    	
 	    	this.transactionPerformed = false;
 	    },
 		
@@ -242,6 +237,10 @@ $(function()
 	    transactionSuccess : function() {
 	    	this.transactionPerformed = true;
 	    	window.location.hash = [this.imageBuffer.getNextId(), this.imageBuffer.getNextId()].join(chillbrain.constants.delimiter);
+		// fetch more images if we have seen all the ones in the buffer so far
+		if(this.imageBuffer.isExhausted())
+		    this.preload(this.feed.getNextImages());
+		
 	    },
 	    
 	    transactionCallback : function(callback) {
@@ -250,7 +249,7 @@ $(function()
 	    		fb_share(callback.id, callback.img, this.imageBuffer.getTitle(callback.img));
 	    	} else if(callback.error){
 	    		if(callback.error.code == 100) {
-	    			login();
+
 	    		}
 	    		
 	    		showWarning(callback.error.msg);

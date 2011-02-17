@@ -42,7 +42,7 @@ class MainPage(ChillRequestHandler):
         image_feed = feed.ImageFeed(FEED_SIZE)
         self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
-        initialImages  = image_feed.initial_images(sources_list)
+        initialImages  = image_feed.initial_images([REDDIT_FUNNY, REDDIT_PICS])#sources_list)
         
         logging.debug("Path of URL: %s" % self.request.url)
 
@@ -72,7 +72,7 @@ class LoginScaffolding(ChillRequestHandler):
         image_feed = feed.ImageFeed(FEED_SIZE)
         self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
-        initialImages = image_feed.initial_images([REDDIT_FUNNY])
+        initialImages = image_feed.initial_images([REDDIT_FUNNY, REDDIT_PICS])
         
         context["img1"] = initialImages[0]
         context["img2"] = initialImages[1]
@@ -85,7 +85,7 @@ class ImageServeScaffolding(webapp.RequestHandler):
     def get(self):
         image_feed = feed.ImageFeed(FEED_SIZE)
 
-        initialImages = image_feed.initial_images([REDDIT_FUNNY])
+        initialImages = image_feed.initial_images([REDDIT_FUNNY, REDDIT_PICS])
         
         self.response.out.write([image.permalink for image in initialImages])
         
@@ -111,8 +111,8 @@ class ImageRequestHandler(ChillRequestHandler):
             if self.request.get(REQUEST_IMG_ID2):
                 img2 = db.Key(self.request.get(REQUEST_IMG_ID2))   
             self.handle_images(img, img2)
-        except PermissionError:
-            self.response.out.write(PermissionError.asJSON())
+        except PermissionError,e:
+            self.response.out.write(e.asJSON())
         
     def handle_images(self, img, img2):
         pass
