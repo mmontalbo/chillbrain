@@ -1,9 +1,9 @@
 #!/bin/bash
 
-js_root="../js/"
+root="../"
 processLine(){
   line="$@" # get all args
-  ./jsmin <$js_root$line>$js_root${line::${#line}-3}".min"${line:${#line}-3}
+  ./jsmin <$root$line>$root${line::${#line}-3}".min"${line:${#line}-3}
 }
 
 FILE="files_to_minify"
