@@ -56,10 +56,11 @@ class ImageFeed():
         if len(self.fetchSizes) == 0:
             self.fetchSizes = self.calculate_fetch_sizes()
 
+        logging.info("before feedSources: "+str(self.feedSources))
+
         # Fetch the fetchSizes[i] specified number of images from each source.
         for (i, feedSource) in enumerate(self.feedSources):
             (source,cursor) = feedSource
-
             query = self.image_query(source)
             if cursor is not None and cursor is not "":
                 query.with_cursor(cursor)                
@@ -75,8 +76,9 @@ class ImageFeed():
                 srcImgs = query.fetch(numToFetch)                
 
             images.append(srcImgs)
-            feedSource = (source, query.cursor()) # Update feedSource with new cursor
+            self.feedSources[i] = (source,query.cursor()) # update feedSource with new cursor
 
+        logging.info("after feedSources: "+str(self.feedSources))
         shuffledImages = self.shuffle_images(images)
 
         return shuffledImages
