@@ -40,7 +40,7 @@ $(function()
 	
 	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
-	    fetchSize : 20,
+		fetchSize : 20,
 	      
 	    // point to custom feed url
 	    url: function() {
@@ -51,10 +51,10 @@ $(function()
 	    // displayed
 	    getNextImages : function() {		
 	    	var nextImages = _.first(this.models,10);
-			this.remove(nextImages);
+		this.remove(nextImages);
 
-			this.fetchMoreImages(this.fetchSize);
-			return nextImages;
+		this.fetchMoreImages(this.fetchSize);
+		return nextImages;
 	    },
 
 	    // fetch n more images from the server and add them to the

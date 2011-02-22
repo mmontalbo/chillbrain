@@ -12,5 +12,5 @@ class BaseError(Exception):
         
 class PermissionError(BaseError):
     def __init__(self):
-        self.errorMessage = "Log in to share."
+        self.errorMessage = "Login to share."
         self.errorCode = 100     

@@ -57,8 +57,10 @@ class Scraper(object):
             if self.isUnsavedURL(params['url']) and self.isValidTitle(params['title']):
                 logging.debug("Queueing download of "+params['url']+"...")
                 taskqueue.add(url='/worker', params=params)
+                return True
             else:
                 logging.debug("Skipping invalid link: "+params['url']);
+        return False
 
     def truncateField(self, field):
         if len(field) > Scraper.MAX_FIELD_LENGTH:
@@ -102,9 +104,9 @@ class RedditScraper(Scraper):
                 'source':RedditScraper.SUBREDDIT_URL + child['data']['subreddit'],
                 'title':self.filterTitle(child['data']['title']),
                 'permalink':RedditScraper.REDDIT_URL + child['data']['permalink']}
-                self.download(params)
-                dlCount += 1
-                time.sleep(0.2)
+                if self.download(params):
+                    dlCount += 1
+                    time.sleep(0.2)
                 nextLinks.append(self.subredditURL+child['data']['name'])
         except ValueError, e:
             logging.error("Failed to decode JSON: " +response)
