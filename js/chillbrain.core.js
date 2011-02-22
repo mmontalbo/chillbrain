@@ -7,7 +7,7 @@
 
 var chillbrain = {
 	constants : {
-		delimiter : "-",
+		delimiter : "&",
 	},
 	
 	event : {
@@ -163,7 +163,7 @@ $(function()
     	// the different controller mappings live here
 	    routes : {
     		""						: "root",
-			":image1-:image2"  		: "next",
+			":image1&:image2"  		: "next",
     	},
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
