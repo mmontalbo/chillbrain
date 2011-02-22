@@ -93,7 +93,7 @@ class ImageFeed():
     @return GQL query for Images with given source
     """
     def image_query(self, source):
-        return CBImage.all().filter("source =", source)
+        return CBImage.all().filter("source =", source).order("-date")
 
     """
     shuffle_images interleaves the elements of each indiviual list

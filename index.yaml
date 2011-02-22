@@ -10,6 +10,12 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: CBImage
+  properties:
+  - name: source
+  - name: date
+    direction: desc
+
 - kind: Image
   properties:
   - name: date
