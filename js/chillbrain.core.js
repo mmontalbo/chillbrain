@@ -5,9 +5,11 @@
  * 
  */
 
+var delimeter = "&";
 var chillbrain = {
 	constants : {
-		delimiter : "&",
+		delimiter : delimeter,
+		nextRoute : ":image1" + delimeter + ":image2" 
 	},
 	
 	event : {
@@ -40,21 +42,21 @@ $(function()
 	
 	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
-		fetchSize : 20,
+		fetchSize : 10,
+		preloadedImages : new Object(),
+		index : 0,
+		
+		initialize : function() {
+			this.bind("refresh", this.initialLoad);
+		},
+		
+		initialLoad : function() {
+			_.each(this.models, this.addPreloaded, this);
+		},
 	      
 	    // point to custom feed url
 	    url: function() {
       		return '/feed?n=' + this.fetchSize;
-	    },
-
-	    // triggered on a vote or skip event, returns two Images to be
-	    // displayed
-	    getNextImages : function() {		
-	    	var nextImages = _.first(this.models,10);
-		this.remove(nextImages);
-
-		this.fetchMoreImages(this.fetchSize);
-		return nextImages;
 	    },
 
 	    // fetch n more images from the server and add them to the
@@ -65,7 +67,29 @@ $(function()
 					globalEvents.trigger(chillbrain.event.fetch); 
 				},
 			});
-	    }
+	    },
+	    
+		addPreloaded : function(image) {
+			this.preloadedImages[image.get("id")] = new UI.PreloadedImage({ model : image }).render();
+		},
+		
+		getNext : function() {
+			if(this.index >= _.keys(this.preloadedImages).length - 4)
+				this.fetchMoreImages();
+			return _.values(this.preloadedImages)[this.index++].model;
+		},
+		
+		getNextId : function() {
+			return this.getNext().get("id");
+		},
+		
+		getPreloaded : function(key) {
+			return this.preloadedImages[key];
+		},
+		
+		backup : function() {
+			this.index = this.index - 2;
+	    },
 	});	
 	 
 	var fetcherEvents = new Object();
@@ -96,58 +120,16 @@ $(function()
 			});
 		},
 	});
-	
-	var imageBuffer = {
-		dict : new Object(),
-		keys : new Array(),
-		index : 0,
-		
-		add : function(image) {
-			var id = image.get('id');
-			this.dict[id] = new UI.PreloadedImage({ model : image }).render();
-			this.keys.push(id);
-		},
-		
-		get : function(id) {
-			return this.dict[id];
-		},
-		
-		getKeyByIndex : function(index) {
-			return this.keys[index];
-		},
-		
-		getNextId : function() {
-			return this.keys[this.index++];
-		},
-		
-		getPreviousId : function() {
-			return this.keys[this.index--];
-		},
-		
-		getTitle : function(id) {
-			return this.dict[id].model.get("title");
-		},
-		
-		backup : function() {
-			this.index = this.index - 2;
-	    },
-
-	    isExhausted : function() {
-		return (this.keys.length - this.index) < 2; 
-	    },
-	};
-	_.bindAll(imageBuffer);
 
     var UIController = Backbone.Controller.extend({
     	feed : null,
     	leftImage : null,
     	rightImage: null,
     	transactionPerformed : false,
-    	imageBuffer : imageBuffer,
-	
+    	
     	initialize : function() {
     		_.bindAll(this, "transactionSuccess", "transactionCallback", "setImages", "vote", "skip", "share", "preload");
-    	
+
     		// setup global bindings for this object
     		globalEvents.bind(chillbrain.event.quickFetch, this.setImages);
     		globalEvents.bind(chillbrain.event.transaction, this.transactionSuccess);
@@ -162,30 +144,19 @@ $(function()
     	  
     	// the different controller mappings live here
 	    routes : {
-    		""						: "root",
-			":image1&:image2"  		: "next",
+    		"" : "root",
+    		":image1&:image2" : "next"
     	},
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
 	    // and bind them to the already showing images as well as pre-load the rest of the images
 	    setup : function() {
-	    	var nextImages = this.feed.getNextImages();   
-	    	
 	    	if(setup) {
-	    		var left = nextImages.shift();
-	    		var right = nextImages.shift();
-	    		
-	    		this.imageBuffer.add(left);
-	    		this.imageBuffer.add(right);
-	    		this.imageBuffer.index = 2;
+	    		var left = this.feed.getNext();
+	    		var right = this.feed.getNext();
+
 	    		this.setImages(left, right);
 	    	} 
-	    	
-	    	this.preload(nextImages);
-	    },
-	    
-	    preload : function(images) {
-		_.each(images, function(image) { this.imageBuffer.add(image); }, this);
 	    },
 	    
 	    root : function() {
@@ -201,15 +172,15 @@ $(function()
 	    		new QuickFetcher().get([image1, image2]);
 	    		return;
 	    	} else if(! this.transactionPerformed) {
-	    		this.imageBuffer.backup();
-	    		if(this.imageBuffer.index == 2) {
-	    			image1 = this.imageBuffer.getKeyByIndex(0);
-	    			image2 = this.imageBuffer.getKeyByIndex(1);
+	    		this.feed.backup();
+	    		if(this.feed.index == 2) {
+	    			image1 = this.feed.at(0).get("id");
+	    			image2 = this.feed.at(1).get("id");
 	    		}
 	    	}
 	    	
-	    	this.leftImage = this.leftImage.replace(this.imageBuffer.get(image1));
-	    	this.rightImage = this.rightImage.replace(this.imageBuffer.get(image2));	    	
+	    	this.leftImage = this.leftImage.replace(this.feed.getPreloaded(image1));
+	    	this.rightImage = this.rightImage.replace(this.feed.getPreloaded(image2));	    	
 	    	this.transactionPerformed = false;
 	    },
 		
@@ -236,17 +207,12 @@ $(function()
 	    
 	    transactionSuccess : function() {
 	    	this.transactionPerformed = true;
-	    	window.location.hash = [this.imageBuffer.getNextId(), this.imageBuffer.getNextId()].join(chillbrain.constants.delimiter);
-		// fetch more images if we have seen all the ones in the buffer so far
-		if(this.imageBuffer.isExhausted())
-		    this.preload(this.feed.getNextImages());
-		
+	    	window.location.hash = [this.feed.getNextId(), this.feed.getNextId()].join(chillbrain.constants.delimiter);
 	    },
 	    
 	    transactionCallback : function(callback) {
 	    	if(callback.process_response) {
-	    		alert(callback.img);
-	    		fb_share(callback.id, callback.img, this.imageBuffer.getTitle(callback.img));
+	    		fb_share(callback.id, callback.img, this.feed.get(callback.id).get("title"));
 	    	} else if(callback.error){
 	    		if(callback.error.code == 100) {
 					$("span#loginButton").addClass('pulsing');
@@ -315,7 +281,7 @@ $(function()
 			$(this.el).removeClass().addClass(this.className);
 				
 			// render title
-			$(this.title).find('span').text(this.model.get("title"));	
+			$(this.title).find('span').text(this.model.escape("title"));	
 			  
 			sizeTitles();
   
@@ -371,8 +337,7 @@ $(function()
     	 zoomedTitle : $("div#zoomTitleBlock").find("span"),
     	 zoomedPermalink : $("div#zoomTitleBlock").find("a"),
     	 
-    	 render : function() {
-    	     	 
+    	 render : function() {	     	 
     	 	_.bindAll(this,'parentHover','parentUnhover', 'getId');
     	 
     	 	this.wrapper.live('mouseover',this.parentHover);
