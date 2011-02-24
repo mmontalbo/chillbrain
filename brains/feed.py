@@ -18,6 +18,7 @@ class ImageFeed():
         ImageFeed.MAX_FEED_SIZE = 20
         self.feedSources = []
         self.fetchSizes = []
+        self.loaded = False
 
         if size > 0 and size <= ImageFeed.MAX_FEED_SIZE:
             self.feedSize = size
@@ -36,6 +37,7 @@ class ImageFeed():
     """
     def initial_images(self, sourcesList):
         self.feedSources = [(source, None) for source in sourcesList]
+        self.loaded = True
         return self.next_images() 
             
     """

@@ -39,10 +39,18 @@ class MainPage(ChillRequestHandler):
         if user and not user.isTemporary():
             context["uid"] = user.id
         
-        image_feed = feed.ImageFeed(FEED_SIZE)
-        self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
+        
+        image_feed = None
+        if SESSION_IMAGE_FEED in self.current_session:
+            image_feed = self.current_session[SESSION_IMAGE_FEED]
+        else:    
+           image_feed = feed.ImageFeed(FEED_SIZE)
+           self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
 
-        initialImages  = image_feed.initial_images([REDDIT_FUNNY, REDDIT_PICS])#sources_list)
+        initialImages = {
+            True : image_feed.next_images(),
+            False : image_feed.initial_images([REDDIT_FUNNY, REDDIT_PICS])
+        }.get(image_feed.loaded)
         
         logging.debug("Path of URL: %s" % self.request.url)
 
