@@ -42,12 +42,15 @@ $(function()
 	
 	 var Feed = Backbone.Collection.extend({
 		model: ImageModel,
-		fetchSize : 10,
+		fetchSize : 20,
 		preloadedImages : new Object(),
-		index : 0,
+		index : 2,
+		isExhausted: false,
+		isFetching: false,
 		
 		initialize : function() {
-			this.bind("refresh", this.initialLoad);
+		     this.bind("refresh", this.initialLoad);
+		     _.bindAll(this,"fetchSuccess","fetchError","getNext","addPreloaded");
 		},
 		
 		initialLoad : function() {
@@ -58,25 +61,59 @@ $(function()
 	    url: function() {
       		return '/feed?n=' + this.fetchSize;
 	    },
-
+	    
 	    // fetch n more images from the server and add them to the
 	    // collection
-	    fetchMoreImages : function() {	
+	    fetchMoreImages : function() {
+			this.isFetching = true;
 			this.fetch({
-				success : function() { 
-					globalEvents.trigger(chillbrain.event.fetch); 
-				},
+				success : this.fetchSuccess,
+				error : this.fetchError,
 			});
+	    },
+	    
+	    fetchSuccess : function()
+	    {
+	    	_.each(this.models, this.addPreloaded, this);
+		    globalEvents.trigger(chillbrain.event.fetch);
+		    this.isFetching = false;
+	    },
+	    
+	    fetchError : function()
+	    {
+		    this.isFetching = false;
 	    },
 	    
 		addPreloaded : function(image) {
 			this.preloadedImages[image.get("id")] = new UI.PreloadedImage({ model : image }).render();
+		    
+			if(this.index < _.values(this.preloadedImageValues).length - 1)
+				this.isExhausted = false;
 		},
 		
 		getNext : function() {
-			if(this.index >= _.keys(this.preloadedImages).length - 4)
-				this.fetchMoreImages();
-			return _.values(this.preloadedImages)[this.index++].model;
+  		    preloadedImageValues = _.values(this.preloadedImages);
+			if(this.index >= preloadedImageValues.length - 6)
+			{
+				if(!this.isFetching)
+				{
+					this.fetchMoreImages();
+				}
+			}
+
+			model = preloadedImageValues[this.index].model;
+			
+			if(this.index >= preloadedImageValues.length)
+			{
+				this.isExhausted = true;
+			}
+			else
+			{
+				this.index++;
+				this.isExhausted = false;
+			}
+				
+			return model;
 		},
 		
 		getNextId : function() {
@@ -207,7 +244,10 @@ $(function()
 	    
 	    transactionSuccess : function() {
 	    	this.transactionPerformed = true;
-	    	window.location.hash = [this.feed.getNextId(), this.feed.getNextId()].join(chillbrain.constants.delimiter);
+	    	if(!this.feed.isExhausted)
+	    		window.location.hash = [this.feed.getNextId(), this.feed.getNextId()].join(chillbrain.constants.delimiter);
+	    	else
+	    		alert("Feed exhausted");
 	    },
 	    
 	    transactionCallback : function(callback) {
@@ -281,7 +321,7 @@ $(function()
 			$(this.el).removeClass().addClass(this.className);
 				
 			// render title
-			$(this.title).find('span').text(this.model.escape("title"));	
+			$(this.title).find('span').text(this.model.get("title"));	
 			  
 			sizeTitles();
   
@@ -320,7 +360,7 @@ $(function()
     	 	this.zoomed = true;
      	 },
      	 reset : function() {
-     		this.image = null;
+   		 this.image = null;
      		this.zoomed = false;
      	 },
      	 isZoomed : function() {

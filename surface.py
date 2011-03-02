@@ -43,15 +43,17 @@ class MainPage(ChillRequestHandler):
         image_feed = None
         if SESSION_IMAGE_FEED in self.current_session:
             image_feed = self.current_session[SESSION_IMAGE_FEED]
+            logging.debug("Loading session feed: %s" % str(image_feed.feedSources))
         else:    
            image_feed = feed.ImageFeed(FEED_SIZE)
            self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
+           logging.debug("Creating new feed.")
 
-        initialImages = {
-            True : image_feed.next_images(),
-            False : image_feed.initial_images([REDDIT_FUNNY, REDDIT_PICS])
-        }.get(image_feed.loaded)
-        
+        if not image_feed.loaded:
+            initialImages = image_feed.initial_images([REDDIT_PICS])
+        else:           
+            initialImages = image_feed.next_images()
+
         logging.debug("Path of URL: %s" % self.request.url)
 
         # make sure there are initial images to put into the request
