@@ -17,6 +17,7 @@ import logging
 import os
 
 SESSION_IMAGE_FEED = 'feed'
+SESSION_IMAGE_HISTORY = 'history'
 
 # Request parameter constants
 REQUEST_IMG_ID = 'img'
@@ -27,7 +28,7 @@ REQUEST_SHARE_ID = 'r'
 REQUEST_FETCH = 'fetch'
 REQUEST_DATA = 'data'
 
-FEED_SIZE = 20
+FEED_SIZE = 10
         
 class MainPage(ChillRequestHandler):
     def get(self):
@@ -46,14 +47,16 @@ class MainPage(ChillRequestHandler):
             logging.debug("Loading session feed: %s" % str(image_feed.feedSources))
         else:    
            image_feed = feed.ImageFeed(FEED_SIZE)
+           image_history = []
            self.current_session.set_quick(SESSION_IMAGE_FEED, image_feed)
+           self.current_session.set_quick(SESSION_IMAGE_HISTORY, image_history)
            logging.debug("Creating new feed.")
 
         if not image_feed.loaded:
             initialImages = image_feed.initial_images([REDDIT_PICS])
         else:           
             initialImages = image_feed.next_images()
-
+            
         logging.debug("Path of URL: %s" % self.request.url)
 
         # make sure there are initial images to put into the request
@@ -153,8 +156,34 @@ class Feed(ChillRequestHandler):
             return
         feed = self.current_session.get(SESSION_IMAGE_FEED)
         feed.set_feed_size(int(self.request.get(REQUEST_NUM_IMAGES)))
-        self.response.out.write(format_images_to_json(feed.next_images()))
-  
+        nextImages = feed.next_images()
+        
+        history = self.current_session.get(SESSION_IMAGE_HISTORY)
+        
+        isStale = False
+        
+        HISTORY_RETRY = 3
+        retries = 0
+        while(retries < HISTORY_RETRY):
+            for img in nextImages:
+                if str(img.key()) in history:
+                    isStale = True
+                    break
+                else:
+                    history.extend(str(img.key()))
+            if isStale:
+                logging.info("Found stale images. Retry:"+retries)
+                nextImages = feed.next_images()
+                isStale = False
+                retries += 1
+            else:
+                break
+        
+        if(retries >= HISTORY_RETRY):
+            logging.error("Couldn't get fresh images.")
+                
+        self.response.out.write(format_images_to_json(nextImages))
+
 def format_images_to_json(images):
     return json.dumps([{'id' : str(feedElement.key()), 'title' : feedElement.title, 'permalink': feedElement.permalink, 'src' : IMG_URL_TEMPLATE % str(feedElement.key()) } for feedElement in images]) 
         

@@ -24,15 +24,17 @@ class ImageServe(webapp.RequestHandler):
             height = self.request.get('e')
             width = self.request.get('w') 
 
-            img = self.getImg(imgHash)
-            #img = self.resize(img,height,width)
+            img = self.getImg(imgHash)            
 
-            if (img and img.imageData):
+            if (img and img.imageData):                
+                #if(images.Image(img.imageData))
+                #img = self.resize(img,height,width)
+            
                 if(info is not ""):
                     imageResponse = {"title" : img.title,
                                      "source" : img.source}
                     self.response.out.write(json.dumps(imageResponse))
-                else:
+                else:                    
                     self.response.headers['Content-Type'] = 'image/jpeg'
                     self.response.out.write(img.imageData)
 

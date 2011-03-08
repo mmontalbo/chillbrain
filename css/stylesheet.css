@@ -249,6 +249,7 @@ div.voteButton img:hover{
 div#commandCenter {
 	position:relative;
 	height:auto;
+	min-height: 127px;
 	margin:9% auto 0 auto;
 	width:16%;
 	background-color:#000000;
@@ -274,8 +275,6 @@ div#commandCenter {
 }
 
 div#commandCenter img {
-	max-width:400px;
-	width:80%;
     display: block;
 	margin:0 auto 0 auto;
 	
@@ -283,10 +282,19 @@ div#commandCenter img {
 	-webkit-transition-duration: 0.1s;
 	-webkit-transition-timing-function: linear;
 	
-	cursor:pointer;
-	
-
+	cursor:pointer;	
 }
+
+div#commandCenter img#brain {
+	max-width:400px;
+	width:80%;	
+}
+
+div#commandCenter img#loading {
+	max-width:30px;
+	width:10%;
+	display: none;
+  }
 
 div#commandCenter img.jiggle{
 	-webkit-animation-name: jiggle;
