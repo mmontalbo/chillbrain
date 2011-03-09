@@ -79,7 +79,7 @@ $(function()
 	    	//	alert("dupes: "+initSize)
 		    globalEvents.trigger(chillbrain.event.fetch);
 		    this.isFetching = false;
-    		$("#loading").css("display","none");
+    		$("#loading").css("opacity","0");
 	    },
 	    
 	    fetchError : function()
@@ -254,7 +254,7 @@ $(function()
 	    	{
 	    		if(!this.feed.isFetching)
 	    			this.feed.fetchMoreImages();
-	    		$("#loading").css("display","block");
+	    		$("#loading").css("opacity","1");
 	    	}
 	    },
 	    

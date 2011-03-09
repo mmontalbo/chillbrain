@@ -249,7 +249,6 @@ div.voteButton img:hover{
 div#commandCenter {
 	position:relative;
 	height:auto;
-	min-height: 127px;
 	margin:9% auto 0 auto;
 	width:16%;
 	background-color:#000000;
@@ -293,8 +292,8 @@ div#commandCenter img#brain {
 div#commandCenter img#loading {
 	max-width:30px;
 	width:10%;
-	display: none;
-  }
+	opacity: 0;	
+}
 
 div#commandCenter img.jiggle{
 	-webkit-animation-name: jiggle;
