@@ -245,7 +245,11 @@ $(function()
 	    transactionSuccess : function() {
 	    	this.transactionPerformed = true;
 	    	if(!this.feed.isExhausted())
-	    		window.location.hash = [this.feed.getNextId(), this.feed.getNextId()].join(chillbrain.constants.delimiter);
+	    	{
+	    		nextHash = [this.feed.getNextId(), this.feed.getNextId()].join(chillbrain.constants.delimiter);
+	    		$("#anchor").attr("name",nextHash);
+	    		window.location.hash = nextHash;
+	    	}
 	    	else
 	    	{
 	    		if(!this.feed.isFetching)
@@ -576,7 +580,7 @@ $(function()
 	$(document).keyup(function(event){
 		switch(event.keyCode) {
 			case 32: //spacebar
-   			    globalEvents.trigger("skip",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
+   			    globalEvents.trigger("",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
 				break;
 			case 37: // left arrow key
 				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
@@ -585,6 +589,8 @@ $(function()
 				globalEvents.trigger("vote",$("img.rightCombatant").attr('id'));
 				break;
 		}
+
+		return false;
 	});
  });
  

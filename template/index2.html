@@ -22,14 +22,14 @@
 
 
 {% block content %}
-
+		<a id="anchor" name="">&nbsp;</a>
 		<ul id="menu">
 			{% if uid %}
 			<li><span id="loginButton" onclick="logout();">logout</span></li>
 			{% else %}	
 			<li><span id="loginButton" onclick="login();">login</span></li>
 			{% endif %}
-			<li><span onclick="showMessage('laughter @ chillbrain.com')">contact</span></li>
+			<li><span onclick="showMessage('brain [at] chillbrain.com')">contact</span></li>
 			<li><span onclick="showMessage('Pick your image.<br />Shape your feed.')">about<span></li>
 			
 		</ul>
