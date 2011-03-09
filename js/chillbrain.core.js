@@ -415,7 +415,9 @@ $(function()
 	     
 	     parentHover : function() {
 	     		this.controlBar.css({
-					'height':'9px'
+					'height':'9px',
+					'marginTop':'-2px',
+					'paddingTop':'5px'
 				});
 						 
 				this.controlBar.find('span').addClass('visible');
@@ -580,7 +582,7 @@ $(function()
 	$(document).keyup(function(event){
 		switch(event.keyCode) {
 			case 32: //spacebar
-   			    globalEvents.trigger("",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
+   			    globalEvents.trigger("skip",$("img.leftCombatant").attr('id'),$("img.rightCombatant").attr('id'));
 				break;
 			case 37: // left arrow key
 				globalEvents.trigger("vote",$("img.leftCombatant").attr('id'));
@@ -589,7 +591,7 @@ $(function()
 				globalEvents.trigger("vote",$("img.rightCombatant").attr('id'));
 				break;
 		}
-
+		
 		return false;
 	});
  });

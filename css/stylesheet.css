@@ -197,7 +197,7 @@ div.controlBar span a:hover {
 
 div.leftControls {
 	left:0;
-	text-align:right;
+	text-align:left;
 }
 
 div.rightControls {
@@ -484,6 +484,7 @@ a {
 }
 #leftShare {
 	margin-right: 5px;	
+	text-align:right;
 }
 #rightShare {
 	margin-left: 5px;
