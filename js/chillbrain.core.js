@@ -260,7 +260,7 @@ $(function()
 	    
 	    transactionCallback : function(callback) {
 	    	if(callback.process_response) {
-	    		fb_share(callback.id, callback.img, this.feed.get(callback.id).get("title"));
+	    		fb_share(callback.id, callback.img, this.feed.preloadedImages[callback.img].model.get("title"));
 	    	} else if(callback.error){
 	    		if(callback.error.code == 100) {
 					$("span#loginButton").addClass('pulsing');
