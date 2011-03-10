@@ -145,7 +145,10 @@ $(function()
 		},
 		
 		send : function() {
-			globalEvents.trigger(chillbrain.event.quickFetch, this.models[0], this.models[1]);
+			if(this.length == 1)
+				globalEvents.trigger(chillbrain.event.quickFetch, this.models[0]);
+			else
+				globalEvents.trigger(chillbrain.event.quickFetch, this.models[0], this.models[1]);
 		},
 		
 		get : function(images) {
@@ -182,7 +185,8 @@ $(function()
     	// the different controller mappings live here
 	    routes : {
     		"" : "root",
-    		":image1&:image2" : "next"
+    		":image1&:image2" : "next",
+    		":image" : "oneNext"    		
     	},
 	    
 	    // Setup the page. This will get the list of images (which have been rendered into the model)
@@ -202,7 +206,11 @@ $(function()
 	    	else
 	    		this.next();
 	    },
-	      
+	     
+	    oneNext : function(image) {
+    		new QuickFetcher().get([image]);
+	    },
+	    
 	    next : function(image1, image2) {		    	
 	    	// if there was no transaction being performed then we going back or initializing the page
 	    	if(!loaded) {
@@ -234,10 +242,13 @@ $(function()
 	    share : function(img) {
 	    	async("/share?img=" + img);
 	    },	
-	    
+
 	    setImages : function(left, right) {
+	    	left = (left) ? left : this.feed.getNext();
+	    	right = (right) ? right : this.feed.getNext();
+
 	    	this.leftImage = new UI.LeftImage({  model: left }).render();
-	    	this.rightImage = new UI.RightImage({ model: right }).render();
+	    	this.rightImage = new UI.RightImage({  model: right }).render();
 
 	    	_.delay(showImages, 100);
 	    },
@@ -542,6 +553,7 @@ $(function()
      	$.ajax({
      		type: get == null || !get ? "POST" : "GET",
      		url: url,
+     		cache: false,
      		success: function(msg){
      			globalEvents.trigger(chillbrain.event.transactionCallback, $.parseJSON(msg));
      		}
