@@ -218,7 +218,7 @@ class Entrance(ChillRequestHandler):
          if share_transaction:
             share_transaction.add_generated_user(self.current_user)
          
-         self.redirect(LOGIN_REDIRECT_URL)
+         self.redirect(LOGIN_REDIRECT_URL + "#" + str(share_transaction.img.key()))
         
 '''
     Handle logging out by terminating the current session
