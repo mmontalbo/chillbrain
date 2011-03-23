@@ -304,26 +304,14 @@ $(function()
 	UI.VoteButton = UI.BindableButton.extend({		
 		performAction : function() {
 			globalEvents.trigger("vote", this.img.getId());
-	    	$("div.controlBar").css({
-	    		"borderColor":"#575757",
-	    		"backgroundColor":"#575757"
-	    	});
 		},
 		
 		hover : function() {
-			$(this.img.el).css("borderColor","#000000");
-			this.img.controlBar.css({
-			 		'borderColor':'#000000',
-			 		'backgroundColor':'#000000'
-			 });
+			$(this.img.el).css("borderColor","#000000");			
 		},
 		
 		unhover : function() {
 			$(this.img.el).css("borderColor","#575757");
-			this.img.controlBar.css({
-			 		'borderColor':'#575757',
-			 		'backgroundColor':'#575757'
-			});
 		}
 	});
 	UI.ShareButton = UI.BindableButton.extend({
@@ -425,10 +413,8 @@ $(function()
 	     },
 	     
 	     parentHover : function() {
-	     		this.controlBar.addClass('visible');
-						 
+	     		this.controlBar.addClass('visible');						 
 				this.controlBar.find('ul').addClass('visible');
-
 	     },
 	     
 	     parentUnhover : function() {
@@ -437,26 +423,19 @@ $(function()
 	     },
 	     
 	     hover : function() {
-	    	 var el = $(this.el);
-	    	 
+	    	 var el = $(this.el);	    	 
 	    	 $('img.combatant').removeClass("selected notSelected");
 	    	 el.addClass("selected");
 	 		 var pos = el.offset();
-	 		 $(el).css('cursor', function() { //------ adds magnifying glass effect
-				 if (jQuery.browser.mozilla) {
-						return '-moz-zoom-in';
-					}
-					else if (jQuery.browser.webkit) {
-						return '-webkit-zoom-in';
-					}
-					else {
-					   return 'pointer'; 
-					}
-			 });
+	 		 el.css('borderColor','black');
+	 		 this.voteButton.el.addClass("selected");
 	     },
 	     
 	     unhover : function() {
-	     		 
+	    	 var el = $(this.el);
+	    	 el.removeClass("selected");
+	    	 el.css('borderColor','#575757');
+	 		 this.voteButton.el.removeClass("selected");
 	     },
 	     
 	     click : function() {
