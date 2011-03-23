@@ -425,24 +425,15 @@ $(function()
 	     },
 	     
 	     parentHover : function() {
-	     		this.controlBar.css({
-					'height':'9px',
-					'marginTop':'-2px',
-					'paddingTop':'5px'
-				});
+	     		this.controlBar.addClass('visible');
 						 
-				this.controlBar.find('span').addClass('visible');
+				this.controlBar.find('ul').addClass('visible');
 
 	     },
 	     
 	     parentUnhover : function() {
-				this.controlBar.css({
-					'height':'0'
-				});
-				
-				this.controlBar.find('span').removeClass('visible');
-			 		
-	     		
+				this.controlBar.removeClass('visible');				
+				this.controlBar.find('ul').removeClass('visible');
 	     },
 	     
 	     hover : function() {
@@ -658,11 +649,11 @@ function sizeTitles() {
 }
 
 function showControls(el) {
-	$("div.controlBar").find('span').addClass('visible');
+	$("div.controlBar").find('li').addClass('visible');
 }
 
 function hideControls(el) {
-	$("div.controlBar").find('span').removeClass('visible');
+	$("div.controlBar").find('li').removeClass('visible');
 }
 
 $(window).resize(function() {

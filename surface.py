@@ -67,7 +67,7 @@ class MainPage(ChillRequestHandler):
         
         context["img"] = format_images_to_json(initialImages)
         
-        path = os.path.join(os.path.dirname(__file__), 'template/index2.html')
+        path = os.path.join(os.path.dirname(__file__), 'template/index.html')
         self.response.out.write(template.render(path, context))
         
 class LoginScaffolding(ChillRequestHandler):
