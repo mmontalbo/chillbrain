@@ -270,8 +270,8 @@ $(function()
 	},
 
 	transactionCallback : function(callback) {
-		if(callback.process_response) {
-			fb_share(callback.id, callback.img, this.feed.preloadedImages[callback.img].model.get("title"));
+		if(callback.process_response) {			
+			//fb_share(callback.id, callback.img, this.feed.preloadedImages[callback.img].model.get("title"));
 		} else if(callback.error){
 			if(callback.error.code == 100) {
 				$("span#loginButton").addClass('pulsing');
@@ -314,6 +314,13 @@ $(function()
 		$(this.img.el).css("borderColor","#575757");
 	}
 	});
+	
+	UI.ZoomButton = UI.BindableButton.extend({		
+		performAction : function() {
+		this.img.zoom();
+	},
+	});
+
 	UI.ShareButton = UI.BindableButton.extend({
 		performAction : function() {
 		globalEvents.trigger(chillbrain.event.share, this.img.getId());
@@ -391,6 +398,7 @@ $(function()
 		this.wrapper.live('mouseout',this.parentUnhover);
 
 		this.voteButton.bind(this);
+		this.zoomButton.bind(this);
 		this.shareButton.bind(this);
 
 		return new UI.Image().render.call(this);
@@ -493,7 +501,7 @@ $(function()
 		$("div#zoomedImage").toggleClass("zoomedIn"); 		    
 	},
 
-	click : function() {
+	click : function() {		
 		globalEvents.trigger("vote", this.getId());
 	}
 	});
@@ -503,6 +511,7 @@ $(function()
 		className : "combatant leftCombatant",
 		title : $("#leftTitle"),
 		voteButton : new UI.VoteButton({ el: $("#leftVoteButton") }),
+		zoomButton : new UI.ZoomButton({ el: $("#leftZoom") }),
 		controlBar : $("div.leftControls"),
 		wrapper : $("div.leftWrapper"),
 		shareButton : new UI.ShareButton({ el: $("#leftShare") }),
@@ -513,6 +522,7 @@ $(function()
 		className : "combatant rightCombatant",
 		title : $("#rightTitle"),
 		voteButton : new UI.VoteButton({ el: $("#rightVoteButton") }),
+		zoomButton : new UI.ZoomButton({ el: $("#rightZoom") }),
 		controlBar : $("div.rightControls"),
 		wrapper : $("div.rightWrapper"),
 		shareButton : new UI.ShareButton({ el: $("#rightShare") }),

@@ -589,11 +589,3 @@ a {
 .zoomButton {
 	cursor: pointer;
 }
-
-#rightZoom {
-	margin-left: 5px;
-}
-
-#rightShare {
-	margin-left: 50px;
-}
