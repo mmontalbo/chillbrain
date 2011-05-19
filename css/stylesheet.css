@@ -383,10 +383,9 @@ div#commandCenter span {
 }
 
 div#commandCenterText {
-	font-family: HelveticaNeue-Light, 'Helvetica Neue Light',
-		'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-weight: 100;
-	font-size: 1em;
+	font-size: 1.5em;
 	position: relative;
 	min-height: 15%;
 	height: auto;
@@ -395,7 +394,11 @@ div#commandCenterText {
 	padding: 1%;
 	text-align: center;
 	color: #111;
-	letter-spacing: 3px;
+	letter-spacing: 2px;
+}
+
+div#commandCenterText.instructions {
+	font-size: 0.9em;
 }
 
 div#commandCenterText span {

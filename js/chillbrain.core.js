@@ -569,9 +569,14 @@ $(function()
 		$(this).addClass("jiggle");
 		window.setTimeout(stopBrainJiggle, 300);
 		if($("div#commandCenterText").find("span").attr("message") != "chillbrain") {
-			$("div#commandCenterText").find("span").attr("message",'chillbrain');
-			$("div#commandCenterText").find("span").css("opacity","0");
+			$("div#commandCenterText").removeClass("instructions");
+			showMessage("chillbrain")
 		}
+		else{
+			$("div#commandCenterText").addClass("instructions");
+			showMessage("Click the image you like or the background to skip.")
+		}
+			
 	})
 
 	// key bindings for page

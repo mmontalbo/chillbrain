@@ -23,16 +23,6 @@
 
 {% block content %}
 		<a id="anchor" name="">&nbsp;</a>
-		<ul id="menu">
-			{% if uid %}
-			<li><span id="loginButton" onclick="logout();">logout</span></li>
-			{% else %}	
-			<li><span id="loginButton" onclick="login();">login</span></li>
-			{% endif %}
-			<li><span onclick="showMessage('brain [at] chillbrain.com')">contact</span></li>
-			<li><span onclick="showMessage('Pick your image.<br />Shape your feed.')">about<span></li>
-			
-		</ul>
 
 <div id="main">
 
@@ -51,9 +41,6 @@
 					<li class="zoomButton" id="leftZoom"><div><img src="css/zoom_out.png"></div></li>			
 					<li class="shareButton" id="leftShare"><p>URL</p></li>
 				</ul>
-				
-				<!--<span class="shareButton" id="leftShare">share<img src="static/share_icon.png"/></span>-->
-				<!--<span class="zoomButton" id="leftZoom">zoom</span>-->
 			</div>
 		</div>
 		
@@ -63,14 +50,7 @@
 					<li class="zoomButton" id="rightZoom"><div><img src="css/zoom_out.png"></div></li>			
 					<li class="shareButton" id="rightShare"><p>URL</p></li>
 				</ul>
-				<!--<span class="shareButton" id="rightShare"><img src="static/share_icon.png"/>share</span>-->
-				<!--<span class="zoomButton" id="rightZoom">zoom</span>-->
 			</div>
-		</div>
-		
-		<div id="controls">
-			<!--<div class="voteButton" id="leftVoteButton"><img src="css/vote.png" /></div>-->
-			<!--<div class="voteButton" id="rightVoteButton"><img src="css/vote.png" /></div>-->
 		</div>
 
 	</div>
